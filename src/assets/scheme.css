@@ -1,0 +1,16 @@
+
+:root {
+    --background-colour: var(--zinc-900);
+    --input-colour: var(--zinc-500);
+    --text-colour: var(--indigo-100);
+    --link-text-colour: var(--indigo-500);
+    --header-bg-colour: var(--indigo-950);
+    --hover-colour: var(--indigo-950);
+    --border-colour: var(--indigo-700);
+    --success-colour: var(--emerald-500);
+    --failure-colour: var(--rose-500);
+}
+body {
+    background-color: var(--background-colour);
+    color: var(--text-colour);
+}
