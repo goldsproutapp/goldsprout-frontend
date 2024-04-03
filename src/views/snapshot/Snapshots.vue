@@ -1,5 +1,6 @@
 
 <script setup lang="ts">
+import Button from "@/components/buttons/Button.vue";
 import Table from "@/components/Table.vue";
 import {getSnapshots} from "@/lib/requests";
 import {dataState} from "@/lib/state";
@@ -33,7 +34,7 @@ const styles = {
 <template>
     <div>
         <h1>Snapshots</h1>
-        <button @click="router.push('snapshots/create')">Create snapshot</button>
+        <Button @click="router.push('snapshots/create')">Create snapshot</Button>
         <Table :headings="headings" :rows="snapshots" :styles="styles"></Table>
     </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SaveCancel from "@/components/buttons/SaveCancel.vue";
 import Dropdown from "@/components/select/Dropdown.vue";
 import ProviderDropdown from "@/components/select/ProviderDropdown.vue";
 import {stocks, providers} from "@/lib/data";
@@ -44,7 +45,7 @@ const save = async () => {
         <span class="stock-title">{{ stock.name }}</span>
         <div class="option-container">
             Provider:
-            <ProviderDropdown v-model="stock.provider_name" />
+            <ProviderDropdown l_id="stockinfo-provider" v-model="stock.provider_name" />
         </div>
         <div class="option-container">
             Sector:
@@ -55,8 +56,7 @@ const save = async () => {
             <Dropdown l_id="stockinfo-region" v-model="stock.region" :options="regions" />
         </div>
         <div class="option-container">
-            <button @click="router.back()" class="btn">Cancel</button>
-            <button @click="save" class="btn">Save</button>
+            <SaveCancel @save="save" @cancel="router.back()" />
         </div>
     </div>
 </template>

@@ -40,6 +40,11 @@ export async function providers() {
     return dataState.providers;
 }
 
+export async function users() {
+    if (dataState.users.length == 0) await getUsers();
+    return dataState.users;
+}
+
 export function deepPath(obj: any, path: string[]): any {
     let head = obj;
     for (const subPath of path) head = head[subPath];
@@ -48,4 +53,8 @@ export function deepPath(obj: any, path: string[]): any {
 export function mean(array: number[]) {
     if (array.length == 0) return 0;
     return array.reduce((acc, num) => acc + num, 0) / array.length;
+}
+
+export function getUserDisplayName(user: User): string {
+    return `${user.first_name} ${user.last_name}`;
 }

@@ -25,4 +25,12 @@ const emit = defineEmits(['update:modelValue']);
 </template>
 
 <style scoped>
+select {
+    background-color: var(--header-bg-colour);
+    color: var(--text-colour);
+    border: none;
+    padding: .4rem;
+    margin: .2rem;
+    border-radius: .3rem;
+}
 </style>

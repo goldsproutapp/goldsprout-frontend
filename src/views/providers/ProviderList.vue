@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from "@/components/buttons/Button.vue";
 import Table from "@/components/Table.vue";
 import {getProviderList} from "@/lib/requests";
 import {dataState} from "@/lib/state";
@@ -21,7 +22,7 @@ const clickHandler = (row: any) => {
 <template>
     <div>
         <h1>Snapshots</h1>
-        <button @click="router.push('providers/create')">Create provider</button>
+        <Button @click="router.push('providers/create')">Create provider</Button>
         <Table :headings="headings" :rows="providers" :styles="styles" :clickHandler="clickHandler"></Table>
     </div>
 </template>

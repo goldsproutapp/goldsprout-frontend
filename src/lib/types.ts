@@ -1,4 +1,6 @@
 
+export type TrackingStrategy = 'DATA_IMPORT' | 'INPUT_VALUE' | 'API_DATA';
+
 export interface Stock {
     id: Number,
     name: string,
@@ -7,6 +9,9 @@ export interface Stock {
     sector: string,
     region: string,
     stock_code: string,
+    tracking_strategy: TrackingStrategy,
+    users: number[], // list of visible users holding this stock
+    currently_held: boolean,
 };
 
 export interface Provider {
@@ -38,3 +43,4 @@ export interface User {
     client_options: string,
     access_permissions: string[] // TODO: type properly
 }
+

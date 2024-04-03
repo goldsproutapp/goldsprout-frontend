@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from '@/components/buttons/Button.vue';
 import Dropdown from '@/components/select/Dropdown.vue';
 import {cachedRequest, getSnapshots} from '@/lib/requests';
 import {onMounted, ref} from 'vue';
@@ -68,7 +69,7 @@ const update = async () => {
                 :l_id="'performance-against'" />
             Over
             <Dropdown style="display: inline;" :options="timeOptions" v-model="time" strict :l_id="'performance-time'" />
-            <button style="margin-left: 1rem;" @click="update">Calculate</button>
+            <Button style="margin-left: 1rem;" @click="update">Calculate</Button>
         </span>
         <div class="comparison-container">
             <div class="table-container">

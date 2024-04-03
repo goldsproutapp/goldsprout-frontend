@@ -12,7 +12,10 @@ onMounted(async () => {
 })
 
 const model = defineModel();
+defineProps<{
+    l_id: string,
+}>();
 </script>
 <template>
-    <Dropdown l_id="stockinfo-provider" strict v-model="model" :options="providerNames" />
+    <Dropdown :l_id="l_id" strict v-model="model" :options="providerNames" />
 </template>

@@ -1,7 +1,11 @@
 import {reactive} from "vue";
 import {type User, type Provider, type Stock, type Snapshot} from "./types";
 
-export const authState = reactive({
+export const authState = reactive<{
+    loggedIn: boolean,
+    token: string,
+    userInfo: User,
+}>({
     loggedIn: false,
     token: '',
     userInfo: {},
