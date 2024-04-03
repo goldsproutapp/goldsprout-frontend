@@ -44,3 +44,18 @@ export interface User {
     access_permissions: string[] // TODO: type properly
 }
 
+export interface Overview {
+    total_value: string,
+    num_providers: number,
+    num_stocks: number,
+    last_snapshot: Date,
+    users?: {
+        [key: string]: {
+            total_value: string,
+            num_providers: number,
+            num_stocks: number,
+            last_snapshot: Date,
+            name: string,
+        }
+    },
+}

@@ -9,12 +9,13 @@ import ProviderList from "@/views/providers/ProviderList.vue";
 import ProviderInfo from "@/views/providers/ProviderInfo.vue";
 import PerformanceVue from "@/views/performance/Performance.vue";
 import HomeView from "@/views/HomeView.vue";
+import Overview from "@/views/Overview.vue";
 
 export const headerRoutes = [
         {
-            path: '/overview',
-            name: 'Overview',
-            component: StockList,
+            path: '/',
+            name: 'Home',
+            component: Overview,
         },
         {
             path: '/stocks',
@@ -63,11 +64,6 @@ const router = createRouter({
     routes: [
         ...headerRoutes,
         ...routes,
-        {
-            path: '/',
-            name: 'Home',
-            component: HomeView,
-        },
         {
             path: '/stocks/:id',
             props: true,

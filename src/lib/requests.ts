@@ -1,8 +1,8 @@
 import {logOut} from "./auth";
 import {API_BASE_URL} from "./constants";
-import {getStockByID, getUserByID} from "./data";
+import {getStockByID, getUserByID, getUserDisplayName} from "./data";
 import {authState, dataState} from "./state";
-import {type Snapshot, type Provider, type Stock, type User} from "./types";
+import {type Snapshot, type Provider, type Stock, type User, type Overview} from "./types";
 
 export async function authenticatedRequest(path: string, options?: RequestInit): Promise<Response> {
     let notNullOpts = options == null ? {} : options;
@@ -75,4 +75,19 @@ export async function getUsers(): Promise<User[]> {
     return json;
 }
 
+export async function getOverview(): Promise<Overview> {
+    const res = await cachedRequest('/overview');
+    if (res.status != 200) return {};
+    const json: Overview = await res.json();
+    json.last_snapshot = new Date(json.last_snapshot);
+    if (json.users) {
+        Object.keys(json.users).forEach(async (uid) => {
+            // @ts-ignore I don't know why tsc can't recognise that json.users is not undefined.
+            json.users[uid].last_snapshot = new Date(json.users[uid].last_snapshot);
+            // @ts-ignore As above
+            json.users[uid].name = getUserDisplayName(await getUserByID(parseInt(uid)));
+        })
+    }
+    return json;
+}
 

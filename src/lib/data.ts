@@ -58,3 +58,18 @@ export function mean(array: number[]) {
 export function getUserDisplayName(user: User): string {
     return `${user.first_name} ${user.last_name}`;
 }
+
+export function pluralise(num: number, str: string): string {
+    return `${num} ${str}${num === 1 ? '' : 's'}`
+}
+export function formatDecimal(num: string): string {
+    const parts = num.split('.');
+    let output = '';
+    for (let i = 0; i < parts[0].length; i++) {
+        output = parts[0][parts[0].length - i - 1] + output;
+        if (i >= 2 && (i + 1) % 3 === 0)
+            output = ',' + output;
+    }
+    parts[0] = output;
+    return parts.join('.');
+}
