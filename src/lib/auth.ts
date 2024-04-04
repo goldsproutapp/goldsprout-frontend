@@ -14,6 +14,8 @@ export function logOut(require_login: boolean = false) {
     window.localStorage.removeItem("userinfo");
     window.localStorage.removeItem("token");
     authState.loggedIn = false;
+    authState.token = "";
+    authState.userInfo = {};
     if (require_login) {
         router.push("/login");
     }

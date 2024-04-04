@@ -10,34 +10,35 @@ import ProviderInfo from "@/views/providers/ProviderInfo.vue";
 import PerformanceVue from "@/views/performance/Performance.vue";
 import HomeView from "@/views/HomeView.vue";
 import Overview from "@/views/Overview.vue";
+import Profile from "@/views/auth/Profile.vue";
 
 export const headerRoutes = [
-        {
-            path: '/',
-            name: 'Home',
-            component: Overview,
-        },
-        {
-            path: '/stocks',
-            name: 'Stocks',
-            component: StockList,
-        },
-        {
-            path: '/snapshots',
-            name: 'Snapshots',
-            component: Snapshots,
-        },
-        {
-            path: '/providers',
-            name: 'Providers',
-            component: ProviderList,
-            requireAdmin: true,
-        },
-        {
-            path: '/performance',
-            name: 'Performance',
-            component: PerformanceVue,
-        },
+    {
+        path: '/',
+        name: 'Home',
+        component: Overview,
+    },
+    {
+        path: '/stocks',
+        name: 'Stocks',
+        component: StockList,
+    },
+    {
+        path: '/snapshots',
+        name: 'Snapshots',
+        component: Snapshots,
+    },
+    {
+        path: '/providers',
+        name: 'Providers',
+        component: ProviderList,
+        requireAdmin: true,
+    },
+    {
+        path: '/performance',
+        name: 'Performance',
+        component: PerformanceVue,
+    },
 ];
 
 const routes = [
@@ -57,29 +58,38 @@ const routes = [
         props: (route: any) => ({providerID: parseInt(route.params.providerID)}),
         component: ProviderInfo,
     },
+    {
+        path: '/stocks/:id',
+        props: true,
+        name: 'Stock Info',
+        component: StockInfo,
+    },
 ];
+
+const authRoutes = [
+    {
+        path: '/login',
+        name: 'Log in',
+        component: Login,
+    },
+    {
+        path: '/logout',
+        name: 'Log out',
+        component: Logout,
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile,
+    },
+]
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         ...headerRoutes,
         ...routes,
-        {
-            path: '/stocks/:id',
-            props: true,
-            name: 'Stock Info',
-            component: StockInfo,
-        },
-        {
-            path: '/login',
-            name: 'Log in',
-            component: Login,
-        },
-        {
-            path: '/logout',
-            name: 'Log out',
-            component: Logout,
-        },
+        ...authRoutes,
     ]
 });
 

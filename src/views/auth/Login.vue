@@ -3,6 +3,7 @@
 import {ref} from 'vue';
 import { API_BASE_URL } from '@/lib/constants';
 import { logIn } from '@/lib/auth';
+import Button from '@/components/buttons/Button.vue';
 const failure = ref(false);
 const uname = ref();
 const pw = ref();
@@ -27,7 +28,7 @@ const login = async () => {
     <form class="form" @submit.prevent="login">
         <input type="text" name="username" placeholder="Username" v-model="uname">
         <input type="password" name="password" placeholder="Password" v-model="pw">
-        <button type="submit">Log in</button>
+        <Button type="submit" colour-profile="success">Log in</Button>
         <span class="failure" v-if="failure">Incorrect username or password</span>
     </form>
 </template>
@@ -46,14 +47,9 @@ input {
     border-color: transparent;
     background-color: var(--input-colour);
     border-radius: .5rem;
+    color: var(--text-colour);
     padding: .5rem;
     outline: none;
-}
-button {
-    padding: .5rem;
-    border-radius: .5rem;
-    background-color: var(--success-colour);
-    border: none;
 }
 .failure {
     margin-top: 1rem;

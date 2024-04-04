@@ -2,10 +2,11 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue';
 import {RouterLink} from 'vue-router';
-import {authState, updateAuthState} from '@/lib/state';
-import {headerRoutes} from '@/router';
+import {authState} from '@/lib/state';
+import router, {headerRoutes} from '@/router';
+import {getUserDisplayName} from '@/lib/data';
+import HoverDropdown from './select/HoverDropdown.vue';
 const showMobileNavbar = ref(false);
-onMounted(updateAuthState)
 const visibleRoutes = computed(() => headerRoutes.filter(route => !route.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
 </script>
 
@@ -14,8 +15,17 @@ const visibleRoutes = computed(() => headerRoutes.filter(route => !route.require
         <nav class="desktop-navbar">
             <RouterLink v-for="route in visibleRoutes" class="link" :to="route.path">{{ route.name }}</RouterLink>
             <div class="float-right">
+                <!--
                 <RouterLink class="link" :to="authState.loggedIn ? '/logout' : '/login'">Log {{ authState.loggedIn ? 'Out' :
                     'In' }}</RouterLink>
+                -->
+                <div class="link dropdown-container">
+                    <span>{{getUserDisplayName(authState.userInfo)}}</span>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item" @click="router.push('/profile')">Profile</div>
+                        <div class="dropdown-item" @click="router.push('/logout')">Log out</div>
+                    </div>
+                </div>
             </div>
         </nav>
         <nav class="mobile-only">
@@ -108,6 +118,29 @@ const visibleRoutes = computed(() => headerRoutes.filter(route => !route.require
 
 .slide-leave-to {
     transform: translateY(-100%);
+}
+.dropdown-container {
+    position: relative;
+    cursor: pointer;
+}
+.dropdown-container:hover .dropdown-content {
+    display: block;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    transform: translate(-1rem, 1rem);
+    width: 100%;
+}
+.dropdown-item {
+    padding: .3rem;
+    text-align: center;
+    border: .1rem solid var(--border-colour);
+    background-color: var(--header-bg-colour);
+}
+.dropdown-item:hover {
+    filter: saturate(50%);
+    cursor: pointer;
 }
 </style>
 

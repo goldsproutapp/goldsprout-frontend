@@ -71,7 +71,15 @@ export async function getUsers(): Promise<User[]> {
     const res = await cachedRequest('/users');
     if (res.status != 200) return [];
     const json = await res.json();
+    json.created_at = new Date(json.created_at);
     dataState.users = json;
+    return json;
+}
+
+export async function getUserVisibility(): Promise<User[]> {
+    const res = await cachedRequest('/uservisibility');
+    if (res.status != 200) return [];
+    const json = await res.json();
     return json;
 }
 

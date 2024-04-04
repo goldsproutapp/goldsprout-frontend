@@ -10,6 +10,7 @@ export interface Stock {
     region: string,
     stock_code: string,
     tracking_strategy: TrackingStrategy,
+    needs_attention: boolean,
     users: number[], // list of visible users holding this stock
     currently_held: boolean,
 };
@@ -42,6 +43,7 @@ export interface User {
     is_admin: boolean,
     client_options: string,
     access_permissions: string[] // TODO: type properly
+    created_at: Date,
 }
 
 export interface Overview {

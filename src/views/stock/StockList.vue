@@ -11,7 +11,6 @@ const headings = {
     provider_name: 'Provider',
     sector: 'Sector',
     region: 'Region',
-    stock_code: 'Code',
 };
 const stocks = computed(() => dataState.stocks);
 onMounted(getStockList);
@@ -19,13 +18,15 @@ onMounted(getStockList);
 const styles = {};
 
 const clickHandler = (row: any) => router.push(`/stocks/${row.id}`);
+const icons = ({needs_attention}: {needs_attention: boolean}) => needs_attention ? 'attention' : 'none';
 
 </script>
 
 <template>
     <div>
         <h1>Stocks</h1>
-        <Table :headings="headings" :rows="stocks" :styles="styles" :click-handler="clickHandler"></Table>
+        <Table :headings="headings" :rows="stocks" :styles="styles" :click-handler="clickHandler" :icons="icons">
+        </Table>
     </div>
 </template>
 

@@ -13,7 +13,7 @@ const props = withDefaults(
 const backgroundColours: {[key in ColourProfile]: string} = {
     success: 'var(--success-colour)',
     failure: 'var(--failure-colour)',
-    neutral: 'var(--header-bg-colour)',
+    neutral: 'var(--input-colour)',
 }
 const style = computed<StyleValue>(() => ({
     backgroundColor: backgroundColours[props.colourProfile],

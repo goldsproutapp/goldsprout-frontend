@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SaveCancel from "@/components/buttons/SaveCancel.vue";
+import BooleanSelect from "@/components/select/BooleanSelect.vue";
 import Dropdown from "@/components/select/Dropdown.vue";
 import ProviderDropdown from "@/components/select/ProviderDropdown.vue";
 import {stocks, providers} from "@/lib/data";
@@ -54,6 +55,10 @@ const save = async () => {
         <div class="option-container">
             Region:
             <Dropdown l_id="stockinfo-region" v-model="stock.region" :options="regions" />
+        </div>
+        <div class="option-container">
+            Needs attention:
+            <BooleanSelect v-model="stock.needs_attention" />
         </div>
         <div class="option-container">
             <SaveCancel @save="save" @cancel="router.back()" />

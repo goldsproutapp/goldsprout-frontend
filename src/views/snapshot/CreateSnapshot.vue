@@ -12,6 +12,7 @@ import {Stock} from '@/lib/types';
 import router from '@/router';
 import {computed, onMounted, ref} from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import DateInput from '@/components/select/DateInput.vue';
 
 
 const headings = {
@@ -89,7 +90,7 @@ function process() {
     error.value = '';
 }
 const createSnapshots = async (deleteSoldStocks: boolean = true) => {
-    const dateString = dateInput.value.value;
+    const dateString = dateInput.value;
     const date = dateString == "" ? new Date() : new Date(dateString);
     const payload = {
         date: Math.floor(date.getTime() / 1000),
@@ -127,7 +128,7 @@ const submit = () => {
         <h1>Create snapshot</h1>
         <div class="error-message" v-if="error">{{ error }}</div>
         <div class="misc-inputs">
-            <input type="date" ref="dateInput" id="date-input">
+            <DateInput id="date-input" v-model="dateInput"/>
             <ProviderDropdown l_id="createsnapshot-provider" v-model="providerName" />
         </div>
         <div contenteditable ref="inputDiv" class="csv-input"></div>

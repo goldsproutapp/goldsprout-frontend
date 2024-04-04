@@ -1,12 +1,17 @@
 
 
 <script setup lang="ts">
+import InfoIcon from './icons/InfoIcon.vue';
+import {presets} from './icons/InfoIcon.vue';
+
 const props = defineProps<{
     headings: {[key: string]: string},
     rows: {[key: string]: any}[],
     styles: {[key: string]: string},
     clickHandler?: (row: {[key: string]: any}) => void,
+    icons?: (row: any) => keyof typeof presets,
 }>();
+
 </script>
 
 <template>
@@ -20,6 +25,9 @@ const props = defineProps<{
             <td v-for="key in Object.keys(headings)" :key="key"
                 :style="Object.keys(styles).includes(key) ? styles[key] : ''">
                 {{ row[key] }}
+            </td>
+            <td v-if="props.icons && props.icons(row)">
+                <InfoIcon :preset="props.icons(row)" />
             </td>
         </tr>
     </table>
@@ -56,6 +64,7 @@ th {
         border-left: 1px solid var(--border-colour);
         border-right: 1px solid var(--border-colour);
     }
+
     th {
         border-top: 1px solid var(--border-colour);
     }

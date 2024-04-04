@@ -2,10 +2,17 @@
 import {RouterView} from 'vue-router'
 import NavBar from "./components/NavBar.vue"
 import Footer from './components/Footer.vue';
+import {authState, updateAuthState} from './lib/state';
+import {onMounted} from 'vue';
+import router from './router';
+onMounted(() => {
+    updateAuthState();
+    if (!authState.loggedIn && router.currentRoute.value.name !== 'login') router.push('login');
+})
 </script>
 <template>
     <div class="root">
-        <NavBar />
+        <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
                 <Transition name="slide">
@@ -48,6 +55,7 @@ import Footer from './components/Footer.vue';
     text-align: center;
     background-color: var(--header-bg-colour);
 }
+
 .root {
     min-height: 100vh;
     display: flex;
