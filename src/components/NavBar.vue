@@ -5,9 +5,8 @@ import {RouterLink} from 'vue-router';
 import {authState} from '@/lib/state';
 import router, {headerRoutes} from '@/router';
 import {getUserDisplayName} from '@/lib/data';
-import HoverDropdown from './select/HoverDropdown.vue';
 const showMobileNavbar = ref(false);
-const visibleRoutes = computed(() => headerRoutes.filter(route => !route.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
+const visibleRoutes = computed(() => headerRoutes.filter(route => route.meta.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
 </script>
 
 <template>

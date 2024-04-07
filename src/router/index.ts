@@ -8,36 +8,51 @@ import Logout from "@/views/auth/Logout.vue";
 import ProviderList from "@/views/providers/ProviderList.vue";
 import ProviderInfo from "@/views/providers/ProviderInfo.vue";
 import PerformanceVue from "@/views/performance/Performance.vue";
-import HomeView from "@/views/HomeView.vue";
 import Overview from "@/views/Overview.vue";
 import Profile from "@/views/auth/Profile.vue";
+import Invitation from "@/views/auth/Invitation.vue";
 
 export const headerRoutes = [
     {
         path: '/',
         name: 'Home',
         component: Overview,
+        meta: {
+            reuireAuth: true,
+        },
     },
     {
         path: '/stocks',
         name: 'Stocks',
         component: StockList,
+        meta: {
+            reuireAuth: true,
+        },
     },
     {
         path: '/snapshots',
         name: 'Snapshots',
         component: Snapshots,
+        meta: {
+            reuireAuth: true,
+        },
     },
     {
         path: '/providers',
         name: 'Providers',
         component: ProviderList,
-        requireAdmin: true,
+        meta: {
+            reuireAuth: true,
+            requireAdmin: true,
+        },
     },
     {
         path: '/performance',
         name: 'Performance',
         component: PerformanceVue,
+        meta: {
+            requireAuth: true,
+        }
     },
 ];
 
@@ -46,23 +61,35 @@ const routes = [
         path: '/snapshots/create',
         name: 'Create snapshot',
         component: CreateSnapshot,
+        meta: {
+            requireAuth: true,
+        }
     },
     {
         path: '/providers/create',
         name: 'Create Provider',
         component: ProviderInfo,
+        meta: {
+            requireAuth: true,
+        }
     },
     {
         path: '/providers/:providerID',
         name: 'Update Provider',
         props: (route: any) => ({providerID: parseInt(route.params.providerID)}),
         component: ProviderInfo,
+        meta: {
+            requireAuth: true,
+        }
     },
     {
         path: '/stocks/:id',
         props: true,
         name: 'Stock Info',
         component: StockInfo,
+        meta: {
+            requireAuth: true,
+        }
     },
 ];
 
@@ -78,9 +105,17 @@ const authRoutes = [
         component: Logout,
     },
     {
+        path: '/invitation',
+        name: 'Invitation',
+        component: Invitation
+    },
+    {
         path: '/profile',
         name: 'Profile',
         component: Profile,
+        meta: {
+            requireAuth: true,
+        }
     },
 ]
 

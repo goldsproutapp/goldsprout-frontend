@@ -7,7 +7,8 @@ import {onMounted} from 'vue';
 import router from './router';
 onMounted(() => {
     updateAuthState();
-    if (!authState.loggedIn && router.currentRoute.value.name !== 'login') router.push('login');
+    if (router.currentRoute.value.meta?.requireAuth)
+        router.push('login');
 })
 </script>
 <template>
