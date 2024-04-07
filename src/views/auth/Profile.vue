@@ -8,6 +8,7 @@ import {authenticatedRequest, getUserVisibility} from '@/lib/requests';
 import {authState} from '@/lib/state';
 import {type User} from '@/lib/types';
 import {onMounted, ref} from 'vue';
+import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
 
 const {userInfo} = authState;
 const editingInfo = ref(Object.assign({}, userInfo));
@@ -17,6 +18,8 @@ const editing = ref(false);
 
 const message = ref('');
 const messageColour = ref('var(--success-colour)');
+
+const changingPassword = ref(true);
 
 const cancel = () => {
     editing.value = false;
@@ -40,6 +43,14 @@ const update = async () => {
     saveAuthState();
     messageColour.value = 'var(--success-colour)';
     message.value = 'Successfully updated profile';
+}
+
+const changePasswordClose = (msg: string, colour: string) => {
+    if (msg) {
+        message.value = msg;
+        messageColour.value = colour;
+    }
+    changingPassword.value = false;
 }
 </script>
 
@@ -65,6 +76,8 @@ const update = async () => {
                 <Button colour-profile="success" @click="update">Save</Button>
             </template>
             <span class="message" :style="{color: messageColour}">{{ message }}</span>
+            <Button colour-profile="failure" style="margin-top: 1rem;" @click="changingPassword = true">Change
+                password</Button>
         </div>
         <div class="access-info" v-if="visibility?.length">
             The following people have access to your data:
@@ -75,6 +88,7 @@ const update = async () => {
                 </li>
             </ul>
         </div>
+        <PasswordChangeModal :changing-password="changingPassword" @close="changePasswordClose" />
     </div>
 </template>
 

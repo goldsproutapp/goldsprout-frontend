@@ -24,3 +24,11 @@ export function logOut(require_login: boolean = false) {
         router.push("/login");
     }
 }
+
+export function validatePassword(password: string): [boolean, string] {
+    if (password.length < 8) return [false, 'Password must be at least 8 characters long'];
+    if (!password.match(/[0-9]/)) return [false, 'Password must contain at least 1 number'];
+
+    if (!password.match(/[\W_]/)) return [false, 'Password must contain at least 1 special character'];
+    return [true, ''];
+}

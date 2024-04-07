@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from '@/components/buttons/Button.vue';
-import Modal from '@/components/Modal.vue';
+import Modal from '@/components/modals/Modal.vue';
 import Table from '@/components/Table.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
@@ -8,7 +8,7 @@ import {getUserDisplayName} from '@/lib/data';
 import {parseCSV} from '@/lib/formats/csv';
 import {authenticatedRequest, getStockList} from '@/lib/requests';
 import {authState, dataState} from '@/lib/state';
-import {Stock} from '@/lib/types';
+import {type Stock} from '@/lib/types';
 import router from '@/router';
 import {computed, onMounted, ref} from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';

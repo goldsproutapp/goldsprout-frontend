@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import TextInput from '@/components/select/TextInput.vue';
 import {getProviderByID} from '@/lib/data';
 import {authenticatedRequest} from '@/lib/requests';
 import {type Provider} from '@/lib/types';
@@ -40,10 +41,10 @@ const save = async () => {
 <template>
     <div class="container">
         <div class="input-item">
-            <input type="text" placeholder="Name" v-model="provider.name">
+            <TextInput type="text" placeholder="Name" v-model="provider.name" />
         </div>
-        <div class="input-item">
-            <input type="text" placeholder="CSV Format" v-model="provider.csv_format">
+        <div class="input-item" style="width: 50%;">
+            <TextInput type="text" placeholder="CSV Format" v-model="provider.csv_format" style="width: 100%;"/>
         </div>
         <div class="input-item">
             <SaveCancel @save="save" @cancel="router.back()"/>

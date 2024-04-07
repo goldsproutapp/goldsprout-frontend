@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from '@/components/buttons/Button.vue';
 import TextInput from '@/components/select/TextInput.vue';
-import {logIn} from '@/lib/auth';
+import {logIn, validatePassword} from '@/lib/auth';
 import {API_BASE_URL} from '@/lib/constants';
 import router from '@/router';
 import {computed, ref} from 'vue';
@@ -16,21 +16,6 @@ const email = computed(() => {
 const pw = ref();
 const confirmPw = ref();
 const error = ref('');
-const validatePassword = (password: string): boolean => {
-    if (password.length < 8) {
-        error.value = 'Password must be at least 8 characters long';
-        return false;
-    }
-    if (!password.match(/[0-9]/)) {
-        error.value = 'Password must contain at least 1 number';
-        return false;
-    }
-    if (!password.match(/[\W_]/)) {
-        error.value = 'Password must contain at least 1 special character';
-        return false;
-    }
-    return true;
-}
 const submit = async () => {
     if (!pw.value) {
         error.value = 'You must enter a password';
@@ -39,7 +24,11 @@ const submit = async () => {
         error.value = "Passwords do not match";
         return;
     }
-    if (!validatePassword(pw.value)) return;
+    const [isValid, validationError] = validatePassword(pw.value)
+    if (!isValid) {
+        error.value = validationError;
+        return;
+    }
     const payload = {
         token: router.currentRoute.value.query.t || '',
         password: pw.value,
