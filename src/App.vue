@@ -5,7 +5,12 @@ import Footer from './components/Footer.vue';
 import {authState, updateAuthState} from './lib/state';
 import {onMounted} from 'vue';
 import router from './router';
+import {usePrimeVue} from 'primevue/config';
+
+const primeVue = usePrimeVue();
+
 onMounted(() => {
+    primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {});
     updateAuthState();
     if (router.currentRoute.value.meta?.requireAuth)
         router.push('login');
@@ -16,9 +21,7 @@ onMounted(() => {
         <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
-                <Transition name="slide">
                     <component :is="Component" :key="route.path" />
-                </Transition>
             </RouterView>
         </div>
         <Footer class="footer" />

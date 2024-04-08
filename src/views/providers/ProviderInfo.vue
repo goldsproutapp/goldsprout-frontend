@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
-import TextInput from '@/components/select/TextInput.vue';
 import {getProviderByID} from '@/lib/data';
 import {authenticatedRequest} from '@/lib/requests';
 import {type Provider} from '@/lib/types';
 import router from '@/router';
+import InputText from 'primevue/inputtext';
 import {ref, watch} from 'vue';
 
 const props = defineProps<{
@@ -41,10 +41,10 @@ const save = async () => {
 <template>
     <div class="container">
         <div class="input-item">
-            <TextInput type="text" placeholder="Name" v-model="provider.name" />
+            <InputText placeholder="Name" v-model="provider.name" type="text" />
         </div>
         <div class="input-item" style="width: 50%;">
-            <TextInput type="text" placeholder="CSV Format" v-model="provider.csv_format" style="width: 100%;"/>
+            <InputText placeholder="CSV Format" v-model="provider.csv_format" type="text" style="width: 100%;"/>
         </div>
         <div class="input-item">
             <SaveCancel @save="save" @cancel="router.back()"/>
@@ -56,11 +56,12 @@ const save = async () => {
 .container {
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding-top: 2rem;
 }
 
 .input-item {
     padding-bottom: 1rem;
+    display: flex;
+    column-gap: 1rem;
 }
 </style>

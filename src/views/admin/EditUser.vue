@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
-import BooleanSelect from '@/components/select/BooleanSelect.vue';
 import {getUserByID} from '@/lib/data';
 import {dataState} from '@/lib/state';
 import {type AccessPermission, type User} from '@/lib/types';
+import router from '@/router';
+import Checkbox from 'primevue/checkbox';
 import {ref, watch} from 'vue';
 
 const props = defineProps<{
@@ -40,7 +41,6 @@ const process = async () => {
 <template>
     <div v-if="user">
         <h2>User info</h2>
-        {{ perms }}
         <div class="info-container">
             <span class="info-element">User ID:</span>
             <span class="info-element">{{ user.id }}</span>
@@ -70,15 +70,17 @@ const process = async () => {
                     <th>{{ otherUser.first_name }} {{ otherUser.last_name }}</th>
                     <th>{{ otherUser.email }}</th>
                     <th>
-                        <BooleanSelect v-model="perms[otherUser.id].read" />
+                        <Checkbox v-model="perms[otherUser.id].read" />
                     </th>
                     <th>
-                        <BooleanSelect v-model="perms[otherUser.id].write" />
+                        <Checkbox v-model="perms[otherUser.id].write" />
                     </th>
                 </tr>
             </tbody>
         </table>
-        <SaveCancel />
+        <div class="save-cancel">
+            <SaveCancel @cancel="router.back()"/>
+        </div>
     </div>
     <div v-else>
         Loading...
@@ -98,5 +100,10 @@ const process = async () => {
     display: inline-flex;
     align-items: center;
     margin-top: .2rem;
+}
+.save-cancel {
+    margin-top: 1rem;
+    display: flex;
+    column-gap: 1rem;
 }
 </style>

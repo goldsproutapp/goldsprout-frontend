@@ -2,7 +2,7 @@
 import {computed, onMounted, ref} from 'vue';
 import {providers} from "@/lib/data";
 import {type Provider} from "@/lib/types";
-import Dropdown from "@/components/select/Dropdown.vue";
+import Dropdown from 'primevue/dropdown';
 
 const providerList = ref<Provider[]>([]);
 const providerNames = computed(() => providerList.value.map(({name}) => name));
@@ -17,5 +17,5 @@ defineProps<{
 }>();
 </script>
 <template>
-    <Dropdown :l_id="l_id" strict v-model="model" :options="providerNames" />
+    <Dropdown v-model="model" :options="providerNames" placeholder="Provider" class="w-full md:w-14rem"/>
 </template>

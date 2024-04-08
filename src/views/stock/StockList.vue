@@ -3,8 +3,10 @@
 import {dataState} from "@/lib/state";
 import router from "@/router";
 import {getStockList} from "@/lib/requests";
-import {computed, onMounted} from "vue";
-import Table from "@/components/Table.vue";
+import {computed, onMounted, ref} from "vue";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import InfoIcon from "@/components/icons/InfoIcon.vue";
 
 const headings = {
     name: 'Name',
@@ -14,19 +16,23 @@ const headings = {
 };
 const stocks = computed(() => dataState.stocks);
 onMounted(getStockList);
-
-const styles = {};
-
-const clickHandler = (row: any) => router.push(`/stocks/${row.id}`);
-const icons = ({needs_attention}: {needs_attention: boolean}) => needs_attention ? 'attention' : 'none';
+const selection = ref();
 
 </script>
 
 <template>
     <div>
         <h1>Stocks</h1>
-        <Table :headings="headings" :rows="stocks" :styles="styles" :click-handler="clickHandler" :icons="icons">
-        </Table>
+        <DataTable :value="stocks" data-key="id" selection-mode="single" v-model:selection="selection"
+            @row-select="row => router.push(`/stocks/${row.data.id}`)">
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :header="display" :field="key">
+            </Column>
+            <Column>
+                <template #body="row">
+                    <InfoIcon v-if="row.data.needs_attention" preset="attention" />
+                </template>
+            </Column>
+        </DataTable>
     </div>
 </template>
 

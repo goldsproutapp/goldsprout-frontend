@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Button from '@/components/buttons/Button.vue';
-import Modal from '@/components/modals/Modal.vue';
-import Table from '@/components/Table.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
 import {getUserDisplayName} from '@/lib/data';
@@ -13,6 +10,10 @@ import router from '@/router';
 import {computed, onMounted, ref} from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import DateInput from '@/components/select/DateInput.vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
 
 
 const headings = {
@@ -34,7 +35,7 @@ const user = computed(() => dataState.users.find(user => getUserDisplayName(user
 
 const entries = ref<any>([]);
 const inputDiv: any = ref(null);
-const dateInput: any = ref(null);
+const dateInput = ref<Date>(new Date());
 const error = ref<string>("");
 
 const missingStocks = ref<Stock[]>([]);
@@ -90,8 +91,8 @@ function process() {
     error.value = '';
 }
 const createSnapshots = async (deleteSoldStocks: boolean = true) => {
-    const dateString = dateInput.value;
-    const date = dateString == "" ? new Date() : new Date(dateString);
+    //const dateString = dateInput.value;
+    const date = dateInput.value;
     const payload = {
         date: Math.floor(date.getTime() / 1000),
         user_id: user.value.id,
@@ -113,32 +114,36 @@ const submit = () => {
 
 <template>
     <div class="container">
-        <Modal v-if="showModal">
+        <Dialog v-model:visible="showModal">
             You have not provided data for the following stocks:
             <ul>
-                <li v-for="stock in missingStocks" :key="stock.id">{{ stock.name }} of {{ stock.provider_name }}</li>
+                <li v-for="stock in missingStocks" :key="stock.id.toString()">{{ stock.name }} of {{ stock.provider_name }}</li>
             </ul>
             It looks like these stocks are no longer held, and will be marked as such.<br>
-            <Button colour-profile="success" @click="createSnapshots">These are no longer held, continue</Button>
-            <Button colour-profile="failure" @click="showModal = false">Cancel</Button>
+            <Button class="modal-button" severity="success" @click="() => createSnapshots()" label="These are no longer held, continue" />
+            <Button class="modal-button" severity="danger" @click="showModal = false" label="Cancel" />
             <br>
-            <Button :show-border="true" @click="createSnapshots(false)">These are still held,
-                continue without updating them</Button>
-        </Modal>
+            <Button class="modal-button" severity="secondary" @click="createSnapshots(false)" label="These are still held,
+                            continue without updating them" />
+        </Dialog>
         <h1>Create snapshot</h1>
         <div class="error-message" v-if="error">{{ error }}</div>
         <div class="misc-inputs">
-            <DateInput id="date-input" v-model="dateInput"/>
+            <DateInput id="date-input" v-model="dateInput" />
             <ProviderDropdown l_id="createsnapshot-provider" v-model="providerName" />
         </div>
         <div contenteditable ref="inputDiv" class="csv-input"></div>
         <hr>
-        <Button @click="process">Add</Button>
-        <Button @click="entries = []">Clear</Button>
-        <Table :headings="headings" :rows="entries" :styles="{}" />
+        <Button class="button" @click="process" label="Add" severity="primary" />
+        <Button class="button" @click="entries = []" label="Clear" severity="secondary" />
+        <DataTable :value="entries">
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
+        </DataTable>
         <hr>
-        <UserDropdown l_id="createsnapshot-user" v-model="username" />
-        <SaveCancel @save="submit" @cancel="router.back()" />
+        <div class="control-items">
+            <UserDropdown v-model="username" />
+            <SaveCancel @save="submit" @cancel="router.back()" />
+        </div>
     </div>
 </template>
 
@@ -169,5 +174,23 @@ const submit = () => {
     width: 100%;
     text-align: center;
     margin-bottom: 1rem;
+}
+
+.button {
+    margin-right: .5rem;
+    margin-bottom: .5rem;
+}
+
+.savecancel-button {
+    margin-right: .5rem;
+}
+
+.control-items {
+    display: flex;
+    justify-content: start;
+    column-gap: 1rem;
+}
+.modal-button {
+    margin: .5rem;
 }
 </style>

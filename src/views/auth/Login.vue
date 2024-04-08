@@ -3,8 +3,9 @@
 import {ref} from 'vue';
 import { API_BASE_URL } from '@/lib/constants';
 import { logIn } from '@/lib/auth';
-import Button from '@/components/buttons/Button.vue';
-import TextInput from '@/components/select/TextInput.vue';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
+import Button from 'primevue/button';
 const failure = ref(false);
 const uname = ref();
 const pw = ref();
@@ -27,9 +28,9 @@ const login = async () => {
 
 <template>
     <form class="form" @submit.prevent="login">
-        <TextInput class="input" type="text" name="username" placeholder="Username" v-model="uname" />
-        <TextInput class="input" type="password" name="password" placeholder="Password" v-model="pw" />
-        <Button type="submit" colour-profile="success">Log in</Button>
+        <InputText class="input" type="text" name="username" placeholder="Username" v-model="uname" />
+        <Password :feedback="false" class="input" type="password" name="password" placeholder="Password" v-model="pw" />
+        <Button type="submit" severity="success" label="Log in" />
         <span class="failure" v-if="failure">Incorrect username or password</span>
     </form>
 </template>

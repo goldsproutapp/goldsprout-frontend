@@ -1,10 +1,11 @@
 
 <script setup lang="ts">
-import Button from "@/components/buttons/Button.vue";
-import Table from "@/components/Table.vue";
 import {getSnapshots} from "@/lib/requests";
 import {dataState} from "@/lib/state";
 import router from "@/router";
+import Button from "primevue/button";
+import Column from "primevue/column";
+import DataTable from "primevue/datatable";
 import {computed, onMounted} from "vue";
 onMounted(getSnapshots);
 const snapshots = computed(() => dataState.snapshots_latest.map(
@@ -26,15 +27,20 @@ const headings = {
     changeSinceLast: 'Change (£)',
     normalisedPerformance: 'Normalised performance (%)',
 };
-const styles = {
-    stock_name: 'text-align: left;'
-}
 </script>
 
 <template>
     <div>
         <h1>Snapshots</h1>
-        <Button @click="router.push('snapshots/create')">Create snapshot</Button>
-        <Table :headings="headings" :rows="snapshots" :styles="styles"></Table>
+        <Button class="create-button" label="Create snapshot" severity="primary" @click="router.push('snapshots/create')" />
+        <DataTable :value="snapshots">
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
+        </DataTable>
     </div>
 </template>
+
+<style scoped>
+.create-button {
+    margin-bottom: 1rem;
+}
+</style>

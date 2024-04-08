@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import Button from '@/components/buttons/Button.vue';
 import InfoIcon from '@/components/icons/InfoIcon.vue';
-import TextInput from '@/components/select/TextInput.vue';
 import {saveAuthState} from '@/lib/auth';
 import {getUserDisplayName} from '@/lib/data';
 import {authenticatedRequest, getUserVisibility} from '@/lib/requests';
@@ -9,6 +7,8 @@ import {authState} from '@/lib/state';
 import {type User} from '@/lib/types';
 import {onMounted, ref} from 'vue';
 import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
 
 const {userInfo} = authState;
 const editingInfo = ref(Object.assign({}, userInfo));
@@ -45,13 +45,6 @@ const update = async () => {
     message.value = 'Successfully updated profile';
 }
 
-const changePasswordClose = (msg: string, colour: string) => {
-    if (msg) {
-        message.value = msg;
-        messageColour.value = colour;
-    }
-    changingPassword.value = false;
-}
 </script>
 
 <template>
@@ -61,23 +54,22 @@ const changePasswordClose = (msg: string, colour: string) => {
             <span class="info-element">User ID:</span>
             <span class="info-element">{{ editingInfo.id }}</span>
             <span class="info-element">First name:</span>
-            <TextInput v-model="editingInfo.first_name" class="input" :readonly="!editing" />
+            <InputText v-model="editingInfo.first_name" :readonly="!editing" />
             <span class="info-element">Last name:</span>
-            <TextInput v-model="editingInfo.last_name" class="input" :readonly="!editing" />
+            <InputText v-model="editingInfo.last_name" :readonly="!editing" />
             <span class="info-element">Email address:</span>
             <span class="info-element">{{ editingInfo.email }}</span>
             <span class="info-element">Admin:</span>
             <span class="info-element">{{ editingInfo.is_admin }}</span>
             <span class="info-element">Account created:</span>
             <span class="info-element">{{ new Date(editingInfo.created_at).toLocaleDateString() }}</span>
-            <Button v-if="!editing" @click="editing = true" colour-profile="neutral">Edit</Button>
+            <Button v-if="!editing" @click="editing = true" severity="secondary" label="Edit"/>
             <template v-else>
-                <Button colour-profile="failure" @click="cancel">Cancel</Button>
-                <Button colour-profile="success" @click="update">Save</Button>
+                <Button severity="danger" @click="cancel" label="Cancel" />
+                <Button severity="success" @click="update" label="Save" />
             </template>
             <span class="message" :style="{color: messageColour}">{{ message }}</span>
-            <Button colour-profile="failure" style="margin-top: 1rem;" @click="changingPassword = true">Change
-                password</Button>
+            <Button severity="danger" style="margin-top: 1rem;" @click="changingPassword = true" label="Change password" />
         </div>
         <div class="access-info" v-if="visibility?.length">
             The following people have access to your data:
@@ -88,7 +80,7 @@ const changePasswordClose = (msg: string, colour: string) => {
                 </li>
             </ul>
         </div>
-        <PasswordChangeModal :changing-password="changingPassword" @close="changePasswordClose" />
+        <PasswordChangeModal v-model="changingPassword" />
     </div>
 </template>
 
@@ -98,6 +90,7 @@ const changePasswordClose = (msg: string, colour: string) => {
     grid-template-columns: auto auto;
     width: max-content;
     grid-column-gap: 1rem;
+    grid-row-gap: 1rem;
     margin-bottom: 1rem;
 }
 

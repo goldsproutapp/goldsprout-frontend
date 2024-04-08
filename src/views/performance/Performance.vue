@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from '@/components/buttons/Button.vue';
-import Dropdown from '@/components/select/Dropdown.vue';
 import {cachedRequest, getSnapshots} from '@/lib/requests';
+import Button from 'primevue/button';
+import Dropdown from 'primevue/dropdown';
 import {onMounted, ref} from 'vue';
 
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
@@ -59,17 +59,14 @@ const update = async () => {
         <h1 class="title">Performance</h1>
         <span>
             Compare
-            <Dropdown style="display: inline;" :options="comparisonOptions" v-model="comparing"
-                :l_id="'performance-comparison'" strict />
+                <Dropdown :options="comparisonOptions" v-model="comparing" />
             Of
-            <Dropdown style="display: inline;" :options="targetOptions" v-model="target" strict
-                :l_id="'performance-target'" />
+                <Dropdown :options="targetOptions" v-model="target" />
             For
-            <Dropdown style="display: inline;" :options="targetOptions" v-model="against" strict
-                :l_id="'performance-against'" />
+                <Dropdown :options="targetOptions" v-model="against" />
             Over
-            <Dropdown style="display: inline;" :options="timeOptions" v-model="time" strict :l_id="'performance-time'" />
-            <Button style="margin-left: 1rem;" @click="update">Calculate</Button>
+            <Dropdown :options="timeOptions" v-model="time" />
+            <Button style="margin-left: 1rem;" type="button" label="Calculate" severity="primary" @click="update" />
         </span>
         <div class="comparison-container">
             <div class="table-container">

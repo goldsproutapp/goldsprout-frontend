@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import Table from "@/components/Table.vue";
-import Button from "@/components/buttons/Button.vue";
+import InfoIcon from '@/components/icons/InfoIcon.vue';
 import {getUsers} from '@/lib/requests';
 import {dataState} from '@/lib/state';
 import type {User} from "@/lib/types";
 import router from '@/router';
+import Button from 'primevue/button';
+import Column from "primevue/column";
+import DataTable from "primevue/datatable";
 import {computed, onMounted} from 'vue';
 
 onMounted(getUsers);
@@ -19,18 +21,26 @@ const users = computed(() =>
     dataState.users.map((user: User) =>
         ({...user, created_at: new Date(user.created_at).toLocaleDateString()})
     ));
-const icons = ({is_admin, active}: User) => is_admin ? 'admin' : !active ? 'pending' : 'none';
-const clickHandler = (row: any) => router.push(`/users/${row.id}`);
 </script>
 
 <template>
     <div>
         <h1>Users</h1>
-        <Button @click="router.push('users/create')">Invite user</Button>
-        <Table :headings="headings" :rows="users" :styles="{}" :clickHandler="clickHandler" :icons="icons" />
+        <Button @click="router.push('users/create')" label="Invite user" severity="success" class="create-button" />
+        <DataTable :value="users" selection-mode="single" @row-select="row => router.push(`/users/${row.data.id}`)">
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
+            <Column>
+                <template #body="row">
+                    <InfoIcon v-if="row.data.is_admin" preset="admin" />
+                    <InfoIcon v-else-if="!row.data.active" preset="invited" />
+                </template>
+            </Column>
+        </DataTable>
     </div>
 </template>
 
 <style scoped>
-/* code... */
+.create-button {
+    margin-bottom: 1rem;
+}
 </style>

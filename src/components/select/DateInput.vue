@@ -1,9 +1,12 @@
 <script setup lang="ts">
-    const model = defineModel();
+import Calendar from 'primevue/calendar';
+
+    const model = defineModel<Date>();
 </script>
 
 <template>
-    <input type="date" v-model="model" class="date-input">
+    <!-- TODO: l10n so that this changes with client locale -->
+    <Calendar v-model="model" :date-format="'dd/mm/yy'"/>
 </template>
 
 <style scoped>

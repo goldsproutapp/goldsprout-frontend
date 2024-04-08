@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import Button from '@/components/buttons/Button.vue';
-import TextInput from '@/components/select/TextInput.vue';
 import {logIn, validatePassword} from '@/lib/auth';
 import {API_BASE_URL} from '@/lib/constants';
 import router from '@/router';
+import type Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 import {computed, ref} from 'vue';
 
 const email = computed(() => {
@@ -50,10 +51,10 @@ const submit = async () => {
     <h1>Invitation</h1>
     <form class="input-container" @submit.prevent>
         <span>To accept this invitation and create an account, choose a password.</span>
-        <TextInput class="input" type="email" :placeholder="email" readonly />
-        <TextInput class="input" type="password" placeholder="Password" v-model="pw" />
-        <TextInput class="input" type="password" placeholder="Confirm password" v-model="confirmPw" />
-        <Button colour-profile="success" @click="submit">Accept invitation</Button>
+        <InputText class="input" type="email" v-model="email" disabled />
+        <Password class="input" type="password" placeholder="Password" v-model="pw" />
+        <Password class="input" type="password" placeholder="Confirm password" v-model="confirmPw" />
+        <Button severity="success" @click="submit" label="Accept invitation" />
         <span class="error" v-if="error">{{ error }}</span>
     </form>
 </template>

@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import {ref} from 'vue';
-import SaveCancel from '@/components/buttons/SaveCancel.vue';
-import TextInput from '@/components/select/TextInput.vue';
-import Modal from '@/components/modals/Modal.vue';
 import {validatePassword} from '@/lib/auth';
 import {authenticatedRequest} from '@/lib/requests';
+import Dialog from 'primevue/dialog';
+import Password from 'primevue/password';
+import Button from 'primevue/button';
 
 const pwChangeError = ref('');
 const oldPw = ref();
 const newPw = ref();
 const newPwConfirmation = ref();
-const emit = defineEmits<{
-    close: [message: string, colour: string],
-}>();
-defineProps<{
-    changingPassword: boolean,
-}>();
 const save = async () => {
     if (!oldPw.value || !newPw.value) {
         pwChangeError.value = "You must enter a password.";
@@ -42,35 +36,36 @@ const save = async () => {
         pwChangeError.value = "Old password is incorrect.";
         return;
     }
-    emit('close', 'Password changed successfully', 'var(--success-colour)');
+    visible.value = false;
 };
+const visible = defineModel<boolean>();
 </script>
 
 <template>
-    <Modal v-if="changingPassword">
-        <div>
-            <div class="pwchange-container">
-                <h1>Change password</h1>
-                <TextInput class="pwchange-input" type="password" placeholder="Previous password" v-model="oldPw" />
-                <TextInput class="pwchange-input" type="password" placeholder="New password" v-model="newPw" />
-                <TextInput class="pwchange-input" type="password" placeholder="Confirm new password"
-                    v-model="newPwConfirmation" />
-                <span style="margin-bottom: .5rem;color: var(--failure-colour);">{{ pwChangeError }}</span>
-                <div>
-                    <SaveCancel @save="save" @cancel="$emit('close', '', '')" />
-                </div>
-            </div>
+    <Dialog v-model:visible="visible" modal header="Change password" class="dialog">
+        <div class="pwchange-container">
+            <Password class="pwchange-input" v-model="oldPw" :feedback="false" placeholder="Current password" />
+            <Password class="pwchange-input" v-model="newPw" placeholder="New password" />
+            <Password class="pwchange-input" v-model="newPwConfirmation" placeholder="Confirm new password" />
+            <span style="margin-bottom: .5rem;color: var(--failure-colour);">{{ pwChangeError }}</span>
+            <Button @click="save" label="Change password" severity="success" type="button" class="confirm-button" />
         </div>
-    </Modal>
+    </Dialog>
 </template>
 
 <style scoped>
 .pwchange-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 2rem;
 }
 
 .pwchange-input {
     margin-bottom: 1rem;
+}
+
+.confirm-button {
+    margin-top: 2rem;
 }
 </style>

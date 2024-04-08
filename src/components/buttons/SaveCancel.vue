@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import Button from './Button.vue';
+import Button from 'primevue/button';
+
 defineEmits(['save', 'cancel'])
 const props = withDefaults(defineProps<{
     saveLabel?: string,
@@ -11,8 +12,8 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-    <Button colour-profile="success" @click="$emit('save')">{{ saveLabel }}</Button>
-    <Button colour-profile="failure" @click="$emit('cancel')">{{ cancelLabel }} </Button>
+    <Button class="button" type="button" :label="saveLabel" severity="success" @click="$emit('save')" />
+    <Button class="button" type="button" :label="cancelLabel" severity="danger" @click="$emit('cancel')" />
 </template>
 
 <style scoped>

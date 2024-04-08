@@ -5,141 +5,68 @@ import {RouterLink} from 'vue-router';
 import {authState} from '@/lib/state';
 import router, {headerRoutes} from '@/router';
 import {getUserDisplayName} from '@/lib/data';
-const showMobileNavbar = ref(false);
+import Menubar from 'primevue/menubar';
+import type {MenuItem} from 'primevue/menuitem';
+import Menu from 'primevue/menu';
+import Button from 'primevue/button';
 const visibleRoutes = computed(() => headerRoutes.filter(route => route.meta.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
+const items = computed<MenuItem[]>(() => visibleRoutes.value.map(route => ({label: route.name, route: route.path})));
+const profileMenuItems = ref([
+    {
+        label: 'Profile',
+        route: '/profile',
+    },
+    {
+        label: 'Log out',
+        route: '/logout',
+    },
+])
+const adminMenuRoutes = ref([
+    {
+        label: 'User management',
+        route: '/users',
+    },
+])
+const allMenuRoutes = computed(() => authState.userInfo.is_admin ? [...profileMenuItems.value, ...adminMenuRoutes.value] : [...profileMenuItems.value]);
+const profileMenu = ref();
+const toggle = (evt: any) => profileMenu.value.toggle(evt);
 </script>
 
 <template>
     <div>
-        <nav class="desktop-navbar">
-            <RouterLink v-for="route in visibleRoutes" class="link" :to="route.path">{{ route.name }}</RouterLink>
-            <div class="float-right">
-                <!--
-                <RouterLink class="link" :to="authState.loggedIn ? '/logout' : '/login'">Log {{ authState.loggedIn ? 'Out' :
-                    'In' }}</RouterLink>
-                -->
-                <div class="link dropdown-container">
-                    <span>{{getUserDisplayName(authState.userInfo)}}</span>
-                    <div class="dropdown-content">
-                        <div class="dropdown-item" @click="router.push('/profile')">Profile</div>
-                        <div class="dropdown-item" @click="router.push('/logout')">Log out</div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-        <nav class="mobile-only">
-            <div class="background">
-                <svg viewBox="0 0 100 80" width="40" height="40" @click="showMobileNavbar = !showMobileNavbar">
-                    <rect width="100" height="20"></rect>
-                    <rect y="30" width="100" height="20"></rect>
-                    <rect y="60" width="100" height="20"></rect>
-                </svg>
-            </div>
-            <Transition name="slide">
-                <div class="mobile-navbar" v-if="showMobileNavbar">
-                    <RouterLink v-for="route in visibleRoutes" class="link" :to="route.path">{{ route.name }}</RouterLink>
-                    <RouterLink class="link" :to="authState.loggedIn ? '/logout' : '/login'">Log {{ authState.loggedIn ?
-                        'Out' :
-                        'In' }}</RouterLink>
-                </div>
-            </Transition>
-        </nav>
+        <Menubar :model="items" style="margin: 1rem;">
+            <template #item="{item, props}">
+                <router-link v-if="item.route" v-slot="{href, navigate}" :to="item.route" custom>
+                    <a :href="href" v-bind="props.action" @click="navigate">
+                        <span :class="item.icon" />
+                        <span class="ml-2">{{ item.label }}</span>
+                    </a>
+                </router-link>
+            </template>
+            <template #end>
+                <Button type="button" :label="getUserDisplayName(authState.userInfo)" @click="toggle"
+                    severity="secondary" />
+                <Menu :model="allMenuRoutes" :popup="true" ref="profileMenu">
+                    <template #item="{item, props}">
+                        <router-link v-if="item.route" v-slot="{href, navigate}" :to="item.route" custom>
+                            <a :href="href" v-bind="props.action" @click="navigate">
+                                <span :class="item.icon" />
+                                <span class="ml-2">{{ item.label }}</span>
+                            </a>
+                        </router-link>
+                    </template>
+                </Menu>
+            </template>
+        </Menubar>
     </div>
 </template>
 
 <style scoped>
-.desktop-navbar {
-    background-color: var(--header-bg-colour);
-    padding: 1rem;
-    display: flex;
-}
-
 .background {
     background-color: var(--header-bg-colour);
     width: 100%;
     display: flex;
     justify-content: center;
-}
-
-.mobile-only {
-    display: none;
-}
-
-.link {
-    color: var(--indigo-100);
-    padding: 1rem;
-    border: .1rem solid var(--border-colour);
-    border-radius: 2px;
-    margin: .5rem;
-    text-decoration: none;
-
-}
-
-.float-right {
-    flex-grow: 1;
-    display: flex;
-    justify-content: end;
-    margin-right: 1rem;
-}
-
-.mobile-navbar {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    text-align: center;
-    background-color: var(--header-bg-colour);
-}
-
-@media screen and (max-width: 600px) {
-    .desktop-navbar {
-        display: none;
-    }
-
-    .mobile-only {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-.slide-enter-active,
-.slide-leave-active {
-    transition: all 0.5s ease;
-}
-
-.slide-leave-active {
-    position: absolute;
-}
-
-.slide-enter-from {
-    transform: translateY(-100%);
-}
-
-.slide-leave-to {
-    transform: translateY(-100%);
-}
-.dropdown-container {
-    position: relative;
-    cursor: pointer;
-}
-.dropdown-container:hover .dropdown-content {
-    display: block;
-}
-.dropdown-content {
-    display: none;
-    position: absolute;
-    transform: translate(-1rem, 1rem);
-    width: 100%;
-}
-.dropdown-item {
-    padding: .3rem;
-    text-align: center;
-    border: .1rem solid var(--border-colour);
-    background-color: var(--header-bg-colour);
-}
-.dropdown-item:hover {
-    filter: saturate(50%);
-    cursor: pointer;
 }
 </style>
 

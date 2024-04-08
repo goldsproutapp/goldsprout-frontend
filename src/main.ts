@@ -6,8 +6,13 @@ import router from './router/index';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faCircleExclamation, faHourglassHalf, faScrewdriverWrench} from '@fortawesome/free-solid-svg-icons';
+import PrimeVue from 'primevue/config';
+import Tooltip from 'primevue/tooltip';
 
 const app = createApp(App)
+app.use(PrimeVue);
+app.directive('tooltip', Tooltip);
+
 library.add(faScrewdriverWrench);
 library.add(faCircleExclamation);
 library.add(faHourglassHalf);

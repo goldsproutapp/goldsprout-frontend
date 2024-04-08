@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import FormContainer from '@/components/layout/FormContainer.vue';
-import TextInput from '@/components/select/TextInput.vue';
 import {authenticatedRequest} from '@/lib/requests';
 import router from '@/router';
+import InputText from 'primevue/inputtext';
 import {ref} from 'vue';
 
 const email = ref();
@@ -39,10 +39,10 @@ const submit = async () => {
     <div>
         <h1>Invite User</h1>
         <FormContainer>
-            <TextInput type="email" placeholder="Email address" v-model="email" />
-            <TextInput type="text" placeholder="First name" v-model="firstName" />
-            <TextInput type="text" placeholder="Last name" v-model="lastName" />
-            <div>
+            <InputText type="email" placeholder="Email address" v-model="email" />
+            <InputText type="text" placeholder="First name" v-model="firstName" />
+            <InputText type="text" placeholder="Last name" v-model="lastName" />
+            <div class="save-cancel">
                 <SaveCancel save-label="Invite" @save="submit" @cancel="router.back()" />
             </div>
             <span :style="{color: messageColour, paddingTop: '1rem',}">{{ message }}</span>
@@ -51,4 +51,8 @@ const submit = async () => {
 </template>
 
 <style scoped>
+.save-cancel {
+    display: flex;
+    column-gap: 1rem;
+}
 </style>

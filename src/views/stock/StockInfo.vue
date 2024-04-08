@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import SaveCancel from "@/components/buttons/SaveCancel.vue";
-import BooleanSelect from "@/components/select/BooleanSelect.vue";
-import Dropdown from "@/components/select/Dropdown.vue";
 import ProviderDropdown from "@/components/select/ProviderDropdown.vue";
 import {stocks, providers} from "@/lib/data";
 import {authenticatedRequest, getStockList} from "@/lib/requests";
 import {type Provider, type Stock} from "@/lib/types";
 import router from "@/router";
+import Dropdown from "primevue/dropdown";
+import InputSwitch from "primevue/inputswitch";
 import {onMounted, ref} from "vue";
 const props = defineProps<{
     id: number,
@@ -50,17 +50,17 @@ const save = async () => {
         </div>
         <div class="option-container">
             Sector:
-            <Dropdown l_id="stockinfo-sector" v-model="stock.sector" :options="[]" />
+            <Dropdown v-model="stock.sector" :options="[]" editable />
         </div>
         <div class="option-container">
             Region:
-            <Dropdown l_id="stockinfo-region" v-model="stock.region" :options="regions" />
+            <Dropdown v-model="stock.region" :options="regions" editable />
         </div>
         <div class="option-container">
             Needs attention:
-            <BooleanSelect v-model="stock.needs_attention" />
+            <InputSwitch v-model="stock.needs_attention" />
         </div>
-        <div class="option-container">
+        <div class="option-container control-container">
             <SaveCancel @save="save" @cancel="router.back()" />
         </div>
     </div>
@@ -83,6 +83,11 @@ const save = async () => {
 
 .option-container {
     margin-top: 1rem;
+}
+
+.control-container {
+    display: flex;
+    column-gap: 1rem;
 }
 
 .btn {
