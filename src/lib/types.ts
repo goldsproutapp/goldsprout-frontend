@@ -42,8 +42,16 @@ export interface User {
     last_name: string,
     is_admin: boolean,
     client_options: string,
-    access_permissions: string[] // TODO: type properly
+    access_permissions: AccessPermission[] // TODO: type properly
     created_at: Date,
+    active: boolean,
+}
+
+export interface AccessPermission {
+    user_id: number,
+    access_for_id: number,
+    read: boolean,
+    write: boolean,
 }
 
 export interface Overview {

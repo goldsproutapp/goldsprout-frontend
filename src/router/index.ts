@@ -11,6 +11,9 @@ import PerformanceVue from "@/views/performance/Performance.vue";
 import Overview from "@/views/Overview.vue";
 import Profile from "@/views/auth/Profile.vue";
 import Invitation from "@/views/auth/Invitation.vue";
+import UserList from "@/views/admin/UserList.vue";
+import InviteUser from "@/views/admin/InviteUser.vue";
+import EditUser from "@/views/admin/EditUser.vue";
 
 export const headerRoutes = [
     {
@@ -117,7 +120,31 @@ const authRoutes = [
             requireAuth: true,
         }
     },
-]
+];
+const adminRoutes = [
+    {
+        path: '/users',
+        name: 'Users',
+        component: UserList,
+        meta: {
+            requireAuth: true,
+        }
+    },
+    {
+        path: '/users/create',
+        name: 'Invite user',
+        component: InviteUser,
+        meta: {
+            requireAuth: true,
+        }
+    },
+    {
+        path: '/users/:id',
+        name: 'Edit user',
+        component: EditUser,
+        props: true,
+    },
+];
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -125,6 +152,7 @@ const router = createRouter({
         ...headerRoutes,
         ...routes,
         ...authRoutes,
+        ...adminRoutes,
     ]
 });
 

@@ -19,7 +19,7 @@ const editing = ref(false);
 const message = ref('');
 const messageColour = ref('var(--success-colour)');
 
-const changingPassword = ref(true);
+const changingPassword = ref(false);
 
 const cancel = () => {
     editing.value = false;

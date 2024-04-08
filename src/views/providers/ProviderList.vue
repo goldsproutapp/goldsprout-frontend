@@ -21,7 +21,7 @@ const clickHandler = (row: any) => {
 
 <template>
     <div>
-        <h1>Snapshots</h1>
+        <h1>Providers</h1>
         <Button @click="router.push('providers/create')">Create provider</Button>
         <Table :headings="headings" :rows="providers" :styles="styles" :clickHandler="clickHandler"></Table>
     </div>

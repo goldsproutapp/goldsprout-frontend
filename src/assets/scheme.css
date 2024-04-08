@@ -9,6 +9,7 @@
     --border-colour: var(--indigo-700);
     --success-colour: var(--emerald-500);
     --failure-colour: var(--rose-500);
+    --warning-colour: var(--amber-500);
 }
 body {
     background-color: var(--background-colour);

@@ -17,12 +17,16 @@ export const presets = {
     attention: {
         icon: "fa-solid fa-circle-exclamation",
         colour: 'var(--failure-colour)',
+    },
+    pending: {
+        icon: 'fa-solid fa-hourglass-half',
+        colour: 'var(--warning-colour)',
     }
 }
 </script>
 
 <template>
-    <font-awesome-icon v-if="preset != 'none'" :icon="presets[preset].icon" :color="presets[preset].colour"/>
+    <font-awesome-icon v-if="preset != 'none'" :icon="presets[preset].icon" :color="presets[preset].colour" />
 </template>
 
 <style scoped>
