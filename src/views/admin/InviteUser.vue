@@ -4,6 +4,7 @@ import FormContainer from '@/components/layout/FormContainer.vue';
 import {authenticatedRequest} from '@/lib/requests';
 import router from '@/router';
 import InputText from 'primevue/inputtext';
+import Message from 'primevue/message';
 import {ref} from 'vue';
 
 const email = ref();
@@ -42,6 +43,7 @@ const submit = async () => {
             <InputText type="email" placeholder="Email address" v-model="email" />
             <InputText type="text" placeholder="First name" v-model="firstName" />
             <InputText type="text" placeholder="Last name" v-model="lastName" />
+            <Message severity="warn" :closable="false">Your name and email address will be visible to anyone you invite.</Message>
             <div class="save-cancel">
                 <SaveCancel save-label="Invite" @save="submit" @cancel="router.back()" />
             </div>

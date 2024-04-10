@@ -5,6 +5,9 @@ import {authenticatedRequest} from '@/lib/requests';
 import Dialog from 'primevue/dialog';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
+import {useToast} from 'primevue/usetoast';
+
+const toast = useToast();
 
 const pwChangeError = ref('');
 const oldPw = ref();
@@ -36,6 +39,13 @@ const save = async () => {
         pwChangeError.value = "Old password is incorrect.";
         return;
     }
+    toast.add({
+        summary: 'Success',
+        detail: 'Password successfully updated',
+        severity: 'success',
+        group: 'br',
+        life: 2000,
+    })
     visible.value = false;
 };
 const visible = defineModel<boolean>();

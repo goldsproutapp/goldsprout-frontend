@@ -16,10 +16,6 @@ const profileMenuItems = ref([
         label: 'Profile',
         route: '/profile',
     },
-    {
-        label: 'Log out',
-        route: '/logout',
-    },
 ])
 const adminMenuRoutes = ref([
     {
@@ -27,7 +23,13 @@ const adminMenuRoutes = ref([
         route: '/users',
     },
 ])
-const allMenuRoutes = computed(() => authState.userInfo.is_admin ? [...profileMenuItems.value, ...adminMenuRoutes.value] : [...profileMenuItems.value]);
+const logoutRoute = {
+    label: 'Log out',
+    route: '/logout',
+};
+const allMenuRoutes = computed(() => authState.userInfo.is_admin ?
+    [...profileMenuItems.value, ...adminMenuRoutes.value, logoutRoute] :
+    [...profileMenuItems.value, logoutRoute]);
 const profileMenu = ref();
 const toggle = (evt: any) => profileMenu.value.toggle(evt);
 </script>

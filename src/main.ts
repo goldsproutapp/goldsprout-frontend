@@ -8,9 +8,11 @@ import {library} from '@fortawesome/fontawesome-svg-core';
 import {faCircleExclamation, faHourglassHalf, faScrewdriverWrench} from '@fortawesome/free-solid-svg-icons';
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
+import ToastService from 'primevue/toastservice';
 
 const app = createApp(App)
 app.use(PrimeVue);
+app.use(ToastService)
 app.directive('tooltip', Tooltip);
 
 library.add(faScrewdriverWrench);

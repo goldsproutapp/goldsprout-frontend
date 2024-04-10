@@ -6,6 +6,7 @@ import {authState, updateAuthState} from './lib/state';
 import {onMounted} from 'vue';
 import router from './router';
 import {usePrimeVue} from 'primevue/config';
+import Toast from 'primevue/toast';
 
 const primeVue = usePrimeVue();
 
@@ -18,10 +19,14 @@ onMounted(() => {
 </script>
 <template>
     <div class="root">
+        <Toast position="bottom-left" group="bl" />
+        <Toast position="bottom-right" group="br" />
+        <Toast position="top-left" group="tl" />
+        <Toast position="top-right" group="tr" />
         <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
-                    <component :is="Component" :key="route.path" />
+                <component :is="Component" :key="route.path" />
             </RouterView>
         </div>
         <Footer class="footer" />

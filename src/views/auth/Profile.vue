@@ -9,15 +9,15 @@ import {onMounted, ref} from 'vue';
 import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import {useToast} from 'primevue/usetoast';
+
+const toast = useToast();
 
 const {userInfo} = authState;
 const editingInfo = ref(Object.assign({}, userInfo));
 const visibility = ref<User[]>();
 onMounted(() => getUserVisibility().then(res => visibility.value = res));
 const editing = ref(false);
-
-const message = ref('');
-const messageColour = ref('var(--success-colour)');
 
 const changingPassword = ref(false);
 
@@ -33,16 +33,26 @@ const update = async () => {
         body: JSON.stringify(payload)
     });
     if (res.status !== 200) {
-        messageColour.value = 'var(--failure-colour)';
-        message.value = 'Unable to update profile.';
+    toast.add({
+        summary: 'Error',
+        detail: 'Failed to update profile',
+        group: 'br',
+        severity: 'error',
+        life: 2000,
+    })
         editingInfo.value = authState.userInfo;
         return;
     }
     const {data} = await res.json();
     authState.userInfo = data;
     saveAuthState();
-    messageColour.value = 'var(--success-colour)';
-    message.value = 'Successfully updated profile';
+    toast.add({
+        summary: 'Success',
+        detail: 'Successfully updated profile',
+        group: 'br',
+        severity: 'success',
+        life: 2000,
+    })
 }
 
 </script>
@@ -68,8 +78,7 @@ const update = async () => {
                 <Button severity="danger" @click="cancel" label="Cancel" />
                 <Button severity="success" @click="update" label="Save" />
             </template>
-            <span class="message" :style="{color: messageColour}">{{ message }}</span>
-            <Button severity="danger" style="margin-top: 1rem;" @click="changingPassword = true" label="Change password" />
+            <Button severity="danger" style="grid-column: 1; margin-top: 1rem;" @click="changingPassword = true" label="Change password" />
         </div>
         <div class="access-info" v-if="visibility?.length">
             The following people have access to your data:
@@ -89,7 +98,7 @@ const update = async () => {
     display: grid;
     grid-template-columns: auto auto;
     width: max-content;
-    grid-column-gap: 1rem;
+    grid-column-gap: 2rem;
     grid-row-gap: 1rem;
     margin-bottom: 1rem;
 }
