@@ -91,7 +91,6 @@ function process() {
     error.value = '';
 }
 const createSnapshots = async (deleteSoldStocks: boolean = true) => {
-    //const dateString = dateInput.value;
     const date = dateInput.value;
     const payload = {
         date: Math.floor(date.getTime() / 1000),
