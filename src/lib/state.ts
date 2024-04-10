@@ -1,4 +1,5 @@
 import {reactive} from "vue";
+import {emptyUser} from "./data";
 import {type User, type Provider, type Stock, type Snapshot} from "./types";
 
 export const authState = reactive<{
@@ -8,7 +9,7 @@ export const authState = reactive<{
 }>({
     loggedIn: false,
     token: '',
-    userInfo: {},
+    userInfo: emptyUser(),
 });
 
 

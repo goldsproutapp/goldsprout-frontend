@@ -1,4 +1,5 @@
 import router from "@/router";
+import {emptyUser} from "./data";
 import {authState} from "./state";
 
 export function logIn(data: any) {
@@ -19,7 +20,7 @@ export function logOut(require_login: boolean = false) {
     window.localStorage.removeItem("token");
     authState.loggedIn = false;
     authState.token = "";
-    authState.userInfo = {};
+    authState.userInfo = emptyUser();
     if (require_login) {
         router.push("/login");
     }

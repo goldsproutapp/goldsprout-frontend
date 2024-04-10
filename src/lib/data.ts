@@ -73,3 +73,17 @@ export function formatDecimal(num: string): string {
     parts[0] = output;
     return parts.join('.');
 }
+
+export function emptyUser(): User {
+    return {
+        id: 0,
+        active: false,
+        client_options: '',
+        created_at: new Date(),
+        email: '',
+        first_name: '',
+        last_name: '',
+        is_admin: false,
+        access_permissions: []
+    }
+}

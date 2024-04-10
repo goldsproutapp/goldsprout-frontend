@@ -95,7 +95,7 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
     const date = dateInput.value;
     const payload = {
         date: Math.floor(date.getTime() / 1000),
-        user_id: user.value.id,
+        user_id: user.value?.id || 0,
         entries: entries.value,
         delete_sold_stocks: deleteSoldStocks,
     };

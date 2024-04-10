@@ -83,9 +83,9 @@ export async function getUserVisibility(): Promise<User[]> {
     return json;
 }
 
-export async function getOverview(): Promise<Overview> {
+export async function getOverview(): Promise<Overview | null> {
     const res = await cachedRequest('/overview');
-    if (res.status != 200) return {};
+    if (res.status != 200) return null;
     const json: Overview = await res.json();
     json.last_snapshot = new Date(json.last_snapshot);
     if (json.users) {

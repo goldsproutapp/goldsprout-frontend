@@ -20,7 +20,9 @@ const timeOptions = ['Years', 'Quarters', 'Months'];
 const time = ref(timeOptions[0]);
 
 const showTable = ref(false);
-const data: any = ref({});
+
+const data = ref<any>({});
+
 const displayedOpts: any = ref({
     comparing: comparing.value,
     target: target.value,
@@ -59,11 +61,11 @@ const update = async () => {
         <h1 class="title">Performance</h1>
         <span>
             Compare
-                <Dropdown :options="comparisonOptions" v-model="comparing" />
+            <Dropdown :options="comparisonOptions" v-model="comparing" />
             Of
-                <Dropdown :options="targetOptions" v-model="target" />
+            <Dropdown :options="targetOptions" v-model="target" />
             For
-                <Dropdown :options="targetOptions" v-model="against" />
+            <Dropdown :options="targetOptions" v-model="against" />
             Over
             <Dropdown :options="timeOptions" v-model="time" />
             <Button style="margin-left: 1rem;" type="button" label="Calculate" severity="primary" @click="update" />
@@ -73,27 +75,29 @@ const update = async () => {
                 <table class="comparison-table" v-if="showTable">
                     <thead>
                         <tr>
-                            <th>{{displayedOpts.target}}</th>
-                            <th>{{displayedOpts.against}}</th>
+                            <th>{{ displayedOpts.target }}</th>
+                            <th>{{ displayedOpts.against }}</th>
                             <th class="header-td" v-for="period in data.time_periods" :key="period">{{ period }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <template v-for="[col1, groupData] in Object.entries(data.data)">
+                        <template v-for="col1 in Object.keys(data.data)">
                             <tr class="category-separator">
                                 <td>
                                     <span>{{ col1 }}</span>
                                 </td>
                                 <td></td>
-                                <td v-for="total in Object.values(groupData.totals)">{{ format(total) }}</td>
+                                <td v-for="key in Object.keys(data.data[col1].totals)">{{
+                                    format(data.data[col1].totals[key]) }}</td>
                             </tr>
-                            <tr v-for="[item, values] in Object.entries(groupData.items)" :key="item">
+                            <tr v-for="item in Object.keys(data.data[col1].items)" :key="item">
                                 <td></td>
                                 <td>
                                     <span>{{ item }}</span>
                                 </td>
                                 <td v-for="period in data.time_periods" :key="period">
-                                    <span v-if="Object.keys(values).includes(period)">{{ format(values[period]) }}</span>
+                                    <span v-if="Object.keys(data.data[col1].items[item]).includes(period)">{{
+                                        format(data.data[col1].items[item][period]) }}</span>
                                 </td>
                             </tr>
                         </template>
@@ -132,9 +136,11 @@ td {
 .header-td {
     border-left: 1px solid black;
 }
+
 table {
     border: 1px solid var(--border-colour);
 }
+
 .category-separator {
     border-top: 2px solid var(--border-colour);
 }

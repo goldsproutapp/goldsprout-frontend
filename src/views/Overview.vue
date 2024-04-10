@@ -4,7 +4,9 @@ import {getOverview} from '@/lib/requests';
 import type {Overview} from '@/lib/types';
 import Card from 'primevue/card';
 import {onMounted, ref} from 'vue';
-const overview = ref<Overview>();
+
+const overview = ref<Overview | null>();
+
 onMounted(() => getOverview().then(res => overview.value = res));
 
 </script>
@@ -12,7 +14,7 @@ onMounted(() => getOverview().then(res => overview.value = res));
 <template>
     <div>
         <h1>Overview</h1>
-        <div v-if="overview?.total_value">
+        <div v-if="overview != null">
             <div class="summary-cards">
                 <Card class="summary-card">
                     <template #title>
