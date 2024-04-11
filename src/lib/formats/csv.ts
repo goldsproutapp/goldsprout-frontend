@@ -1,7 +1,8 @@
 
 export function parseCSV(csv: string): string[] {
     const outputs = [];
-    let builder = "";
+    let builder = '';
+    let lastChar = '';
     let escapeNext = false;
     let inQuote = false;
     for (let char of csv) {
@@ -25,7 +26,9 @@ export function parseCSV(csv: string): string[] {
             continue;
         }
         builder += char;
+        lastChar = char;
     }
+    if (lastChar != ',') outputs.push(builder);
 
     return outputs;
 

@@ -14,6 +14,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
+import {useToast} from 'primevue/usetoast';
 
 
 const headings = {
@@ -36,10 +37,11 @@ const user = computed(() => dataState.users.find(user => getUserDisplayName(user
 const entries = ref<any>([]);
 const inputDiv: any = ref(null);
 const dateInput = ref<Date>(new Date());
-const error = ref<string>("");
 
 const missingStocks = ref<Stock[]>([]);
 const showModal = ref(false);
+
+const toast = useToast();
 
 function findMissingStocks(): boolean {
     const providers = new Set(entries.value.map((entry: any) => entry.provider_id));
@@ -63,7 +65,13 @@ function findMissingStocks(): boolean {
 
 function process() {
     if (providerName.value === "" || providerName.value === undefined) {
-        error.value = "Please select a provider.";
+        toast.add({
+            summary: 'Error',
+            detail: "Please select a provider.",
+            group: 'bl',
+            severity: 'error',
+            life: 2000,
+        })
         return;
     }
     const raw = inputDiv.value.innerText;
@@ -84,11 +92,16 @@ function process() {
         // @ts-ignore
         entries.value.push(...objs);
     } catch (e) {
-        error.value = "The given data is not in the correct format for the selected provider.";
+        toast.add({
+            summary: 'Error',
+            detail: 'The given data is not in the correct format for the selected provider.',
+            group: 'bl',
+            severity: 'error',
+            life: 2000,
+        })
         return;
     }
     inputDiv.value.innerText = '';
-    error.value = '';
 }
 const createSnapshots = async (deleteSoldStocks: boolean = true) => {
     const date = dateInput.value;
@@ -116,17 +129,18 @@ const submit = () => {
         <Dialog v-model:visible="showModal">
             You have not provided data for the following stocks:
             <ul>
-                <li v-for="stock in missingStocks" :key="stock.id.toString()">{{ stock.name }} of {{ stock.provider_name }}</li>
+                <li v-for="stock in missingStocks" :key="stock.id.toString()">{{ stock.name }} of {{ stock.provider_name }}
+                </li>
             </ul>
             It looks like these stocks are no longer held, and will be marked as such.<br>
-            <Button class="modal-button" severity="success" @click="() => createSnapshots()" label="These are no longer held, continue" />
+            <Button class="modal-button" severity="success" @click="() => createSnapshots()"
+                label="These are no longer held, continue" />
             <Button class="modal-button" severity="danger" @click="showModal = false" label="Cancel" />
             <br>
             <Button class="modal-button" severity="secondary" @click="createSnapshots(false)" label="These are still held,
                             continue without updating them" />
         </Dialog>
         <h1>Create snapshot</h1>
-        <div class="error-message" v-if="error">{{ error }}</div>
         <div class="misc-inputs">
             <DateInput id="date-input" v-model="dateInput" />
             <ProviderDropdown l_id="createsnapshot-provider" v-model="providerName" />
@@ -189,6 +203,7 @@ const submit = () => {
     justify-content: start;
     column-gap: 1rem;
 }
+
 .modal-button {
     margin: .5rem;
 }
