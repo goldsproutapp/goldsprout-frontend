@@ -2,7 +2,7 @@
 export type TrackingStrategy = 'DATA_IMPORT' | 'INPUT_VALUE' | 'API_DATA';
 
 export interface Stock {
-    id: Number,
+    id: number,
     name: string,
     provider: Provider,
     provider_name: string,
@@ -16,7 +16,7 @@ export interface Stock {
 };
 
 export interface Provider {
-    id: Number,
+    id: number,
     name: string,
     csv_format: string,
     csv_format_obj: {[key: string]: number}
@@ -56,12 +56,14 @@ export interface AccessPermission {
 
 export interface Overview {
     total_value: string,
+    all_time_change: string,
     num_providers: number,
     num_stocks: number,
     last_snapshot: Date,
     users?: {
         [key: string]: {
             total_value: string,
+            all_time_change: string,
             num_providers: number,
             num_stocks: number,
             last_snapshot: Date,

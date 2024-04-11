@@ -21,11 +21,31 @@ export async function getUserByID(id: number, request_if_none: boolean = true): 
     return user as User;
 }
 
+export async function getUserByName(name: string, request_if_none: boolean = true): Promise<User> {
+    const user = dataState.users.find(user => getUserDisplayName(user) === name);
+    if (user === undefined && request_if_none) {
+        console.log(`NOT FOUND: ${name} : ${user}`)
+        await getUsers();
+        return await getUserByName(name, false);
+    }
+    console.log(`FOUND FOUND: ${name} : ${user}`)
+    return user as User;
+}
+
 export async function getProviderByID(id: number, request_if_none: boolean = true): Promise<Provider> {
     const provider = dataState.providers.find(provider => provider.id === id);
     if (provider === undefined && request_if_none) {
         await getProviderList();
         return getProviderByID(id, false);
+    }
+    return provider as Provider;
+}
+
+export async function getProviderByName(name: string, request_if_none: boolean = true): Promise<Provider> {
+    const provider = dataState.providers.find(provider => provider.name === name);
+    if (provider === undefined && request_if_none) {
+        await getProviderList();
+        return getProviderByName(name, false);
     }
     return provider as Provider;
 }
@@ -67,7 +87,7 @@ export function formatDecimal(num: string): string {
     let output = '';
     for (let i = 0; i < parts[0].length; i++) {
         output = parts[0][parts[0].length - i - 1] + output;
-        if (i >= 2 && (i + 1) % 3 === 0)
+        if (i >= 2 && (i + 1) % 3 === 0 && (i+1) != parts[0].length)
             output = ',' + output;
     }
     parts[0] = output;

@@ -115,6 +115,13 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         method: 'POST',
         body: JSON.stringify(payload),
     });
+    toast.add({
+        summary: 'Success',
+        detail: 'Snapshots created',
+        group: 'bl',
+        severity: 'success',
+        life: 2000,
+    })
     router.push('/snapshots');
 };
 

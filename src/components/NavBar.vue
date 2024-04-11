@@ -13,8 +13,8 @@ const visibleRoutes = computed(() => headerRoutes.filter(route => route.meta.req
 const items = computed<MenuItem[]>(() => visibleRoutes.value.map(route => ({label: route.name, route: route.path})));
 const profileMenuItems = ref([
     {
-        label: 'Profile',
-        route: '/profile',
+        label: 'Options',
+        route: '/options',
     },
 ])
 const adminMenuRoutes = ref([

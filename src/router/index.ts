@@ -14,6 +14,7 @@ import Invitation from "@/views/auth/Invitation.vue";
 import UserList from "@/views/admin/UserList.vue";
 import InviteUser from "@/views/admin/InviteUser.vue";
 import EditUser from "@/views/admin/EditUser.vue";
+import ImportSnapshots from "@/views/snapshot/ImportSnapshots.vue";
 
 export const headerRoutes = [
     {
@@ -69,6 +70,14 @@ const routes = [
         }
     },
     {
+        path: '/snapshots/import',
+        name: 'Import snapshots',
+        component: ImportSnapshots,
+        meta: {
+            requireAuth: true,
+        }
+    },
+    {
         path: '/providers/create',
         name: 'Create Provider',
         component: ProviderInfo,
@@ -113,8 +122,8 @@ const authRoutes = [
         component: Invitation
     },
     {
-        path: '/profile',
-        name: 'Profile',
+        path: '/options',
+        name: 'Options',
         component: Profile,
         meta: {
             requireAuth: true,

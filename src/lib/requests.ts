@@ -1,6 +1,7 @@
 import {logOut} from "./auth";
 import {API_BASE_URL} from "./constants";
 import {getStockByID, getUserByID, getUserDisplayName} from "./data";
+import {processFormat} from "./formats/csv";
 import {authState, dataState} from "./state";
 import {type Snapshot, type Provider, type Stock, type User, type Overview} from "./types";
 
@@ -42,10 +43,7 @@ export async function getProviderList(): Promise<Provider[]> {
     if (res.status != 200) return [];
     const json = await res.json();
     json.forEach((provider: Provider) => {
-        provider.csv_format_obj = {};
-        provider.csv_format.split(",").forEach((heading, i) => {
-            if (heading !== '_') provider.csv_format_obj[heading] = i
-        });
+        provider.csv_format_obj = processFormat(provider.csv_format);
     });
     dataState.providers = json;
     return json;
@@ -84,6 +82,7 @@ export async function getUserVisibility(): Promise<User[]> {
 }
 
 export async function getOverview(): Promise<Overview | null> {
+    await getUsers();
     const res = await cachedRequest('/overview');
     if (res.status != 200) return null;
     const json: Overview = await res.json();

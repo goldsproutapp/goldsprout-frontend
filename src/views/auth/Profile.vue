@@ -10,6 +10,9 @@ import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import {useToast} from 'primevue/usetoast';
+import TabMenu from 'primevue/tabmenu';
+import router from '@/router';
+import Tooltip from '@/components/layout/Tooltip.vue';
 
 const toast = useToast();
 
@@ -33,13 +36,13 @@ const update = async () => {
         body: JSON.stringify(payload)
     });
     if (res.status !== 200) {
-    toast.add({
-        summary: 'Error',
-        detail: 'Failed to update profile',
-        group: 'br',
-        severity: 'error',
-        life: 2000,
-    })
+        toast.add({
+            summary: 'Error',
+            detail: 'Failed to update profile',
+            group: 'br',
+            severity: 'error',
+            life: 2000,
+        })
         editingInfo.value = authState.userInfo;
         return;
     }
@@ -54,40 +57,63 @@ const update = async () => {
         life: 2000,
     })
 }
+const menuIdx = ref(0);
+const menu = ref([
+    {
+        label: 'Profile',
+    },
+    {
+        label: 'Data options'
+    }
+]);
 
 </script>
 
 <template>
     <div>
-        <h1>Profile</h1>
-        <div class="info-container">
-            <span class="info-element">User ID:</span>
-            <span class="info-element">{{ editingInfo.id }}</span>
-            <span class="info-element">First name:</span>
-            <InputText v-model="editingInfo.first_name" :readonly="!editing" />
-            <span class="info-element">Last name:</span>
-            <InputText v-model="editingInfo.last_name" :readonly="!editing" />
-            <span class="info-element">Email address:</span>
-            <span class="info-element">{{ editingInfo.email }}</span>
-            <span class="info-element">Admin:</span>
-            <span class="info-element">{{ editingInfo.is_admin }}</span>
-            <span class="info-element">Account created:</span>
-            <span class="info-element">{{ new Date(editingInfo.created_at).toLocaleDateString() }}</span>
-            <Button v-if="!editing" @click="editing = true" severity="secondary" label="Edit"/>
-            <template v-else>
-                <Button severity="danger" @click="cancel" label="Cancel" />
-                <Button severity="success" @click="update" label="Save" />
-            </template>
-            <Button severity="danger" style="grid-column: 1; margin-top: 1rem;" @click="changingPassword = true" label="Change password" />
+        <h1>Options</h1>
+        <div style="background-color: var(--);">
+            <TabMenu :model="menu" v-model:activeIndex="menuIdx" />
         </div>
-        <div class="access-info" v-if="visibility?.length">
-            The following people have access to your data:
-            <ul>
-                <li v-for="user in visibility" :key="user.id">
-                    <InfoIcon preset="admin" v-if="user.is_admin" />
-                    {{ getUserDisplayName(user) }} ({{ user.email }})
-                </li>
-            </ul>
+        <div v-if="menuIdx == 0" class="menu-container">
+            <div class="info-container">
+                <span class="info-element">User ID:</span>
+                <span class="info-element">{{ editingInfo.id }}</span>
+                <span class="info-element">First name:</span>
+                <InputText v-model="editingInfo.first_name" :readonly="!editing" />
+                <span class="info-element">Last name:</span>
+                <InputText v-model="editingInfo.last_name" :readonly="!editing" />
+                <span class="info-element">Email address:</span>
+                <span class="info-element">{{ editingInfo.email }}</span>
+                <span class="info-element">Admin:</span>
+                <span class="info-element">{{ editingInfo.is_admin }}</span>
+                <span class="info-element">Account created:</span>
+                <span class="info-element">{{ new Date(editingInfo.created_at).toLocaleDateString() }}</span>
+                <Button v-if="!editing" @click="editing = true" severity="secondary" label="Edit" />
+                <template v-else>
+                    <Button severity="danger" @click="cancel" label="Cancel" />
+                    <Button severity="success" @click="update" label="Save" />
+                </template>
+                <Button severity="danger" style="grid-column: 1; margin-top: 1rem;" @click="changingPassword = true"
+                    label="Change password" />
+            </div>
+            <div class="access-info" v-if="visibility?.length">
+                The following people have access to your data:
+                <ul>
+                    <li v-for="user in visibility" :key="user.id">
+                        <InfoIcon preset="admin" v-if="user.is_admin" />
+                        {{ getUserDisplayName(user) }} ({{ user.email }})
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div v-else class="menu-container data-options">
+            <h2>Manage your data.</h2>
+            <Button style="margin-bottom: 1rem;" label="Import snapshots" @click="router.push('/snapshots/import')" />
+                <br>
+            <Tooltip content="Not available yet" position="right">
+                <Button label="Export data" disabled />
+            </Tooltip>
         </div>
         <PasswordChangeModal v-model="changingPassword" />
     </div>
@@ -125,4 +151,9 @@ const update = async () => {
 .message {
     grid-column: 1 / span 2;
 }
+
+.menu-container {
+    margin-top: 2rem;
+}
+
 </style>

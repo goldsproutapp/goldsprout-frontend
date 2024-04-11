@@ -33,3 +33,11 @@ export function parseCSV(csv: string): string[] {
     return outputs;
 
 }
+
+export function processFormat(format: string): {[key: string]: number} {
+    const obj: {[key: string]: number} = {};
+    format.split(",").forEach((heading, i) => {
+        if (heading !== '_') obj[heading] = i
+    });
+    return obj;
+}

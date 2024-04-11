@@ -14,6 +14,8 @@
     --success-colour: var(--emerald-500);
     --failure-colour: var(--rose-500);
     --warning-colour: var(--amber-500);
+    --text-colour-positive: var(--blue-500);
+    --text-colour-negative: var(--red-500);
 }
 /*
 body {

@@ -28,11 +28,14 @@ onMounted(() => getOverview().then(res => overview.value = res));
                 </Card>
                 <Card class="summary-card">
                     <template #title>
-                        Stocks
+                        All time
                     </template>
                     <template #content>
                         <h1>
-                            <b>{{ overview.num_stocks }}</b>
+                            <b v-if="overview.all_time_change[0] == '-'" style="color: var(--text-colour-negative)">-£{{
+                                formatDecimal(overview.all_time_change.slice(1)) }}</b>
+                            <b v-else style="color: var(--text-colour-positive)">+£{{
+                                formatDecimal(overview.all_time_change) }}</b>
                         </h1>
                     </template>
                 </Card>
