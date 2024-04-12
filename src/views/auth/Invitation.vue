@@ -2,7 +2,7 @@
 import {logIn, validatePassword} from '@/lib/auth';
 import {API_BASE_URL} from '@/lib/constants';
 import router from '@/router';
-import type Button from 'primevue/button';
+import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import {computed, ref} from 'vue';
