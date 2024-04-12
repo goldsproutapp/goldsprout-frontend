@@ -31,7 +31,7 @@ const save = async () => {
         old_password: oldPw.value,
         new_password: newPw.value,
     }
-    const res = await authenticatedRequest('/passwordchange', {
+    const res = await authenticatedRequest('/changepassword', {
         method: 'PATCH',
         body: JSON.stringify(payload)
     });
