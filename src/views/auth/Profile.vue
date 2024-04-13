@@ -71,7 +71,7 @@ const menu = ref([
 
 const showDeleteModal = ref(false);
 const deleteInfo = ref<any>({
-    snapshots: false,
+    snapshots: true,
     stocks: false,
 });
 const confirmDelete = async () => {
@@ -147,22 +147,20 @@ const confirmDelete = async () => {
             <h2>Manage your data.</h2>
             <Button style="margin-bottom: 1rem;" label="Import snapshots" @click="router.push('/snapshots/import')" />
             <br>
-            <template v-if="authState.userInfo.is_admin">
-                <Button style="margin-bottom: 1rem;" label="Delete data" severity="danger"
-                    @click="showDeleteModal = true" />
-                <br>
-            </template>
             <Tooltip content="Not available yet" position="right">
                 <Button label="Export data" disabled />
             </Tooltip>
+            <br>
+            <Button v-if="authState.userInfo.is_admin" style="margin-top: 1rem;" label="Delete data" severity="danger"
+                @click="showDeleteModal = true" />
         </div>
         <PasswordChangeModal v-model="changingPassword" />
-        <Dialog v-model:visible="showDeleteModal">
+        <Dialog v-model:visible="showDeleteModal" header="Mass Delete">
             <div class="delete-container">
-                <template v-for="key in Object.keys(deleteInfo)" class="delete-item">
-                    <span>{{ key }}</span>
-                    <Checkbox v-model="deleteInfo[key]" :binary="true"></Checkbox>
-                </template>
+                <span>Snapshots</span>
+                <Checkbox v-model="deleteInfo.snapshots" :binary="true" disabled></Checkbox>
+                <span>Stocks</span>
+                <Checkbox v-model="deleteInfo.stocks" :binary="true"></Checkbox>
                 <Button label="Delete" severity="danger" @click="confirmDelete" />
                 <Button label="Cancel" severity="success" @click="showDeleteModal = false" />
             </div>
