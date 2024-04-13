@@ -58,7 +58,6 @@ const process = async () => {
     }
 
     try {
-        //const objs = await Promise.all(parsedRows.map(async (row: any) => {
         for (const row of parsedRows) {
             const obj: {[key: string]: string | number} = {};
             Object.entries(format).forEach(([key, idx]) =>
@@ -138,29 +137,29 @@ const submit = async () => {
                 method: 'POST',
                 body: JSON.stringify(payload),
             });
+            progress.value += Math.floor(100 / numBatches.value);
             if (res.status == 201) {
-                progress.value += 100 / numBatches.value;
-            } else {
-                toast.add({
-                    summary: 'Error',
-                    detail: `An error occured while creating batch ${i} of ${numBatches.value}`,
-                    severity: 'error',
-                    life: 3000,
-                    group: 'bl',
-                })
-            }
+        } else {
+            toast.add({
+                summary: 'Error',
+                detail: `An error occured while creating batch ${i} of ${numBatches.value}`,
+                severity: 'error',
+                life: 3000,
+                group: 'bl',
+            })
         }
-        await new Promise(r => setTimeout(r, 500)); // Be nice to the server, and the user can wait as this is a one-off operation.
     }
-    progress.value = 100;
-    toast.add({
-        summary: 'Complete',
-        detail: 'Completed import',
-        severity: 'success',
-        life: 3000,
-        group: 'bl',
-    });
-    cancel();
+    await new Promise(r => setTimeout(r, 500));
+}
+progress.value = 100;
+toast.add({
+    summary: 'Complete',
+    detail: 'Completed import',
+    severity: 'success',
+    life: 3000,
+    group: 'bl',
+});
+cancel();
 };
 const cancel = () => {
     numBatches.value = 0;
