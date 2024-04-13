@@ -13,6 +13,8 @@ import {useToast} from 'primevue/usetoast';
 import TabMenu from 'primevue/tabmenu';
 import router from '@/router';
 import Tooltip from '@/components/layout/Tooltip.vue';
+import Dialog from 'primevue/dialog';
+import Checkbox from 'primevue/checkbox';
 
 const toast = useToast();
 
@@ -67,6 +69,40 @@ const menu = ref([
     }
 ]);
 
+const showDeleteModal = ref(false);
+const deleteInfo = ref<any>({
+    snapshots: false,
+    stocks: false,
+});
+const confirmDelete = async () => {
+    showDeleteModal.value = false;
+    if (!deleteInfo.value.snapshots && !deleteInfo.value.stock) {
+        return;
+    }
+    const res = await authenticatedRequest('/massdelete', {
+        method: 'POST',
+        body: JSON.stringify(deleteInfo.value),
+    })
+    if (res.status != 200) {
+        toast.add({
+            summary: 'Error',
+            detail: 'Failed to delete data',
+            group: 'br',
+            severity: 'error',
+            life: 2000,
+        });
+        return;
+    }
+    toast.add({
+        summary: 'Success',
+        detail: 'Successfully deleted data',
+        group: 'br',
+        severity: 'success',
+        life: 2000,
+    });
+    return;
+}
+
 </script>
 
 <template>
@@ -110,12 +146,27 @@ const menu = ref([
         <div v-else class="menu-container data-options">
             <h2>Manage your data.</h2>
             <Button style="margin-bottom: 1rem;" label="Import snapshots" @click="router.push('/snapshots/import')" />
+            <br>
+            <template v-if="authState.userInfo.is_admin">
+                <Button style="margin-bottom: 1rem;" label="Delete data" severity="danger"
+                    @click="showDeleteModal = true" />
                 <br>
+            </template>
             <Tooltip content="Not available yet" position="right">
                 <Button label="Export data" disabled />
             </Tooltip>
         </div>
         <PasswordChangeModal v-model="changingPassword" />
+        <Dialog v-model:visible="showDeleteModal">
+            <div class="delete-container">
+                <template v-for="key in Object.keys(deleteInfo)" class="delete-item">
+                    <span>{{ key }}</span>
+                    <Checkbox v-model="deleteInfo[key]" :binary="true"></Checkbox>
+                </template>
+                <Button label="Delete" severity="danger" @click="confirmDelete" />
+                <Button label="Cancel" severity="success" @click="showDeleteModal = false" />
+            </div>
+        </Dialog>
     </div>
 </template>
 
@@ -156,4 +207,11 @@ const menu = ref([
     margin-top: 2rem;
 }
 
+.delete-container {
+    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 1rem;
+    grid-row-gap: 1rem;
+}
 </style>
