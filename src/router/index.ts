@@ -30,7 +30,7 @@ export const headerRoutes = [
         name: 'Stocks',
         component: StockList,
         meta: {
-            reuireAuth: true,
+            requireAuth: true,
         },
     },
     {
@@ -38,7 +38,7 @@ export const headerRoutes = [
         name: 'Snapshots',
         component: Snapshots,
         meta: {
-            reuireAuth: true,
+            requireAuth: true,
         },
     },
     {
@@ -46,7 +46,7 @@ export const headerRoutes = [
         name: 'Providers',
         component: ProviderList,
         meta: {
-            reuireAuth: true,
+            requireAuth: true,
             requireAdmin: true,
         },
     },
@@ -75,6 +75,7 @@ const routes = [
         component: ImportSnapshots,
         meta: {
             requireAuth: true,
+            requireAdmin: true,
         }
     },
     {
@@ -83,6 +84,7 @@ const routes = [
         component: ProviderInfo,
         meta: {
             requireAuth: true,
+            requireAdmin: true,
         }
     },
     {
@@ -92,6 +94,7 @@ const routes = [
         component: ProviderInfo,
         meta: {
             requireAuth: true,
+            requireAdmin: true,
         }
     },
     {
@@ -137,6 +140,7 @@ const adminRoutes = [
         component: UserList,
         meta: {
             requireAuth: true,
+            requireAdmin: true,
         }
     },
     {
@@ -145,6 +149,7 @@ const adminRoutes = [
         component: InviteUser,
         meta: {
             requireAuth: true,
+            requireAdmin: true,
         }
     },
     {
@@ -152,6 +157,9 @@ const adminRoutes = [
         name: 'Edit user',
         component: EditUser,
         props: true,
+        meta: {
+            requireAdmin: true,
+        }
     },
 ];
 

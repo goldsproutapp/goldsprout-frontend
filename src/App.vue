@@ -3,18 +3,21 @@ import {RouterView} from 'vue-router'
 import NavBar from "./components/NavBar.vue"
 import Footer from './components/Footer.vue';
 import {authState, updateAuthState} from './lib/state';
-import {onMounted} from 'vue';
+import {onMounted, watch} from 'vue';
 import router from './router';
 import {usePrimeVue} from 'primevue/config';
 import Toast from 'primevue/toast';
+import Unauthorised from './views/auth/Unauthorised.vue';
 
 const primeVue = usePrimeVue();
 
+watch(router.currentRoute, (newRoute, _) => {
+    if (!authState.loggedIn && newRoute.meta?.requireAuth)
+        router.push('/login');
+})
 onMounted(() => {
     primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {});
     updateAuthState();
-    if (router.currentRoute.value.meta?.requireAuth)
-        router.push('login');
 })
 </script>
 <template>
@@ -26,7 +29,8 @@ onMounted(() => {
         <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
-                <component :is="Component" :key="route.path" />
+                <component :is="Component" :key="route.path" v-if="authState.userInfo?.is_admin || !route.meta.requireAdmin" />
+                <Unauthorised v-else />
             </RouterView>
         </div>
         <Footer class="footer" />
