@@ -1,6 +1,8 @@
 @import './base.css';
 @import './colours.css';
 @import './scheme.css';
+@import 'primeicons/primeicons.css';
+
 html,body,#app {
     min-height: 100vh;
 }

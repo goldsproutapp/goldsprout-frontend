@@ -19,6 +19,8 @@ export const dataState = reactive({
     snapshots_latest: new Array<Snapshot>,
     snapshots_all: new Array<Snapshot>,
     users: new Array<User>,
+    regions: new Array<string>,
+    sectors: new Array<string>,
 })
 
 

@@ -81,7 +81,7 @@ const confirmDelete = async () => {
     }
     const res = await authenticatedRequest('/massdelete', {
         method: 'POST',
-        body: JSON.stringify(deleteInfo.value),
+        body: JSON.stringify({stocks: deleteInfo.value.stocks}),
     })
     if (res.status != 200) {
         toast.add({

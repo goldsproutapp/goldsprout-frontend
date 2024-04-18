@@ -20,6 +20,7 @@
     "@types/three": "^0.158.2",
     "chart.js": "^4.4.2",
     "highlight.js": "11.8.0",
+    "primeicons": "^7.0.0",
     "primevue": "^3.51.0",
     "simple-code-editor": "^2.0.8",
     "three": "^0.134.0",

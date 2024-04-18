@@ -24,11 +24,9 @@ export async function getUserByID(id: number, request_if_none: boolean = true): 
 export async function getUserByName(name: string, request_if_none: boolean = true): Promise<User> {
     const user = dataState.users.find(user => getUserDisplayName(user) === name);
     if (user === undefined && request_if_none) {
-        console.log(`NOT FOUND: ${name} : ${user}`)
         await getUsers();
         return await getUserByName(name, false);
     }
-    console.log(`FOUND FOUND: ${name} : ${user}`)
     return user as User;
 }
 

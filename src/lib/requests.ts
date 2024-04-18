@@ -97,4 +97,11 @@ export async function getOverview(): Promise<Overview | null> {
     }
     return json;
 }
+export async function getRegions(): Promise<string[]> {
+    const res = await authenticatedRequest('/regions');
+    //if (res.status != 200) return null;
+    const json = await res.json();
+    dataState.regions = json.regions;
+    return dataState.regions;
+}
 
