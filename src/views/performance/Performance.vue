@@ -9,7 +9,7 @@ import {onMounted, ref} from 'vue';
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
 const comparing = ref(comparisonOptions[0])
 
-const targetOptions = ['Person', 'Provider', 'Sector', 'Region', 'Stock',];
+const targetOptions = ['Person', 'Provider', 'Sector', 'Region', 'Stock','All',];
 
 const formats: any = {
     "Performance": "{}%",
@@ -136,28 +136,23 @@ const update = async () => {
 
 .comparison-table {
     border-collapse: collapse;
+    border: 2px solid var(--border-colour);
 }
 
-tr {
-    border-bottom: 1px solid white;
+tr:not(.category-separator) {
+    border-top: 2px solid var(--border-colour);
+}
+tr:hover {
+    background-color: var(--hover-colour);
 }
 
 th,
 td {
-    padding-left: .5rem;
-    padding-right: .5rem;
-}
-
-.header-td {
-    border-left: 1px solid black;
-}
-
-table {
-    border: 1px solid var(--border-colour);
+    padding: 1rem;
 }
 
 .category-separator {
-    border-top: 2px solid var(--border-colour);
+    border-top: 1px solid var(--text-colour);
 }
 
 .card {
@@ -197,6 +192,9 @@ table {
     .table {
         grid-row: 2;
         grid-column: 1;
+    }
+    .card {
+        overflow-x: scroll;
     }
 
 }
