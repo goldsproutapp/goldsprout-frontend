@@ -8,15 +8,16 @@ import router from "@/router";
 import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
 import {onMounted, ref} from "vue";
+import PerformanceGraph from "../performance/PerformanceGraph.vue";
 const props = defineProps<{
-    id: number,
+    id: string,
 }>();
 
 const stock = ref<Stock | undefined | null>(undefined);
 const providerList = ref<Provider[]>([]);
 const regions = ['UK', 'US', 'Global', 'Europe', 'Emerging', 'AsiaPacific'];
 onMounted(async () => {
-    stock.value = (await stocks()).find(({id}) => id == props.id) || null;
+    stock.value = (await stocks()).find(({id}) => id.toString() == props.id) || null;
     providerList.value = await providers();
 })
 const save = async () => {
@@ -63,6 +64,9 @@ const save = async () => {
         <div class="option-container control-container">
             <SaveCancel @save="save" @cancel="router.back()" />
         </div>
+        <div class="graph-container" display="height: 100rem;">
+            <PerformanceGraph :id="id" />
+        </div>
     </div>
 </template>
     
@@ -70,10 +74,12 @@ const save = async () => {
 <style scoped>
 .container {
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    margin-left: 2rem;
-    margin-right: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    flex-grow: 1;
 }
 
 .stock-title {
@@ -92,5 +98,11 @@ const save = async () => {
 
 .btn {
     margin-right: 1rem;
+}
+
+.graph-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 </style>

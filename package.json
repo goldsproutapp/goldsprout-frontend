@@ -19,6 +19,8 @@
     "@fortawesome/vue-fontawesome": "^3.0.6",
     "@types/three": "^0.158.2",
     "chart.js": "^4.4.2",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-annotation": "^3.0.1",
     "highlight.js": "11.8.0",
     "primeicons": "^7.0.0",
     "primevue": "^3.51.0",

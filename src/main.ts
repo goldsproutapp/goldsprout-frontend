@@ -9,6 +9,10 @@ import {faCircleExclamation, faHourglassHalf, faScrewdriverWrench} from '@fortaw
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import ToastService from 'primevue/toastservice';
+import {Chart} from 'chart.js';
+import annotationPlugin from 'chartjs-plugin-annotation';
+
+Chart.register(annotationPlugin);
 
 const app = createApp(App)
 app.use(PrimeVue);
