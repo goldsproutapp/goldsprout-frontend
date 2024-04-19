@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CountUp from '@/components/display/CountUp.vue';
 import {formatDecimal, pluralise} from '@/lib/data';
 import {getOverview} from '@/lib/requests';
 import type {Overview} from '@/lib/types';
@@ -22,7 +23,9 @@ onMounted(() => getOverview().then(res => overview.value = res));
                     </template>
                     <template #content>
                         <h1>
-                            <b>£{{ formatDecimal(overview.total_value) }}</b>
+                            <b>
+                                £<CountUp :value="parseFloat(overview.total_value)" :duration="750" :decimal-precision="2"/>
+                            </b>
                         </h1>
                     </template>
                 </Card>
@@ -32,10 +35,12 @@ onMounted(() => getOverview().then(res => overview.value = res));
                     </template>
                     <template #content>
                         <h1>
-                            <b v-if="overview.all_time_change[0] == '-'" style="color: var(--text-colour-negative)">-£{{
-                                formatDecimal(overview.all_time_change.slice(1)) }}</b>
-                            <b v-else style="color: var(--text-colour-positive)">+£{{
-                                formatDecimal(overview.all_time_change) }}</b>
+                            <b v-if="overview.all_time_change[0] == '-'" style="color: var(--text-colour-negative)">
+                                -£<CountUp :value="parseFloat(overview.all_time_change.slice(1))" :duration="750" :decimal-precision="2" />
+                            </b>
+                            <b v-else style="color: var(--text-colour-positive)">
+                                +£<CountUp :value="parseFloat(overview.all_time_change)" :duration="1000" :decimal-precision="2" />
+                            </b>
                         </h1>
                     </template>
                 </Card>
