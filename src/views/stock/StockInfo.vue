@@ -65,7 +65,7 @@ const save = async () => {
             <SaveCancel @save="save" @cancel="router.back()" />
         </div>
         <div class="graph-container" display="height: 100rem;">
-            <PerformanceGraph :id="id" />
+            <PerformanceGraph :id="id" performance-type="stock" />
         </div>
     </div>
 </template>

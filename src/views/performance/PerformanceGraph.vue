@@ -5,13 +5,14 @@ import {computed, onMounted, ref} from 'vue';
 import 'chartjs-adapter-date-fns';
 
 const props = defineProps<{
+    performanceType: string,
     id: string,
 }>();
 
 const performance = ref<any>({});
 
 onMounted(() =>
-    authenticatedRequest(`/stockperformance?id=${props.id}`)
+    authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`)
         .then(res => res.status != 200 ? {} : res.json()
             .then(json => performance.value = json))
 );
@@ -98,7 +99,7 @@ const performanceGraph = computed(() => {
             },
             {
                 label: 'Value',
-                data: Object.entries(performance.value.price)
+                data: Object.entries(performance.value.value)
                     .map(([k, v]) =>
                         // @ts-ignore
                         ({x: new Date(k), y: parseFloat(v)})

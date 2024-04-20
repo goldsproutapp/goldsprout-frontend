@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import CountUp from '@/components/display/CountUp.vue';
-import {formatDecimal, pluralise} from '@/lib/data';
 import {getOverview} from '@/lib/requests';
 import type {Overview} from '@/lib/types';
 import Card from 'primevue/card';
 import {onMounted, ref} from 'vue';
+import PerformanceGraph from './performance/PerformanceGraph.vue';
 
 const overview = ref<Overview | null>();
 
@@ -13,9 +13,9 @@ onMounted(() => getOverview().then(res => overview.value = res));
 </script>
 
 <template>
-    <div>
+    <div class="container">
         <h1>Overview</h1>
-        <div v-if="overview != null">
+        <div v-if="overview != null" class="overview">
             <div class="summary-cards">
                 <Card class="summary-card">
                     <template #title>
@@ -24,7 +24,8 @@ onMounted(() => getOverview().then(res => overview.value = res));
                     <template #content>
                         <h1>
                             <b>
-                                £<CountUp :value="parseFloat(overview.total_value)" :duration="750" :decimal-precision="2"/>
+                                £
+                                <CountUp :value="parseFloat(overview.total_value)" :duration="750" :decimal-precision="2" />
                             </b>
                         </h1>
                     </template>
@@ -36,10 +37,14 @@ onMounted(() => getOverview().then(res => overview.value = res));
                     <template #content>
                         <h1>
                             <b v-if="overview.all_time_change[0] == '-'" style="color: var(--text-colour-negative)">
-                                -£<CountUp :value="parseFloat(overview.all_time_change.slice(1))" :duration="750" :decimal-precision="2" />
+                                -£
+                                <CountUp :value="parseFloat(overview.all_time_change.slice(1))" :duration="750"
+                                    :decimal-precision="2" />
                             </b>
                             <b v-else style="color: var(--text-colour-positive)">
-                                +£<CountUp :value="parseFloat(overview.all_time_change)" :duration="1000" :decimal-precision="2" />
+                                +£
+                                <CountUp :value="parseFloat(overview.all_time_change)" :duration="1000"
+                                    :decimal-precision="2" />
                             </b>
                         </h1>
                     </template>
@@ -55,38 +60,40 @@ onMounted(() => getOverview().then(res => overview.value = res));
                     </template>
                 </Card>
             </div>
-            <div v-if="overview.users">
-                <br>
-                You also have access to the following users:
-                <ul>
-                    <li v-for="[uid, info] in Object.entries(overview.users)">
-                        {{ info.name }} with
-                        £{{ formatDecimal(info.total_value) }}
-                        between
-                        {{ pluralise(info.num_stocks, 'stock') }}
-                        across
-                        {{ pluralise(info.num_providers, 'provider') }}
-                        (last snapshot {{ info.last_snapshot.toLocaleDateString() }}).
-                    </li>
-                </ul>
+            <div class="graph-container">
+                <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1;"/>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+.container, .overview {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
 .summary-cards {
     display: flex;
     flex-wrap: wrap;
 }
 
 .summary-card {
-    margin: 1rem;
+    margin: var(--inline-spacing);
     min-width: 20rem;
 }
 </style>
 <style>
 .p-card-content {
     padding: 0;
+}
+.graph-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: var(--inline-spacing);
+    background-color: var(--surface-card);
 }
 </style>
