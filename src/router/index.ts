@@ -15,6 +15,7 @@ import UserList from "@/views/admin/UserList.vue";
 import InviteUser from "@/views/admin/InviteUser.vue";
 import EditUser from "@/views/admin/EditUser.vue";
 import ImportSnapshots from "@/views/snapshot/ImportSnapshots.vue";
+import AnalysisVue from "@/views/analysis/Analysis.vue";
 
 export const headerRoutes = [
     {
@@ -54,6 +55,14 @@ export const headerRoutes = [
         path: '/performance',
         name: 'Performance',
         component: PerformanceVue,
+        meta: {
+            requireAuth: true,
+        }
+    },
+    {
+        path: '/analysis',
+        name: 'Analysis',
+        component: AnalysisVue,
         meta: {
             requireAuth: true,
         }
