@@ -50,9 +50,9 @@ const graphData = computed(() => {
 
 const containerID = (key: string) => `piechart-${key}`;
 
-// TODO: work out how to make this computed, as this is called every UI update, so charts are re-rendered.
-function graphOptionsFor(key: string) {
-    return {
+const options = computed(() => {
+    const out: any = {};
+    Object.keys(graphData.value).forEach(key => out[key] = {
         maintainAspectRatio: false,
         plugins: {
             legend: {
@@ -62,8 +62,9 @@ function graphOptionsFor(key: string) {
                 containerID: containerID(key),
             }
         }
-    }
-}
+    });
+    return out;
+});
 
 </script>
 
@@ -88,7 +89,7 @@ function graphOptionsFor(key: string) {
             <div v-if="data.success" class="pie-group">
                 <Panel v-for="key in Object.keys(graphData)" :header="capitalize(key)" class="pie-container">
                     <div :id="containerID(key)" class="legend-container"></div>
-                    <Chart type="pie" :data="graphData[key]" :options="graphOptionsFor(key)" style="height: 20rem;"
+                    <Chart type="pie" :data="graphData[key]" :options="options[key]" style="height: 20rem;"
                         :plugins="[htmlLegendPlugin]" />
                 </Panel>
             </div>
