@@ -10,6 +10,8 @@ import InputSwitch from "primevue/inputswitch";
 import {computed, onMounted, ref} from "vue";
 import PerformanceGraph from "../performance/PerformanceGraph.vue";
 import {dataState} from "@/lib/state";
+import Inplace from "primevue/inplace";
+import InputText from "primevue/inputtext";
 const props = defineProps<{
     id: string,
 }>();
@@ -49,7 +51,14 @@ const save = async () => {
         Loading...
     </div>
     <div class="container" v-else>
-        <span class="stock-title">{{ stock.name }}</span>
+        <Inplace :closable="true" class="stock-title">
+            <template #display>
+                {{ stock.name }}
+            </template>
+            <template #content>
+                <InputText v-model="stock.name" autofocus class="stock-title"/>
+            </template>
+        </Inplace>
         <div class="option-container">
             Provider:
             <ProviderDropdown v-model="stock.provider_name" />
