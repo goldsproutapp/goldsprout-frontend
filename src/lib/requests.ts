@@ -99,9 +99,14 @@ export async function getOverview(): Promise<Overview | null> {
 }
 export async function getRegions(): Promise<string[]> {
     const res = await authenticatedRequest('/regions');
-    //if (res.status != 200) return null;
     const json = await res.json();
     dataState.regions = json.regions;
     return dataState.regions;
 }
 
+export async function getSectors(): Promise<string[]> {
+    const res = await authenticatedRequest('/sectors');
+    const json = await res.json();
+    dataState.sectors = json.sectors;
+    return dataState.sectors;
+}

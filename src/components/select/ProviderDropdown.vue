@@ -12,9 +12,6 @@ onMounted(async () => {
 })
 
 const model = defineModel();
-defineProps<{
-    l_id: string,
-}>();
 </script>
 <template>
     <Dropdown v-model="model" :options="providerNames" placeholder="Provider" class="w-full md:w-14rem"/>

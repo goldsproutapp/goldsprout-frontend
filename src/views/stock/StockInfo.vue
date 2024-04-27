@@ -2,23 +2,28 @@
 import SaveCancel from "@/components/buttons/SaveCancel.vue";
 import ProviderDropdown from "@/components/select/ProviderDropdown.vue";
 import {stocks, providers} from "@/lib/data";
-import {authenticatedRequest, getStockList} from "@/lib/requests";
+import {authenticatedRequest, getRegions, getSectors, getStockList} from "@/lib/requests";
 import {type Provider, type Stock} from "@/lib/types";
 import router from "@/router";
 import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import PerformanceGraph from "../performance/PerformanceGraph.vue";
+import {dataState} from "@/lib/state";
 const props = defineProps<{
     id: string,
 }>();
 
 const stock = ref<Stock | undefined | null>(undefined);
 const providerList = ref<Provider[]>([]);
-const regions = ['UK', 'US', 'Global', 'Europe', 'Emerging', 'AsiaPacific'];
+const regions = computed(() => dataState.regions);
+const sectors = computed(() => dataState.sectors);
+
 onMounted(async () => {
     stock.value = (await stocks()).find(({id}) => id.toString() == props.id) || null;
     providerList.value = await providers();
+    getRegions();
+    getSectors();
 })
 const save = async () => {
     const obj = stock.value as Stock;
@@ -47,11 +52,11 @@ const save = async () => {
         <span class="stock-title">{{ stock.name }}</span>
         <div class="option-container">
             Provider:
-            <ProviderDropdown l_id="stockinfo-provider" v-model="stock.provider_name" />
+            <ProviderDropdown v-model="stock.provider_name" />
         </div>
         <div class="option-container">
             Sector:
-            <Dropdown v-model="stock.sector" :options="[]" editable />
+            <Dropdown v-model="stock.sector" :options="sectors" editable />
         </div>
         <div class="option-container">
             Region:
