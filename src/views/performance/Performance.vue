@@ -17,7 +17,7 @@ const formats: any = {
     "Weighted Performance": "{}%",
     "Holdings": "£{}",
 }
-const target = ref(targetOptions[0]);
+const target = ref('All');
 const against = ref(targetOptions[0]);
 const timeOptions = ['Years', 'Quarters', 'Months'];
 const time = ref(timeOptions[0]);
@@ -35,8 +35,10 @@ const displayedOpts: any = ref({
 const format = (str: string) => formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str));
 const filterObj = ref<{[key: string]: string}>({});
 
+
 onMounted(async () => {
     await getSnapshots('all');
+    update();
 })
 
 const update = async () => {
