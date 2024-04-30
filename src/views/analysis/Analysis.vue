@@ -83,7 +83,7 @@ const options = computed(() => {
             </span>
         </template>
         <template #filter>
-            <PerformanceFilter v-model="filterObj" @update="update" />
+            <PerformanceFilter v-model="filterObj" @update="update" :upper-date-only="true" />
         </template>
         <template #body>
             <div v-if="data.success" class="pie-group">
