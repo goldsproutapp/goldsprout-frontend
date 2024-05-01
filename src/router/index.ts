@@ -22,51 +22,35 @@ export const headerRoutes = [
         path: '/',
         name: 'Home',
         component: Overview,
-        meta: {
-            reuireAuth: true,
-        },
     },
     {
         path: '/stocks',
         name: 'Stocks',
         component: StockList,
-        meta: {
-            requireAuth: true,
-        },
     },
     {
         path: '/snapshots',
         name: 'Snapshots',
         component: Snapshots,
-        meta: {
-            requireAuth: true,
-        },
+    },
+    {
+        path: '/performance',
+        name: 'Performance',
+        component: PerformanceVue,
+    },
+    {
+        path: '/analysis',
+        name: 'Analysis',
+        component: AnalysisVue,
     },
     {
         path: '/providers',
         name: 'Providers',
         component: ProviderList,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         },
-    },
-    {
-        path: '/performance',
-        name: 'Performance',
-        component: PerformanceVue,
-        meta: {
-            requireAuth: true,
-        }
-    },
-    {
-        path: '/analysis',
-        name: 'Analysis',
-        component: AnalysisVue,
-        meta: {
-            requireAuth: true,
-        }
-    },
+    }
 ];
 
 const routes = [
@@ -74,16 +58,12 @@ const routes = [
         path: '/snapshots/create',
         name: 'Create snapshot',
         component: CreateSnapshot,
-        meta: {
-            requireAuth: true,
-        }
     },
     {
         path: '/snapshots/import',
         name: 'Import snapshots',
         component: ImportSnapshots,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         }
     },
@@ -92,7 +72,6 @@ const routes = [
         name: 'Create Provider',
         component: ProviderInfo,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         }
     },
@@ -102,7 +81,6 @@ const routes = [
         props: (route: any) => ({providerID: parseInt(route.params.providerID)}),
         component: ProviderInfo,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         }
     },
@@ -111,9 +89,6 @@ const routes = [
         props: true,
         name: 'Stock Info',
         component: StockInfo,
-        meta: {
-            requireAuth: true,
-        }
     },
 ];
 
@@ -122,24 +97,30 @@ const authRoutes = [
         path: '/login',
         name: 'Log in',
         component: Login,
+        meta: {
+            allowNoAuth: true,
+        },
     },
     {
         path: '/logout',
         name: 'Log out',
         component: Logout,
+        meta: {
+            allowNoAuth: true,
+        },
     },
     {
         path: '/invitation',
         name: 'Invitation',
-        component: Invitation
+        component: Invitation,
+        meta: {
+            allowNoAuth: true,
+        },
     },
     {
         path: '/options',
         name: 'Options',
         component: Profile,
-        meta: {
-            requireAuth: true,
-        }
     },
 ];
 const adminRoutes = [
@@ -148,7 +129,6 @@ const adminRoutes = [
         name: 'Users',
         component: UserList,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         }
     },
@@ -157,7 +137,6 @@ const adminRoutes = [
         name: 'Invite user',
         component: InviteUser,
         meta: {
-            requireAuth: true,
             requireAdmin: true,
         }
     },

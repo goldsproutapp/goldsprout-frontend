@@ -12,7 +12,7 @@ import Unauthorised from './views/auth/Unauthorised.vue';
 const primeVue = usePrimeVue();
 
 watch(router.currentRoute, (newRoute, _) => {
-    if (!authState.loggedIn && newRoute.meta?.requireAuth)
+    if (!authState.loggedIn && !newRoute.meta?.allowNoAuth)
         router.push('/login');
 })
 onMounted(() => {
