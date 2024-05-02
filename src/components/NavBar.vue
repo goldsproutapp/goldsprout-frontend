@@ -9,7 +9,7 @@ import Menubar from 'primevue/menubar';
 import type {MenuItem} from 'primevue/menuitem';
 import Menu from 'primevue/menu';
 import Button from 'primevue/button';
-const visibleRoutes = computed(() => headerRoutes.filter(route => !route.meta.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
+const visibleRoutes = computed(() => headerRoutes.filter(route => !route.meta?.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)));
 const items = computed<MenuItem[]>(() => visibleRoutes.value.map(route => ({label: route.name, route: route.path})));
 const profileMenuItems = ref([
     {
