@@ -6,8 +6,9 @@ import router from "@/router";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
-import {computed, onMounted} from "vue";
-onMounted(getSnapshots);
+import ProgressSpinner from "primevue/progressspinner";
+import {computed, onMounted, ref} from "vue";
+
 const snapshots = computed(() => dataState.snapshots_latest.map(
     (snapshot) => ({
         ...snapshot,
@@ -16,6 +17,11 @@ const snapshots = computed(() => dataState.snapshots_latest.map(
         user_name: snapshot.user.first_name,
     })
 ));
+const loading = ref(true);
+onMounted(() => {
+    loading.value = snapshots.value.length == 0;
+    getSnapshots().then(() => loading.value = false)
+});
 const headings = {
     user_name: 'User',
     date: 'Date',
@@ -33,8 +39,12 @@ const headings = {
     <div>
         <h1>Snapshots</h1>
         <Button class="create-button" label="Create snapshot" severity="primary" @click="router.push('snapshots/create')" />
-        <DataTable :value="snapshots">
-            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
+        <DataTable :value="snapshots" :loading="loading">
+            <template #empty v-if="!loading">No snapshots found.</template>
+            <template #loading>
+                <ProgressSpinner />
+            </template>
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display" sortable></Column>
         </DataTable>
     </div>
 </template>

@@ -7,6 +7,7 @@ import {computed, onMounted, ref} from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InfoIcon from "@/components/icons/InfoIcon.vue";
+import ProgressSpinner from "primevue/progressspinner";
 
 const headings = {
     name: 'Name',
@@ -14,8 +15,12 @@ const headings = {
     sector: 'Sector',
     region: 'Region',
 };
+const loading = ref(true);
 const stocks = computed(() => dataState.stocks);
-onMounted(getStockList);
+onMounted(() => {
+    loading.value = stocks.value.length == 0;
+    getStockList().then(() => loading.value = false)
+});
 const selection = ref();
 
 </script>
@@ -24,8 +29,12 @@ const selection = ref();
     <div>
         <h1>Stocks</h1>
         <DataTable :value="stocks" data-key="id" selection-mode="single" v-model:selection="selection"
-            @row-select="row => router.push(`/stocks/${row.data.id}`)">
-            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :header="display" :field="key">
+            @row-select="row => router.push(`/stocks/${row.data.id}`)" removable-sort :loading="loading">
+            <template #empty>No stocks found.</template>
+            <template #loading>
+                <ProgressSpinner />
+            </template>
+            <Column v-for="[key, display] in Object.entries(headings)" :key="key" :header="display" :field="key" sortable>
             </Column>
             <Column>
                 <template #body="row">
