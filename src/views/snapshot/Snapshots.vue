@@ -14,6 +14,7 @@ const snapshots = computed(() => dataState.snapshots_latest.map(
         ...snapshot,
         stock_name: snapshot.stock?.name,
         date: snapshot.date.toLocaleDateString(),
+        timestamp: snapshot.date,
         user_name: snapshot.user.first_name,
     })
 ));
@@ -24,7 +25,6 @@ onMounted(() => {
 });
 const headings = {
     user_name: 'User',
-    date: 'Date',
     stock_name: 'Name',
     units: 'Units',
     price: 'Price (£)',
@@ -44,6 +44,7 @@ const headings = {
             <template #loading>
                 <ProgressSpinner />
             </template>
+            <Column header="Date" field="date" sortable sortField="timestamp" />
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display" sortable></Column>
         </DataTable>
     </div>
