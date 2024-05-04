@@ -36,7 +36,7 @@ const user = computed(() => dataState.users.find(user => getUserDisplayName(user
 
 const entries = ref<any>([]);
 const inputDiv: any = ref(null);
-const dateInput = ref<Date>(new Date());
+const dateInput = ref<Date>(new Date(new Date().toDateString()));
 
 const missingStocks = ref<Stock[]>([]);
 const showModal = ref(false);
