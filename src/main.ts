@@ -9,6 +9,7 @@ import {faCircleExclamation, faHourglassHalf, faScrewdriverWrench} from '@fortaw
 import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 import {Chart} from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 
@@ -17,6 +18,7 @@ Chart.register(annotationPlugin);
 const app = createApp(App)
 app.use(PrimeVue);
 app.use(ToastService)
+app.use(ConfirmationService);
 app.directive('tooltip', Tooltip);
 
 library.add(faScrewdriverWrench);
