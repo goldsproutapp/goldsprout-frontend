@@ -3,7 +3,7 @@
 import {dataState} from "@/lib/state";
 import router from "@/router";
 import {getStockList} from "@/lib/requests";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InfoIcon from "@/components/icons/InfoIcon.vue";
@@ -22,6 +22,7 @@ onMounted(() => {
     getStockList().then(() => loading.value = false)
 });
 const selection = ref();
+watch(selection, () => selection.value = null); // don't highlight the 'selection', we just want to identify a click.
 
 </script>
 

@@ -29,8 +29,11 @@ onMounted(() => {
         <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
-                <component :is="Component" :key="route.path" v-if="authState.userInfo?.is_admin || !route.meta.requireAdmin" />
-                <Unauthorised v-else />
+                <keep-alive :max="10">
+                    <component :is="Component" :key="route.path"
+                        v-if="authState.userInfo?.is_admin || !route.meta.requireAdmin" />
+                    <Unauthorised v-else />
+                </keep-alive>
             </RouterView>
         </div>
         <Footer class="footer" />
