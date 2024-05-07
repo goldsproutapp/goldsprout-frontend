@@ -20,6 +20,7 @@ const headings = {
         <Button class="create-button" @click="router.push('providers/create')" label="Create provider" severity="primary" />
         <DataTable :value="providers" selection-mode="single" @row-select="row => router.push(`/providers/${row.data.id}`)">
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
+            <Column :field="x => `${x.annual_fee ?? 0}%`" header="Fee"></Column>
         </DataTable>
     </div>
 </template>

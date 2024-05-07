@@ -13,6 +13,7 @@ export interface Stock {
     needs_attention: boolean,
     users: number[], // list of visible users holding this stock
     currently_held: boolean,
+    annual_fee: number,
 };
 
 export interface Provider {
@@ -20,6 +21,7 @@ export interface Provider {
     name: string,
     csv_format: string,
     csv_format_obj: {[key: string]: number}
+    annual_fee: number,
 };
 
 export interface Snapshot {

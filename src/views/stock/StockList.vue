@@ -8,6 +8,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InfoIcon from "@/components/icons/InfoIcon.vue";
 import ProgressSpinner from "primevue/progressspinner";
+import type {Stock} from "@/lib/types";
 
 const headings = {
     name: 'Name',
@@ -23,6 +24,7 @@ onMounted(() => {
 });
 const selection = ref();
 watch(selection, () => selection.value = null); // don't highlight the 'selection', we just want to identify a click.
+const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee ?? 0)).toString();
 
 </script>
 
@@ -37,6 +39,7 @@ watch(selection, () => selection.value = null); // don't highlight the 'selectio
             </template>
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :header="display" :field="key" sortable>
             </Column>
+            <Column header="Fee" :field="x => `${calculateFee(x)}%`" sortable :sort-field="calculateFee"></Column>
             <Column>
                 <template #body="row">
                     <InfoIcon v-if="row.data.needs_attention" preset="attention" />

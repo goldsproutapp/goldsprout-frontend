@@ -4,6 +4,7 @@ import {getProviderByID} from '@/lib/data';
 import {authenticatedRequest} from '@/lib/requests';
 import {type Provider} from '@/lib/types';
 import router from '@/router';
+import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
 import {ref, watch} from 'vue';
 
@@ -16,6 +17,7 @@ const provider = ref<Provider>({
     name: '',
     csv_format: '',
     csv_format_obj: {},
+    annual_fee: 0,
 });
 
 watch(props, ({providerID}, _) => {
@@ -45,6 +47,9 @@ const save = async () => {
         </div>
         <div class="input-item" style="width: 50%;">
             <InputText placeholder="CSV Format" v-model="provider.csv_format" type="text" style="width: 100%;"/>
+        </div>
+        <div class="input-item" style="width: 50%;">
+            <InputNumber placeholder="Annual fee" v-model="provider.annual_fee" suffix="%"/>
         </div>
         <div class="input-item">
             <SaveCancel @save="save" @cancel="router.back()"/>

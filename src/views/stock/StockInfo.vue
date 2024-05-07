@@ -12,6 +12,7 @@ import PerformanceGraph from "../performance/PerformanceGraph.vue";
 import {dataState} from "@/lib/state";
 import Inplace from "primevue/inplace";
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
 const props = defineProps<{
     id: string,
 }>();
@@ -56,7 +57,7 @@ const save = async () => {
                 {{ stock.name }}
             </template>
             <template #content>
-                <InputText v-model="stock.name" autofocus class="stock-title"/>
+                <InputText v-model="stock.name" autofocus class="stock-title" />
             </template>
         </Inplace>
         <div class="option-container">
@@ -70,6 +71,10 @@ const save = async () => {
         <div class="option-container">
             Region:
             <Dropdown v-model="stock.region" :options="regions" editable />
+        </div>
+        <div class="option-container">
+            Fee:
+            <InputNumber v-model="stock.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%"/>
         </div>
         <div class="option-container">
             Needs attention:
