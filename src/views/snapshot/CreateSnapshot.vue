@@ -111,17 +111,27 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         entries: entries.value,
         delete_sold_stocks: deleteSoldStocks,
     };
-    await authenticatedRequest('/snapshots', {
+    const res = await authenticatedRequest('/snapshots', {
         method: 'POST',
         body: JSON.stringify(payload),
     });
+    if (res.status !== 201) {
+        toast.add({
+            summary: 'Error',
+            detail: `An error occurred while creating the snapshots: ${res.statusText}`,
+            group: 'bl',
+            severity: 'error',
+            life: 2000,
+        });
+        return;
+    }
     toast.add({
         summary: 'Success',
         detail: 'Snapshots created',
         group: 'bl',
         severity: 'success',
         life: 2000,
-    })
+    });
     router.push('/snapshots');
 };
 
