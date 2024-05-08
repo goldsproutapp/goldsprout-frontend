@@ -40,7 +40,7 @@ const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :header="display" :field="key" sortable>
             </Column>
             <Column header="Fee" :field="x => `${calculateFee(x)}%`" sortable :sort-field="calculateFee"></Column>
-            <Column>
+            <Column sortable :sort-field="x => (x.needs_attention ?? false).toString()">
                 <template #body="row">
                     <InfoIcon v-if="row.data.needs_attention" preset="attention" />
                 </template>
