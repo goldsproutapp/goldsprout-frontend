@@ -49,7 +49,7 @@ const save = async () => {
             <InputText placeholder="CSV Format" v-model="provider.csv_format" type="text" style="width: 100%;"/>
         </div>
         <div class="input-item" style="width: 50%;">
-            <InputNumber placeholder="Annual fee" v-model="provider.annual_fee" :min="0" :max="0" :max-fraction-digits="2" suffix="%"/>
+            <InputNumber placeholder="Annual fee" v-model="provider.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%"/>
         </div>
         <div class="input-item">
             <SaveCancel @save="save" @cancel="router.back()"/>
