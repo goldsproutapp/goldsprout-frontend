@@ -30,7 +30,7 @@ export async function getStockList(): Promise<Stock[]> {
     const json = await res.json();
     const providers = await getProviderList();
     let stocks = json.reduce((obj: Object, userStock: any) => Object.assign(obj, {[userStock.stock.id]: {...userStock.stock, users: []}}), {});
-    json.forEach((userStock: any) => stocks[userStock.stock.id].users.push(userStock.user_id));
+    json.filter((userStock: any) => userStock.currently_held).forEach((userStock: any) => stocks[userStock.stock.id].users.push(userStock.user_id));
     stocks = Object.values(stocks);
     stocks.forEach((stock: any) => stock.provider = providers.find(provider => provider.id == stock.provider_id));
     stocks.forEach((stock: any) => stock.provider_name = stock.provider.name);
