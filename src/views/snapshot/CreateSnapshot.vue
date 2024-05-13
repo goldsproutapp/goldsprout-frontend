@@ -3,7 +3,7 @@ import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
 import {getUserDisplayName} from '@/lib/data';
 import {parseCSV} from '@/lib/formats/csv';
-import {authenticatedRequest, getStockList} from '@/lib/requests';
+import {authenticatedRequest, getSnapshots, getStockList} from '@/lib/requests';
 import {authState, dataState} from '@/lib/state';
 import {type Stock} from '@/lib/types';
 import router from '@/router';
@@ -132,7 +132,10 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         severity: 'success',
         life: 2000,
     });
-    router.push('/snapshots');
+    getSnapshots()
+        .then(() =>
+            router.push('/snapshots')
+        );
 };
 
 const submit = () => {
