@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
-import {getUserDisplayName} from '@/lib/data';
+import {formatDecimal, getUserDisplayName, pluralise} from '@/lib/data';
 import {parseCSV} from '@/lib/formats/csv';
 import {authenticatedRequest, getSnapshots, getStockList} from '@/lib/requests';
 import {authState, dataState} from '@/lib/state';
-import {type Stock} from '@/lib/types';
+import {type Snapshot, type Stock, type User} from '@/lib/types';
 import router from '@/router';
 import {computed, onMounted, ref} from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
@@ -32,14 +32,20 @@ const provider = computed(() => dataState.providers.find(provider => provider.na
 onMounted(getStockList);
 
 const username = ref<string>(getUserDisplayName(authState.userInfo));
-const user = computed(() => dataState.users.find(user => getUserDisplayName(user) === username.value));
+const user = computed<User | undefined>(() => dataState.users.find(user => getUserDisplayName(user) === username.value));
 
 const entries = ref<any>([]);
 const inputDiv: any = ref(null);
 const dateInput = ref<Date>(new Date(new Date().toDateString()));
 
 const missingStocks = ref<Stock[]>([]);
-const showModal = ref(false);
+const showDeletionModal = ref(false);
+const showSummaryDialog = ref(false);
+const summary = ref({
+    num_snapshots: 0,
+    total_value: 0,
+    user: '',
+});
 
 const toast = useToast();
 
@@ -48,18 +54,14 @@ function findMissingStocks(): boolean {
     const snapshotsStocks = entries.value.map((entry: any) => `${entry.stock_name}:${entry.provider_id}`);
     const applicableStocks = dataState.stocks.filter(
         (stock) =>
-            stock.currently_held &&
             stock.tracking_strategy === 'DATA_IMPORT' &&
             // @ts-ignore
             stock.users.includes(user.value.id) &&
             providers.has(stock.provider.id)
     );
-    console.log(applicableStocks);
-    console.log(snapshotsStocks);
-    applicableStocks.forEach((stock) => console.log([stock.name, stock.provider.id]));
     missingStocks.value = applicableStocks.filter((stock) => !snapshotsStocks.includes(`${stock.name}:${stock.provider.id}`));
     const missing = missingStocks.value.length !== 0;
-    if (missing) showModal.value = true;
+    if (missing) showDeletionModal.value = true;
     return missing;
 }
 
@@ -132,10 +134,14 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         severity: 'success',
         life: 2000,
     });
-    getSnapshots()
-        .then(() =>
-            router.push('/snapshots')
-        );
+    showSummaryDialog.value = true;
+    const {data} = await res.json();
+    summary.value.num_snapshots = data.length;
+    summary.value.user = getUserDisplayName(user.value as User);
+    summary.value.total_value = data.reduce(
+        (total: number, snapshot: Snapshot) =>
+            total + Number.parseFloat(snapshot.value), 0);
+    getSnapshots();
 };
 
 const submit = () => {
@@ -146,7 +152,26 @@ const submit = () => {
 
 <template>
     <div class="container">
-        <Dialog v-model:visible="showModal">
+        <Dialog v-model:visible="showSummaryDialog" header="Summary" modal :pt="{
+            footer: {
+                style: {
+                    justifyContent: 'start'
+                }
+            }
+        }">
+            <span>
+                You have created {{ pluralise(summary.num_snapshots, 'snapshot') }}
+                for {{ summary.user }}
+                with a total value of £{{ formatDecimal(summary.total_value.toFixed(2)) }}
+            </span>
+            <template #footer>
+                <Button label="OK" severity="secondary" @click="() => {
+                    router.push('/snapshots');
+                    showSummaryDialog = false;
+                }" />
+            </template>
+        </Dialog>
+        <Dialog v-model:visible="showDeletionModal" modal>
             You have not provided data for the following stocks:
             <ul>
                 <li v-for="stock in missingStocks" :key="stock.id.toString()">{{ stock.name }} of {{ stock.provider_name }}
@@ -155,7 +180,7 @@ const submit = () => {
             It looks like these stocks are no longer held, and will be marked as such.<br>
             <Button class="modal-button" severity="success" @click="() => createSnapshots()"
                 label="These are no longer held, continue" />
-            <Button class="modal-button" severity="danger" @click="showModal = false" label="Cancel" />
+            <Button class="modal-button" severity="danger" @click="showDeletionModal = false" label="Cancel" />
             <br>
             <Button class="modal-button" severity="secondary" @click="createSnapshots(false)" label="These are still held,
                             continue without updating them" />
