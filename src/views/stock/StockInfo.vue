@@ -7,12 +7,16 @@ import {type Provider, type Stock} from "@/lib/types";
 import router from "@/router";
 import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
+import Button from "primevue/button";
 import {computed, onMounted, ref} from "vue";
 import PerformanceGraph from "../performance/PerformanceGraph.vue";
 import {dataState} from "@/lib/state";
 import Inplace from "primevue/inplace";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
+import Dialog from "primevue/dialog";
+import StockDropdown from "@/components/select/StockDropdown.vue";
+import {useToast} from "primevue/usetoast";
 const props = defineProps<{
     id: string,
 }>();
@@ -21,6 +25,11 @@ const stock = ref<Stock | undefined | null>(undefined);
 const providerList = ref<Provider[]>([]);
 const regions = computed(() => dataState.regions);
 const sectors = computed(() => dataState.sectors);
+
+const mergeModal = ref(false);
+const mergeInto = ref<Stock | null>(null);
+
+const toast = useToast();
 
 onMounted(async () => {
     stock.value = (await stocks()).find(({id}) => id.toString() == props.id) || null;
@@ -42,6 +51,46 @@ const save = async () => {
     getStockList();
     router.push('/stocks');
 }
+const merge = async () => {
+    mergeModal.value = false;
+    if (mergeInto.value == null) {
+        toast.add({
+            summary: 'Error',
+            detail: 'Please select a stock to merge into.',
+            group: 'bl',
+            severity: 'error',
+            life: 2000,
+        })
+        return;
+    }
+    const payload = {
+        stock: stock.value?.id ?? 0, // stock can't be null if we're getting here.
+        merge_into: mergeInto.value.id,
+    };
+    const res = await authenticatedRequest('/stocks/merge', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+    if (res.status !== 204) {
+        toast.add({
+            summary: 'Error',
+            detail: `An error occurred while attempting to merge stocks: ${res.statusText}.`,
+            group: 'bl',
+            severity: 'error',
+            life: 2000,
+        });
+        return;
+    }
+    toast.add({
+        summary: 'Success',
+        detail: 'Successfully merged stocks.',
+        group: 'bl',
+        severity: 'success',
+        life: 2000,
+    });
+    getStockList().then(() => router.push('/stocks'));
+
+};
 </script>
 
 <template>
@@ -74,11 +123,14 @@ const save = async () => {
         </div>
         <div class="option-container">
             Fee:
-            <InputNumber v-model="stock.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%"/>
+            <InputNumber v-model="stock.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%" />
         </div>
         <div class="option-container">
             Needs attention:
             <InputSwitch v-model="stock.needs_attention" />
+        </div>
+        <div class="option-container">
+            <Button label="Merge into" severity="secondary" @click="mergeModal = true" />
         </div>
         <div class="option-container control-container">
             <SaveCancel @save="save" @cancel="router.back()" />
@@ -86,6 +138,16 @@ const save = async () => {
         <div class="graph-container" display="height: 100rem;">
             <PerformanceGraph :id="id" performance-type="stock" />
         </div>
+        <Dialog v-model:visible="mergeModal" header="Merge stocks" modal :style="{minWidth: '50rem'}">
+            <div class="mergemodal-container">
+                <span>Merge this stock into another stock, deleting this stock.</span>
+                <span style="color: var(--warning-colour)">Warning: This action is irreversible.</span>
+                <StockDropdown v-model="mergeInto" :exclude-ids="[stock.id]" />
+                <div class="control-container option-container">
+                    <SaveCancel @save="merge" @cancel="mergeModal = false" save-label="Merge" />
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
     
@@ -123,5 +185,11 @@ const save = async () => {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+}
+
+.mergemodal-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: .5rem;
 }
 </style>
