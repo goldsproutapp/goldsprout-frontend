@@ -17,6 +17,7 @@ import InputNumber from "primevue/inputnumber";
 import Dialog from "primevue/dialog";
 import StockDropdown from "@/components/select/StockDropdown.vue";
 import {useToast} from "primevue/usetoast";
+import {StatusCode, statusFrom, statusText} from "@/lib/formats/responses";
 const props = defineProps<{
     id: string,
 }>();
@@ -71,10 +72,10 @@ const merge = async () => {
         method: 'POST',
         body: JSON.stringify(payload),
     });
-    if (res.status !== 204) {
+    const status = statusFrom(res.status);
+    if (status !== StatusCode.NoContent) {
         toast.add({
-            summary: 'Error',
-            detail: `An error occurred while attempting to merge stocks: ${res.statusText}.`,
+            summary: 'Error', detail: `An error occurred while attempting to merge stocks: ${statusText(status)}.`,
             group: 'bl',
             severity: 'error',
             life: 2000,

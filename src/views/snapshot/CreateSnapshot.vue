@@ -15,6 +15,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import {useToast} from 'primevue/usetoast';
+import {StatusCode, statusFrom, statusText} from '@/lib/formats/responses';
 
 
 const headings = {
@@ -117,10 +118,11 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         method: 'POST',
         body: JSON.stringify(payload),
     });
-    if (res.status !== 201) {
+    const status = statusFrom(res.status);
+    if (status !== StatusCode.Created) {
         toast.add({
             summary: 'Error',
-            detail: `An error occurred while creating the snapshots: ${res.statusText}`,
+            detail: `An error occurred while creating the snapshots: ${statusText(status)}`,
             group: 'bl',
             severity: 'error',
             life: 2000,
