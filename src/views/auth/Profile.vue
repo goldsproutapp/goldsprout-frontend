@@ -123,6 +123,8 @@ const confirmDelete = async () => {
                 <span class="info-element">{{ editingInfo.email }}</span>
                 <span class="info-element">Admin:</span>
                 <span class="info-element">{{ editingInfo.is_admin }}</span>
+                <span class="info-element">Trusted:</span>
+                <span class="info-element">{{ editingInfo.trusted ?? 'false' }}</span>
                 <span class="info-element">Account created:</span>
                 <span class="info-element">{{ new Date(editingInfo.created_at).toLocaleDateString() }}</span>
                 <Button v-if="!editing" @click="editing = true" severity="secondary" label="Edit" />

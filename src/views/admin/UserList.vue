@@ -31,8 +31,11 @@ const users = computed(() =>
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
             <Column>
                 <template #body="row">
-                    <InfoIcon v-if="row.data.is_admin" preset="admin" />
-                    <InfoIcon v-else-if="!row.data.active" preset="invited" />
+                    <div class="icon-container">
+                        <InfoIcon v-if="row.data.is_admin" preset="admin" />
+                        <InfoIcon v-if="!row.data.active" preset="invited" />
+                        <i v-if="row.data.trusted" class="pi pi-lock-open" v-tooltip.top="'This user is trusted.'" />
+                    </div>
                 </template>
             </Column>
         </DataTable>
@@ -42,5 +45,10 @@ const users = computed(() =>
 <style scoped>
 .create-button {
     margin-bottom: 1rem;
+}
+
+.icon-container {
+    display: flex;
+    gap: .5rem;
 }
 </style>

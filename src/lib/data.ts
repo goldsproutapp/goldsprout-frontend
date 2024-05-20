@@ -102,6 +102,7 @@ export function emptyUser(): User {
         first_name: '',
         last_name: '',
         is_admin: false,
-        access_permissions: []
+        trusted: false,
+        access_permissions: [],
     }
 }

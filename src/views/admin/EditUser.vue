@@ -10,6 +10,8 @@ import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import {ref, watch} from 'vue';
 import {useToast} from 'primevue/usetoast';
+import InputSwitch from 'primevue/inputswitch';
+import {StatusCode, statusFrom, statusText} from '@/lib/formats/responses';
 
 const props = defineProps<{
     id: string,
@@ -49,6 +51,7 @@ const process = async () => {
     if (!user.value || !perms.value) return; // TODO: error handling
     const payload = {
         user: user.value.id,
+        trusted: user.value.trusted,
         permissions: Object.values(perms.value).map((perm) => ({
             for_user: perm.access_for_id,
             read: perm.read,
@@ -59,22 +62,24 @@ const process = async () => {
         method: 'PUT',
         body: JSON.stringify(payload),
     });
-    if (res.status === 200) {
+    const status = statusFrom(res.status)
+    if (status === StatusCode.OK) {
         toast.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Permissions successfully updated',
             life: 2000,
             group: 'br',
-        })
+        });
+        router.push('/users');
     } else {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to update permissions',
+            detail: `Failed to update permissions: ${statusText(status)}`,
             life: 2000,
             group: 'br',
-        })
+        });
     }
 }
 </script>
@@ -97,6 +102,10 @@ const process = async () => {
             <span class="info-element">{{ new Date(user.created_at).toLocaleDateString() }}</span>
         </div>
         <h2>Permissions</h2>
+        <div class="trusted-input">
+            <span v-tooltip="'Allow this user permission to make changes that may affect other users.'">Trusted:</span>
+            <InputSwitch v-model="user.trusted" />
+        </div>
         <DataTable v-if="perms" :value="Object.values(perms)">
             <Column field="access_for" header="Name"></Column>
             <Column field="read" header="Read">
@@ -110,30 +119,6 @@ const process = async () => {
                 </template>
             </Column>
         </DataTable>
-        <!--
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Read</th>
-                    <th>Write</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="otherUser in dataState.users" :key="otherUser.id" v-show="otherUser.id != user.id">
-                    <th>{{ otherUser.first_name }} {{ otherUser.last_name }}</th>
-                    <th>{{ otherUser.email }}</th>
-                    <th>
-                        <Checkbox v-model="perms[otherUser.id].read" />
-                    </th>
-                    <th>
-                        <Checkbox v-model="perms[otherUser.id].write" />
-                    </th>
-                </tr>
-            </tbody>
-        </table>
-        -->
         <div class="save-cancel">
             <SaveCancel @save="process" @cancel="router.back()" />
         </div>
@@ -162,5 +147,17 @@ const process = async () => {
     margin-top: 1rem;
     display: flex;
     column-gap: 1rem;
+}
+
+.trusted-input {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.trusted-input span {
+    margin-right: 1rem;
+    text-decoration: underline;
+    text-decoration-style: dotted;
 }
 </style>
