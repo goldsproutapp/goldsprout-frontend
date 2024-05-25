@@ -52,7 +52,10 @@ const toast = useToast();
 
 function findMissingStocks(): boolean {
     const providers = new Set(entries.value.map((entry: any) => entry.provider_id));
-    const snapshotsStocks = entries.value.map((entry: any) => `${entry.stock_name}:${entry.provider_id}`);
+    const snapshotsStocksNames = entries.value.map((entry: any) => `${entry.stock_name}:${entry.provider_id}`);
+    const snapshotsStocksCodes = entries.value
+        .filter((entry: any) => entry.stock_code != '')
+        .map((entry: any) => `${entry.stock_code}:${entry.provider_id}`);
     const applicableStocks = dataState.stocks.filter(
         (stock) =>
             stock.tracking_strategy === 'DATA_IMPORT' &&
@@ -60,7 +63,14 @@ function findMissingStocks(): boolean {
             stock.users.includes(user.value.id) &&
             providers.has(stock.provider.id)
     );
-    missingStocks.value = applicableStocks.filter((stock) => !snapshotsStocks.includes(`${stock.name}:${stock.provider.id}`));
+    missingStocks.value = applicableStocks.filter((stock) =>
+        !(
+            (stock.stock_code != ''
+                && snapshotsStocksCodes.includes(`${stock.stock_code}:${stock.provider.id}`)
+            ) ||
+            snapshotsStocksNames.includes(`${stock.name}:${stock.provider.id}`)
+        )
+    );
     const missing = missingStocks.value.length !== 0;
     if (missing) showDeletionModal.value = true;
     return missing;

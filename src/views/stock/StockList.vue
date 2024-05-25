@@ -24,7 +24,7 @@ onMounted(() => {
 });
 const selection = ref();
 watch(selection, () => selection.value = null); // don't highlight the 'selection', we just want to identify a click.
-const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee ?? 0)).toString();
+const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee ?? 0)).toFixed(2);
 
 </script>
 
