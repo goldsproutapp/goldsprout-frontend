@@ -4,21 +4,27 @@ import NavBar from "./components/NavBar.vue"
 import Footer from './components/Footer.vue';
 import {authState, updateAuthState} from './lib/state';
 import {onMounted, watch} from 'vue';
-import router from './router';
+import router, {allRoutes} from './router';
 import {usePrimeVue} from 'primevue/config';
 import Toast from 'primevue/toast';
 import Unauthorised from './views/auth/Unauthorised.vue';
+import {computed} from 'vue';
 
 const primeVue = usePrimeVue();
 
 watch(router.currentRoute, (newRoute, _) => {
     if (!authState.loggedIn && !newRoute.meta?.allowNoAuth)
         router.push('/login');
-})
+});
 onMounted(() => {
     primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {});
     updateAuthState();
-})
+});
+const includeKeepAlive = computed(() => allRoutes
+    .filter((route) => route.meta?.keepAlive ?? false)
+    .filter(route => route.name)
+    .map(route => route.name as string)
+);
 </script>
 <template>
     <div class="root">
@@ -29,7 +35,7 @@ onMounted(() => {
         <NavBar v-if="authState.loggedIn" />
         <div class="root-container">
             <RouterView v-slot="{Component, route}">
-                <keep-alive :max="10">
+                <keep-alive :max="10" :include="includeKeepAlive">
                     <component :is="Component" :key="route.path"
                         v-if="authState.userInfo?.is_admin || !route.meta.requireAdmin" />
                     <Unauthorised v-else />

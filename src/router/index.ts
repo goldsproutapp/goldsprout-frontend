@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
+import type {RouteRecordRaw} from "vue-router";
 import StockList from "../views/stock/StockList.vue";
 import StockInfo from "../views/stock/StockInfo.vue";
 import Snapshots from "../views/snapshot/Snapshots.vue";
@@ -17,31 +18,54 @@ import EditUser from "@/views/admin/EditUser.vue";
 import ImportSnapshots from "@/views/snapshot/ImportSnapshots.vue";
 import AnalysisVue from "@/views/analysis/Analysis.vue";
 
+export type Route = RouteRecordRaw & {
+    meta?: {
+        requireAdmin?: boolean,
+        allowNoAuth?: boolean,
+        keepAlive?: boolean,
+    }
+};
+
 export const headerRoutes = [
     {
         path: '/',
         name: 'Home',
         component: Overview,
+        meta: {
+            keepAlive: true,
+        }
     },
     {
         path: '/stocks',
         name: 'Stocks',
         component: StockList,
+        meta: {
+            keepAlive: true,
+        }
     },
     {
         path: '/snapshots',
         name: 'Snapshots',
         component: Snapshots,
+        meta: {
+            keepAlive: true,
+        }
     },
     {
         path: '/performance',
         name: 'Performance',
         component: PerformanceVue,
+        meta: {
+            keepAlive: true,
+        }
     },
     {
         path: '/analysis',
         name: 'Analysis',
         component: AnalysisVue,
+        meta: {
+            keepAlive: true,
+        }
     },
     {
         path: '/providers',
@@ -49,6 +73,7 @@ export const headerRoutes = [
         component: ProviderList,
         meta: {
             requireAdmin: true,
+            keepAlive: true,
         },
     }
 ];
@@ -151,14 +176,16 @@ const adminRoutes = [
     },
 ];
 
+export const allRoutes: Route[] = [
+    ...headerRoutes,
+    ...routes,
+    ...authRoutes,
+    ...adminRoutes,
+];
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [
-        ...headerRoutes,
-        ...routes,
-        ...authRoutes,
-        ...adminRoutes,
-    ]
+    routes: allRoutes,
 });
 
 export default router;

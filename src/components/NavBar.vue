@@ -1,9 +1,9 @@
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {computed, ref} from 'vue';
 import {RouterLink} from 'vue-router';
 import {authState} from '@/lib/state';
-import router, {headerRoutes} from '@/router';
+import {headerRoutes} from '@/router';
 import {getUserDisplayName} from '@/lib/data';
 import Menubar from 'primevue/menubar';
 import type {MenuItem} from 'primevue/menuitem';
