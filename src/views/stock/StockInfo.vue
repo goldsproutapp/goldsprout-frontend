@@ -19,7 +19,6 @@ import StockDropdown from "@/components/select/StockDropdown.vue";
 import {useToast} from "primevue/usetoast";
 import {StatusCode, statusFrom, statusText} from "@/lib/formats/responses";
 import {watch} from "vue";
-import ProgressSpinner from "primevue/progressspinner";
 const props = defineProps<{
     id: string,
 }>();
@@ -36,6 +35,7 @@ const toast = useToast();
 
 onMounted(async () => {
     stock.value = (await stocks()).find(({id}) => id.toString() == props.id) || null;
+    stock.value = Object.assign({}, stock.value);
     providerList.value = await providers();
     getRegions();
     getSectors();
