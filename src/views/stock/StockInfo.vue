@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import SaveCancel from "@/components/buttons/SaveCancel.vue";
 import ProviderDropdown from "@/components/select/ProviderDropdown.vue";
-import {stocks, providers} from "@/lib/data";
-import {authenticatedRequest, getRegions, getSectors, getStockList} from "@/lib/requests";
+import {stocks, providers, getUserByID, getUserDisplayName, formatDecimal} from "@/lib/data";
+import {authenticatedRequest, getHoldings, getRegions, getSectors, getStockList} from "@/lib/requests";
 import {type Provider, type Stock} from "@/lib/types";
 import router from "@/router";
 import Dropdown from "primevue/dropdown";
@@ -18,6 +18,8 @@ import Dialog from "primevue/dialog";
 import StockDropdown from "@/components/select/StockDropdown.vue";
 import {useToast} from "primevue/usetoast";
 import {StatusCode, statusFrom, statusText} from "@/lib/formats/responses";
+import {watch} from "vue";
+import ProgressSpinner from "primevue/progressspinner";
 const props = defineProps<{
     id: string,
 }>();
@@ -37,7 +39,24 @@ onMounted(async () => {
     providerList.value = await providers();
     getRegions();
     getSectors();
-})
+});
+
+const holding = ref<any>(null);
+
+watch(stock, async (v, _) => {
+    if (!v) return;
+    const info = dataState.stockHoldings[v.id];
+    if (!info) await getHoldings();
+    const data: any = [];
+    await Promise.all(Object.entries(dataState.stockHoldings[v.id])
+        .map(async ([uid, value]) =>
+            data.push(
+                [await getUserByID(Number.parseInt(uid)), value]
+            )));
+    holding.value = data;
+});
+
+
 const save = async () => {
     const obj = stock.value as Stock;
     const prov = providerList.value.find(provider => provider.name == obj.provider_name);
@@ -110,31 +129,51 @@ const merge = async () => {
                 <InputText v-model="stock.name" autofocus class="stock-title" />
             </template>
         </Inplace>
-        <div class="option-container">
-            Provider:
-            <ProviderDropdown v-model="stock.provider_name" />
-        </div>
-        <div class="option-container">
-            Sector:
-            <Dropdown v-model="stock.sector" :options="sectors" editable />
-        </div>
-        <div class="option-container">
-            Region:
-            <Dropdown v-model="stock.region" :options="regions" editable />
-        </div>
-        <div class="option-container">
-            Fee:
-            <InputNumber v-model="stock.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%" />
-        </div>
-        <div class="option-container">
-            Needs attention:
-            <InputSwitch v-model="stock.needs_attention" />
-        </div>
-        <div class="option-container">
-            <Button label="Merge into" severity="secondary" @click="mergeModal = true" />
-        </div>
-        <div class="option-container control-container">
-            <SaveCancel @save="save" @cancel="router.back()" />
+        <div class="info-container">
+            <div class="info-section">
+                <div class="option-container">
+                    Provider:
+                    <ProviderDropdown v-model="stock.provider_name" />
+                </div>
+                <div class="option-container">
+                    Sector:
+                    <Dropdown v-model="stock.sector" :options="sectors" editable />
+                </div>
+                <div class="option-container">
+                    Region:
+                    <Dropdown v-model="stock.region" :options="regions" editable />
+                </div>
+                <div class="option-container">
+                    Fee:
+                    <InputNumber v-model="stock.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%" />
+                </div>
+                <div class="option-container">
+                    Needs attention:
+                    <InputSwitch v-model="stock.needs_attention" />
+                </div>
+                <div class="option-container">
+                    <Button label="Merge into" severity="secondary" @click="mergeModal = true" />
+                </div>
+                <div class="option-container control-container">
+                    <SaveCancel @save="save" @cancel="router.back()" />
+                </div>
+            </div>
+            <div class="holding-container">
+                <h2>Holdings</h2>
+                <table v-if="holding !== null" class="holding-table">
+                    <tbody>
+                        <tr v-for="[user, value] in holding" :key="user.id">
+                            <td>{{ getUserDisplayName(user) }}</td>
+                            <td v-if="value == '0'">
+                                Previously held
+                            </td>
+                            <td v-else>£{{ formatDecimal(value) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div v-else>
+                </div>
+            </div>
         </div>
         <div class="graph-container" display="height: 100rem;">
             <PerformanceGraph :id="id" performance-type="stock" />
@@ -192,5 +231,24 @@ const merge = async () => {
     display: flex;
     flex-direction: column;
     row-gap: .5rem;
+}
+
+.info-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+@media screen and (min-width: 800px) {
+    .info-container {
+        flex-direction: row;
+    }
+
+    .holding-table {
+        margin-right: 5rem;
+    }
+}
+.holding-table td:first-child {
+    padding-right: 1rem; 
 }
 </style>

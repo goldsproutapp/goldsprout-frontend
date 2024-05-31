@@ -21,6 +21,8 @@ export const dataState = reactive({
     users: new Array<User>,
     regions: new Array<string>,
     sectors: new Array<string>,
+    userHoldings: {} as {[key: string]: {[key: string]: string}},
+    stockHoldings: {} as {[key: string]: {[key: string]: string}},
 })
 
 

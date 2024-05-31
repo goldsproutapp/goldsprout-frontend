@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import {dataState} from "@/lib/state";
 import router from "@/router";
-import {getStockList} from "@/lib/requests";
+import {getHoldings, getStockList} from "@/lib/requests";
 import {computed, onMounted, ref, watch} from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -21,6 +21,7 @@ const stocks = computed(() => dataState.stocks);
 onMounted(() => {
     loading.value = stocks.value.length == 0;
     getStockList().then(() => loading.value = false)
+    getHoldings();
 });
 const selection = ref();
 watch(selection, () => selection.value = null); // don't highlight the 'selection', we just want to identify a click.

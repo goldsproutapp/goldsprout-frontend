@@ -110,3 +110,10 @@ export async function getSectors(): Promise<string[]> {
     dataState.sectors = json.sectors;
     return dataState.sectors;
 }
+
+export async function getHoldings() {
+    const res = await cachedRequest('/holdings');
+    const { data } = await res.json();
+    dataState.userHoldings = data.by_user;
+    dataState.stockHoldings = data.by_stock;
+}
