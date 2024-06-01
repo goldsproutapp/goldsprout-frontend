@@ -49,12 +49,19 @@ const save = async () => {
             <div>
                 <span style="color: var(--warning-colour)">
                     Required fields:
-                    stock_code,stock_name,units,price,value,cost,absolute_change
+                    <pre style="display: inline">stock_code</pre>,
+                    <pre style="display: inline">stock_name</pre>,
+                    <pre style="display: inline">units</pre>,
+                    <pre style="display: inline">price</pre>,
+                    <pre style="display: inline">value</pre>,
+                    <pre style="display: inline">cost</pre>,
+                    <pre style="display: inline">absolute_change</pre>
                 </span>
                 <br>
                 <span style="color: var(--success-colour)">
                     Optional fields:
-                    region,sector
+                    <pre style="display: inline">region</pre>,
+                    <pre style="display: inline">sector</pre>
                 </span>
             </div>
         </div>
