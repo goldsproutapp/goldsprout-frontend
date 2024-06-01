@@ -46,13 +46,27 @@ const save = async () => {
             <InputText placeholder="Name" v-model="provider.name" type="text" />
         </div>
         <div class="input-item" style="width: 50%;">
-            <InputText placeholder="CSV Format" v-model="provider.csv_format" type="text" style="width: 100%;"/>
+            <div>
+                <span style="color: var(--warning-colour)">
+                    Required fields:
+                    stock_code,stock_name,units,price,value,cost,absolute_change
+                </span>
+                <br>
+                <span style="color: var(--success-colour)">
+                    Optional fields:
+                    region,sector
+                </span>
+            </div>
         </div>
         <div class="input-item" style="width: 50%;">
-            <InputNumber placeholder="Annual fee" v-model="provider.annual_fee" :min="0" :max="100" :max-fraction-digits="2" suffix="%"/>
+            <InputText placeholder="CSV Format" v-model="provider.csv_format" type="text" style="width: 100%;" />
+        </div>
+        <div class="input-item" style="width: 50%;">
+            <InputNumber placeholder="Annual fee" v-model="provider.annual_fee" :min="0" :max="100" :max-fraction-digits="2"
+                suffix="%" />
         </div>
         <div class="input-item">
-            <SaveCancel @save="save" @cancel="router.back()"/>
+            <SaveCancel @save="save" @cancel="router.back()" />
         </div>
     </div>
 </template>
