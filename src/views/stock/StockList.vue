@@ -11,8 +11,8 @@ import ProgressSpinner from "primevue/progressspinner";
 import type {Stock} from "@/lib/types";
 
 const headings = {
-    name: 'Name',
     provider_name: 'Provider',
+    name: 'Name',
     sector: 'Sector',
     region: 'Region',
 };
