@@ -34,6 +34,7 @@ export async function getStockList(): Promise<Stock[]> {
     stocks = Object.values(stocks);
     stocks.forEach((stock: any) => stock.provider = providers.find(provider => provider.id == stock.provider_id));
     stocks.forEach((stock: any) => stock.provider_name = stock.provider.name);
+    stocks.forEach((stock: any) => stock.total_fee = (stock.annual_fee ?? 0) + (stock.provider.annual_fee ?? 0));
     dataState.stocks = stocks;
     return stocks;
 }
@@ -113,7 +114,7 @@ export async function getSectors(): Promise<string[]> {
 
 export async function getHoldings() {
     const res = await cachedRequest('/holdings');
-    const { data } = await res.json();
+    const {data} = await res.json();
     dataState.userHoldings = data.by_user;
     dataState.stockHoldings = data.by_stock;
 }

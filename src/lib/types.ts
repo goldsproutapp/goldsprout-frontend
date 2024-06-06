@@ -14,6 +14,7 @@ export interface Stock {
     users: number[], // list of visible users holding this stock
     currently_held: boolean,
     annual_fee: number,
+    total_fee: number, // including provider fee
 };
 
 export interface Provider {
