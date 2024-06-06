@@ -19,7 +19,7 @@ import ImportSnapshots from "@/views/snapshot/ImportSnapshots.vue";
 import AnalysisVue from "@/views/analysis/Analysis.vue";
 
 export type Route = RouteRecordRaw & {
-    component: RouteComponent & {__name: string}
+    component: RouteComponent & {__name?: string}
     meta?: {
         requireAdmin?: boolean,
         allowNoAuth?: boolean,

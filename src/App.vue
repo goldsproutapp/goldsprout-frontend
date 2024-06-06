@@ -22,8 +22,8 @@ onMounted(() => {
 });
 const includeKeepAlive = computed(() => allRoutes
     .filter((route) => route.meta?.keepAlive ?? false)
-    .filter(route => route.name)
-    .map(route => route.component?.__name)
+    .filter(route => route.component?.__name)
+    .map(route => route.component?.__name ?? '')
 );
 </script>
 <template>
