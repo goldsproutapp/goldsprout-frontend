@@ -1,13 +1,10 @@
-
 <template>
-    <div class="container">
-    </div>
+  <div class="container"></div>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 <style scoped>
 .container {
-    color: var(--text-colour);
+  color: var(--text-colour);
 }
 </style>

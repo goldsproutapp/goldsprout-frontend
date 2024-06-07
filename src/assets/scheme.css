@@ -1,21 +1,20 @@
-
 :root {
-    --background-colour: var(--zinc-900);
-    --input-colour: var(--zinc-500);
-    --text-colour: var(--indigo-100);
-    --link-text-colour: var(--indigo-500);
-    /*
+  --background-colour: var(--zinc-900);
+  --input-colour: var(--zinc-500);
+  --text-colour: var(--indigo-100);
+  --link-text-colour: var(--indigo-500);
+  /*
     --header-bg-colour: var(--indigo-950);
     --border-colour: var(--indigo-700);
     */
-    --header-bg-colour: var(--surface-overlay);
-    --border-colour: var(--surface-border);
-    --hover-colour: var(--indigo-950);
-    --success-colour: var(--emerald-500);
-    --failure-colour: var(--rose-500);
-    --warning-colour: var(--amber-500);
-    --text-colour-positive: var(--blue-500);
-    --text-colour-negative: var(--red-500);
+  --header-bg-colour: var(--surface-overlay);
+  --border-colour: var(--surface-border);
+  --hover-colour: var(--indigo-950);
+  --success-colour: var(--emerald-500);
+  --failure-colour: var(--rose-500);
+  --warning-colour: var(--amber-500);
+  --text-colour-positive: var(--blue-500);
+  --text-colour-negative: var(--red-500);
 }
 /*
 body {
@@ -24,5 +23,5 @@ body {
 }
 */
 body {
-    background-color: var(--surface-ground);
+  background-color: var(--surface-ground);
 }

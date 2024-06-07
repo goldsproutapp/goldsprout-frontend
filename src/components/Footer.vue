@@ -1,12 +1,11 @@
-
 <template>
-    <div class="footer">
-        <span>&copy; {{ new Date().getFullYear() }}, Patrick Jones</span>
-    </div>
+  <div class="footer">
+    <span>&copy; {{ new Date().getFullYear() }}, Patrick Jones</span>
+  </div>
 </template>
 
 <style scoped>
 .footer {
-    padding: .5rem;
+  padding: 0.5rem;
 }
 </style>
