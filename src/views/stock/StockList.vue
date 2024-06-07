@@ -2,20 +2,24 @@
 <script setup lang="ts">
 import {dataState} from "@/lib/state";
 import router from "@/router";
-import {getHoldings, getRegions, getSectors, getStockList} from "@/lib/requests";
+import {getHoldings, getRegions, getSectors, getStockList, getUsers} from "@/lib/requests";
 import {computed, onMounted, ref, watch} from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import InfoIcon from "@/components/icons/InfoIcon.vue";
 import ProgressSpinner from "primevue/progressspinner";
-import type {Stock} from "@/lib/types";
-import {initialStockFilter} from "@/lib/presets/filters";
+import type {Stock, User} from "@/lib/types";
+import {initialStockFilter} from "@/lib/filters/stocks";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
 import InputNumber from "primevue/inputnumber";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import Button from "primevue/button";
+import SelectButton from "primevue/selectbutton";
+import {getCachedUser, getUserDisplayName} from "@/lib/data";
+import {CustomFilter} from "@/lib/filters/methods";
+import Tooltip from "@/components/layout/Tooltip.vue";
 
 const loading = ref(true);
 const stocks = computed(() => dataState.stocks);
@@ -25,6 +29,7 @@ onMounted(() => {
     getHoldings();
     getRegions();
     getSectors();
+    getUsers();
 });
 const selection = ref();
 watch(selection, () => selection.value = null); // don't highlight the 'selection', we just want to identify a click.
@@ -33,6 +38,22 @@ const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee
 const filters = ref(initialStockFilter());
 const resetFilter = () => filters.value = initialStockFilter();
 const filterFields = computed(() => Object.keys(filters.value));
+const heldByMatchMode = ref<'Any' | 'All'>('Any');
+
+watch(heldByMatchMode, (value, _) => {
+    // @ts-expect-error the type system for the filters object is a bit of a mess.
+    filters.value.users.matchMode = value == 'Any' ?
+        CustomFilter.INCLUDES_ANY : CustomFilter.INCLUDES_ALL;
+});
+const filterAnyone = (filterModel: any) => {
+    heldByMatchMode.value = 'Any';
+    // @ts-expect-error the type system for the filters object is a bit of a mess.
+    filters.value.users.value = dataState.users.map(x => x.id);
+};
+
+const filterNobody = (filterModel: any) => {
+    filterModel.value = [-1];
+};
 
 </script>
 
@@ -60,7 +81,8 @@ const filterFields = computed(() => Object.keys(filters.value));
                     </IconField>
                 </div>
             </template>
-            <Column header="Provider" field="provider_name" :show-filter-match-modes="false">
+            <Column header="Provider" field="provider_name" :show-filter-match-modes="false"
+                filter-menu-class="filter-menu">
                 <template #body="{data}">
                     {{ data.provider_name }}
                 </template>
@@ -78,7 +100,7 @@ const filterFields = computed(() => Object.keys(filters.value));
                     <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
                 </template>
             </Column>
-            <Column header="Region" field="region" :show-filter-match-modes="false">
+            <Column header="Region" field="region" :show-filter-match-modes="false" filter-menu-class="filter-menu">
                 <template #body="{data}">
                     {{ data.region }}
                 </template>
@@ -87,7 +109,7 @@ const filterFields = computed(() => Object.keys(filters.value));
                     </MultiSelect>
                 </template>
             </Column>
-            <Column header="Sector" field="sector" :show-filter-match-modes="false">
+            <Column header="Sector" field="sector" :show-filter-match-modes="false" filter-menu-class="filter-menu">
                 <template #body="{data}">
                     {{ data.sector }}
                 </template>
@@ -105,11 +127,32 @@ const filterFields = computed(() => Object.keys(filters.value));
                         suffix="%" />
                 </template>
             </Column>
-            <Column sortable :sort-field="x => (x.needs_attention ?? false).toString()">
-                <template #body="row">
-                    <InfoIcon v-if="row.data.needs_attention" preset="attention" />
+            <Column header="Held by" field="users" :show-filter-match-modes="false" filter-menu-class="filter-menu">
+                <template #body="{data}">
+                    <Tooltip position="left" :content="data.users.map(getCachedUser).map(getUserDisplayName).join(', ')"
+                        v-if="data.users.length">
+                        <i class="pi pi-users" />
+                    </Tooltip>
+                </template>
+                <template #filter="{filterModel}">
+                    <SelectButton :options="['Any', 'All']" v-model="heldByMatchMode" />
+                    <div style="margin-bottom: 1rem;"></div>
+                    <Button label="Anyone" @click="filterAnyone(filterModel)" />
+                    <div style="margin-bottom: 1rem;"></div>
+                    <Button label="Nobody" @click="filterNobody(filterModel)" severity="danger" />
+                    <div style="margin-bottom: 1rem;"></div>
+                    <MultiSelect v-if="filterModel.value === null || filterModel.value[0] !== -1"
+                        v-model="filterModel.value" :options="dataState.users" :option-label="getUserDisplayName"
+                        option-value="id" placeholder="Any" filter>
+                    </MultiSelect>
                 </template>
             </Column>
+            <Column sortable :sort-field="x => (x.needs_attention ?? false).toString()">
+                <template #body="row">
+                    <InfoIcon v-if="row.data.needs_attention" preset="attention" tooltip-position="left" />
+                </template>
+            </Column>
+
         </DataTable>
     </div>
 </template>
@@ -135,6 +178,11 @@ tr {
 .table-header {
     display: flex;
     justify-content: space-between;
+}
+</style>
+<style>
+.filter-menu {
+    max-width: 14rem;
 }
 </style>
 

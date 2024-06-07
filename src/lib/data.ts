@@ -12,8 +12,12 @@ export async function getStockByID(id: number, request_if_none: boolean = true):
     return stock as Stock;
 }
 
+export function getCachedUser(id: number): User | undefined {
+    return dataState.users.find(user => user.id === id);
+}
+
 export async function getUserByID(id: number, request_if_none: boolean = true): Promise<User> {
-    const user = dataState.users.find(user => user.id === id);
+    const user = getCachedUser(id);
     if (user === undefined && request_if_none) {
         await getUsers();
         return getUserByID(id, false);

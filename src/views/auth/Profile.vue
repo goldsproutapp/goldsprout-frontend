@@ -139,7 +139,7 @@ const confirmDelete = async () => {
                 The following people have access to your data:
                 <ul>
                     <li v-for="user in visibility" :key="user.id">
-                        <InfoIcon preset="admin" v-if="user.is_admin" />
+                        <InfoIcon preset="admin" v-if="user.is_admin" tooltip-position="right" />
                         {{ getUserDisplayName(user) }} ({{ user.email }})
                     </li>
                 </ul>

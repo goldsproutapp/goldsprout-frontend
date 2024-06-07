@@ -12,8 +12,10 @@ import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice';
 import {Chart} from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
+import {registerFilters} from './lib/filters/methods';
 
 Chart.register(annotationPlugin);
+registerFilters();
 
 const app = createApp(App)
 app.use(PrimeVue);

@@ -1,8 +1,14 @@
 <script setup lang="ts">
+import type {RelativePosition} from '@/lib/options';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-const props = defineProps<{
+import Tooltip from '../layout/Tooltip.vue';
+
+const props = withDefaults(defineProps<{
     preset: keyof typeof presets,
-}>();
+    tooltipPosition?: RelativePosition,
+}>(), {
+    tooltipPosition: 'top',
+});
 
 </script>
 
@@ -28,8 +34,11 @@ export const presets = {
 </script>
 
 <template>
-    <div v-if="preset != 'none'" v-tooltip.top="presets[preset].tooltip || ''" class="icon-wrapper">
-    <font-awesome-icon :icon="presets[preset].icon" :color="presets[preset].colour" />
+    <div v-if="preset != 'none'" class="icon-wrapper">
+        <Tooltip :position="tooltipPosition" :content="presets[preset].tooltip || ''" v-if="presets[preset].tooltip">
+            <font-awesome-icon :icon="presets[preset].icon" :color="presets[preset].colour" />
+        </Tooltip>
+        <font-awesome-icon :icon="presets[preset].icon" :color="presets[preset].colour" v-else />
     </div>
 </template>
 

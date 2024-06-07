@@ -29,7 +29,7 @@ const users = computed(() =>
         <Button @click="router.push('users/create')" label="Invite user" severity="success" class="create-button" />
         <DataTable :value="users" selection-mode="single" @row-select="row => router.push(`/users/${row.data.id}`)">
             <Column v-for="[key, display] in Object.entries(headings)" :key="key" :field="key" :header="display"></Column>
-            <Column>
+            <Column header="Info">
                 <template #body="row">
                     <div class="icon-container">
                         <InfoIcon v-if="row.data.is_admin" preset="admin" />

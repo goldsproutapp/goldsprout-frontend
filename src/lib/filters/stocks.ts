@@ -1,6 +1,7 @@
 
 import {FilterOperator, FilterMatchMode} from 'primevue/api';
 import type {DataTableFilterMeta} from 'primevue/datatable';
+import {CustomFilter} from './methods';
 
 export function initialStockFilter(): DataTableFilterMeta {
     return {
@@ -37,6 +38,10 @@ export function initialStockFilter(): DataTableFilterMeta {
                     matchMode: FilterMatchMode.EQUALS,
                 }
             ]
-        }
+        },
+        users: {
+            value: [],
+            matchMode: CustomFilter.INCLUDES_ANY,
+        },
     };
 }
