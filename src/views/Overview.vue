@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import CountUp from '@/components/display/CountUp.vue'
-import { getOverview } from '@/lib/requests'
-import type { Overview } from '@/lib/types'
-import Card from 'primevue/card'
-import { onMounted, ref } from 'vue'
-import PerformanceGraph from './performance/PerformanceGraph.vue'
-import Carousel from 'primevue/carousel'
-import { formatDecimal } from '@/lib/data'
-import Divider from 'primevue/divider'
+import CountUp from '@/components/display/CountUp.vue';
+import { getOverview } from '@/lib/requests';
+import type { Overview } from '@/lib/types';
+import Card from 'primevue/card';
+import { onMounted, ref } from 'vue';
+import PerformanceGraph from './performance/PerformanceGraph.vue';
+import Carousel from 'primevue/carousel';
+import { formatDecimal } from '@/lib/data';
+import Divider from 'primevue/divider';
 
-const overview = ref<Overview | null>()
+const overview = ref<Overview | null>();
 
-onMounted(() => getOverview().then((res) => (overview.value = res)))
+onMounted(() => getOverview().then((res) => (overview.value = res)));
 </script>
 
 <template>

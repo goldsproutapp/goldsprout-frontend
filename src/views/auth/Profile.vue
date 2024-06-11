@@ -1,42 +1,42 @@
 <script setup lang="ts">
-import InfoIcon from '@/components/icons/InfoIcon.vue'
-import { saveAuthState } from '@/lib/auth'
-import { getUserDisplayName } from '@/lib/data'
-import { authenticatedRequest, getUserVisibility } from '@/lib/requests'
-import { authState } from '@/lib/state'
-import { type User } from '@/lib/types'
-import { onMounted, ref } from 'vue'
-import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue'
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import { useToast } from 'primevue/usetoast'
-import TabMenu from 'primevue/tabmenu'
-import router from '@/router'
-import Tooltip from '@/components/layout/Tooltip.vue'
-import Dialog from 'primevue/dialog'
-import Checkbox from 'primevue/checkbox'
+import InfoIcon from '@/components/icons/InfoIcon.vue';
+import { saveAuthState } from '@/lib/auth';
+import { getUserDisplayName } from '@/lib/data';
+import { authenticatedRequest, getUserVisibility } from '@/lib/requests';
+import { authState } from '@/lib/state';
+import { type User } from '@/lib/types';
+import { onMounted, ref } from 'vue';
+import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
+import { useToast } from 'primevue/usetoast';
+import TabMenu from 'primevue/tabmenu';
+import router from '@/router';
+import Tooltip from '@/components/layout/Tooltip.vue';
+import Dialog from 'primevue/dialog';
+import Checkbox from 'primevue/checkbox';
 
-const toast = useToast()
+const toast = useToast();
 
-const { userInfo } = authState
-const editingInfo = ref(Object.assign({}, userInfo))
-const visibility = ref<User[]>()
-onMounted(() => getUserVisibility().then((res) => (visibility.value = res)))
-const editing = ref(false)
+const { userInfo } = authState;
+const editingInfo = ref(Object.assign({}, userInfo));
+const visibility = ref<User[]>();
+onMounted(() => getUserVisibility().then((res) => (visibility.value = res)));
+const editing = ref(false);
 
-const changingPassword = ref(false)
+const changingPassword = ref(false);
 
 const cancel = () => {
-  editing.value = false
-  editingInfo.value = Object.assign({}, userInfo)
-}
+  editing.value = false;
+  editingInfo.value = Object.assign({}, userInfo);
+};
 const update = async () => {
-  editing.value = false
-  const payload = editingInfo.value
+  editing.value = false;
+  const payload = editingInfo.value;
   const res = await authenticatedRequest('/user', {
     method: 'PATCH',
     body: JSON.stringify(payload)
-  })
+  });
   if (res.status !== 200) {
     toast.add({
       summary: 'Error',
@@ -44,22 +44,22 @@ const update = async () => {
       group: 'br',
       severity: 'error',
       life: 2000
-    })
-    editingInfo.value = authState.userInfo
-    return
+    });
+    editingInfo.value = authState.userInfo;
+    return;
   }
-  const { data } = await res.json()
-  authState.userInfo = data
-  saveAuthState()
+  const { data } = await res.json();
+  authState.userInfo = data;
+  saveAuthState();
   toast.add({
     summary: 'Success',
     detail: 'Successfully updated profile',
     group: 'br',
     severity: 'success',
     life: 2000
-  })
-}
-const menuIdx = ref(0)
+  });
+};
+const menuIdx = ref(0);
 const menu = ref([
   {
     label: 'Profile'
@@ -67,22 +67,22 @@ const menu = ref([
   {
     label: 'Data options'
   }
-])
+]);
 
-const showDeleteModal = ref(false)
+const showDeleteModal = ref(false);
 const deleteInfo = ref<any>({
   snapshots: true,
   stocks: false
-})
+});
 const confirmDelete = async () => {
-  showDeleteModal.value = false
+  showDeleteModal.value = false;
   if (!deleteInfo.value.snapshots && !deleteInfo.value.stock) {
-    return
+    return;
   }
   const res = await authenticatedRequest('/massdelete', {
     method: 'POST',
     body: JSON.stringify({ stocks: deleteInfo.value.stocks })
-  })
+  });
   if (res.status != 200) {
     toast.add({
       summary: 'Error',
@@ -90,8 +90,8 @@ const confirmDelete = async () => {
       group: 'br',
       severity: 'error',
       life: 2000
-    })
-    return
+    });
+    return;
   }
   toast.add({
     summary: 'Success',
@@ -99,9 +99,9 @@ const confirmDelete = async () => {
     group: 'br',
     severity: 'success',
     life: 2000
-  })
-  return
-}
+  });
+  return;
+};
 </script>
 
 <template>

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { getProviderList } from '@/lib/requests'
-import { dataState } from '@/lib/state'
-import router from '@/router'
-import Button from 'primevue/button'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { computed, onMounted } from 'vue'
-onMounted(getProviderList)
-const providers = computed(() => dataState.providers)
+import { getProviderList } from '@/lib/requests';
+import { dataState } from '@/lib/state';
+import router from '@/router';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import { computed, onMounted } from 'vue';
+onMounted(getProviderList);
+const providers = computed(() => dataState.providers);
 const headings = {
   name: 'Name',
   csv_format: 'Snapshot format'
-}
+};
 </script>
 
 <template>

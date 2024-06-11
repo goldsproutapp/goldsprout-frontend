@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { RelativePosition } from '@/lib/options'
+import type { RelativePosition } from '@/lib/options';
 
 withDefaults(
   defineProps<{
-    content: string
-    position: RelativePosition
+    content: string;
+    position: RelativePosition;
   }>(),
   {
     position: 'top'
   }
-)
+);
 </script>
 
 <template>

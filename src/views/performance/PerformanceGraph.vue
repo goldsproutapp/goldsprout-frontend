@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { authenticatedRequest } from '@/lib/requests'
-import Chart from 'primevue/chart'
-import { computed, onMounted, ref } from 'vue'
-import 'chartjs-adapter-date-fns'
+import { authenticatedRequest } from '@/lib/requests';
+import Chart from 'primevue/chart';
+import { computed, onMounted, ref } from 'vue';
+import 'chartjs-adapter-date-fns';
 
 const props = defineProps<{
-  performanceType: string
-  id: string
-}>()
+  performanceType: string;
+  id: string;
+}>();
 
-const performance = ref<any>({})
+const performance = ref<any>({});
 
 onMounted(() =>
   authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`).then((res) =>
     res.status != 200 ? {} : res.json().then((json) => (performance.value = json))
   )
-)
+);
 const graphOptions = computed(() => {
-  const documentStyle = getComputedStyle(document.documentElement)
-  const textColor = documentStyle.getPropertyValue('--text-color')
-  const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary')
-  const surfaceBorder = documentStyle.getPropertyValue('--surface-border')
+  const documentStyle = getComputedStyle(document.documentElement);
+  const textColor = documentStyle.getPropertyValue('--text-color');
+  const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+  const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
   return {
     stacked: false,
     maintainAspectRatio: false,
@@ -81,11 +81,11 @@ const graphOptions = computed(() => {
         }
       }
     }
-  }
-})
+  };
+});
 const performanceGraph = computed(() => {
   if (!performance.value.performance) {
-    return null
+    return null;
   }
   return {
     datasets: [
@@ -108,8 +108,8 @@ const performanceGraph = computed(() => {
         tension: 0.1
       }
     ]
-  }
-})
+  };
+});
 </script>
 
 <template>

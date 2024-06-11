@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { authenticatedRequest, getSnapshots } from '@/lib/requests'
-import { dataState } from '@/lib/state'
-import router from '@/router'
-import Button from 'primevue/button'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import ProgressSpinner from 'primevue/progressspinner'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
-import { computed, onMounted, ref } from 'vue'
-import ConfirmDialog from 'primevue/confirmdialog'
+import { authenticatedRequest, getSnapshots } from '@/lib/requests';
+import { dataState } from '@/lib/state';
+import router from '@/router';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import ProgressSpinner from 'primevue/progressspinner';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
+import { computed, onMounted, ref } from 'vue';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const snapshots = computed(() =>
   dataState.snapshots_latest.map((snapshot) => ({
@@ -19,12 +19,12 @@ const snapshots = computed(() =>
     timestamp: snapshot.date,
     user_name: snapshot.user.first_name
   }))
-)
-const loading = ref(true)
+);
+const loading = ref(true);
 onMounted(() => {
-  loading.value = snapshots.value.length == 0
-  getSnapshots().then(() => (loading.value = false))
-})
+  loading.value = snapshots.value.length == 0;
+  getSnapshots().then(() => (loading.value = false));
+});
 const headings = {
   user_name: 'User',
   stock_name: 'Name',
@@ -34,9 +34,9 @@ const headings = {
   value: 'Value (£)',
   changeSinceLast: 'Change (£)',
   normalisedPerformance: 'Normalised performance (%)'
-}
-const toast = useToast()
-const confirm = useConfirm()
+};
+const toast = useToast();
+const confirm = useConfirm();
 const deleteSnapshot = async (id: string) => {
   authenticatedRequest(`/snapshots/${id}`, {
     method: 'DELETE'
@@ -49,8 +49,8 @@ const deleteSnapshot = async (id: string) => {
           group: 'bl',
           severity: 'error',
           life: 2000
-        })
-        return
+        });
+        return;
       }
       toast.add({
         summary: 'Success',
@@ -58,8 +58,8 @@ const deleteSnapshot = async (id: string) => {
         group: 'bl',
         severity: 'success',
         life: 2000
-      })
-      getSnapshots()
+      });
+      getSnapshots();
     })
     .catch((e) => {
       toast.add({
@@ -68,10 +68,10 @@ const deleteSnapshot = async (id: string) => {
         group: 'bl',
         severity: 'error',
         life: 2000
-      })
-      return
-    })
-}
+      });
+      return;
+    });
+};
 const deleteSnapshotButton = (evt: MouseEvent, id: string) => {
   confirm.require({
     target: (evt.currentTarget as HTMLElement) ?? null,
@@ -84,8 +84,8 @@ const deleteSnapshotButton = (evt: MouseEvent, id: string) => {
     acceptLabel: 'Delete',
     accept: () => deleteSnapshot(id),
     reject: () => {}
-  })
-}
+  });
+};
 </script>
 
 <template>

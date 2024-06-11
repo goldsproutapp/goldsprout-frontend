@@ -1,58 +1,58 @@
 <script setup lang="ts">
-import { dataState } from '@/lib/state'
-import router from '@/router'
-import { getHoldings, getRegions, getSectors, getStockList, getUsers } from '@/lib/requests'
-import { computed, onMounted, ref, watch } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InfoIcon from '@/components/icons/InfoIcon.vue'
-import ProgressSpinner from 'primevue/progressspinner'
-import type { Stock, User } from '@/lib/types'
-import { initialStockFilter } from '@/lib/filters/stocks'
-import InputText from 'primevue/inputtext'
-import MultiSelect from 'primevue/multiselect'
-import InputNumber from 'primevue/inputnumber'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import Button from 'primevue/button'
-import SelectButton from 'primevue/selectbutton'
-import { getCachedUser, getUserDisplayName } from '@/lib/data'
-import { CustomFilter } from '@/lib/filters/methods'
-import Tooltip from '@/components/layout/Tooltip.vue'
+import { dataState } from '@/lib/state';
+import router from '@/router';
+import { getHoldings, getRegions, getSectors, getStockList, getUsers } from '@/lib/requests';
+import { computed, onMounted, ref, watch } from 'vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import InfoIcon from '@/components/icons/InfoIcon.vue';
+import ProgressSpinner from 'primevue/progressspinner';
+import type { Stock, User } from '@/lib/types';
+import { initialStockFilter } from '@/lib/filters/stocks';
+import InputText from 'primevue/inputtext';
+import MultiSelect from 'primevue/multiselect';
+import InputNumber from 'primevue/inputnumber';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import Button from 'primevue/button';
+import SelectButton from 'primevue/selectbutton';
+import { getCachedUser, getUserDisplayName } from '@/lib/data';
+import { CustomFilter } from '@/lib/filters/methods';
+import Tooltip from '@/components/layout/Tooltip.vue';
 
-const loading = ref(true)
-const stocks = computed(() => dataState.stocks)
+const loading = ref(true);
+const stocks = computed(() => dataState.stocks);
 onMounted(() => {
-  loading.value = stocks.value.length == 0
-  getStockList().then(() => (loading.value = false))
-  getHoldings()
-  getRegions()
-  getSectors()
-  getUsers()
-})
-const selection = ref()
-watch(selection, () => (selection.value = null)) // don't highlight the 'selection', we just want to identify a click.
-const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee ?? 0)).toFixed(2)
+  loading.value = stocks.value.length == 0;
+  getStockList().then(() => (loading.value = false));
+  getHoldings();
+  getRegions();
+  getSectors();
+  getUsers();
+});
+const selection = ref();
+watch(selection, () => (selection.value = null)); // don't highlight the 'selection', we just want to identify a click.
+const calculateFee = (x: Stock) => ((x.annual_fee ?? 0) + (x.provider.annual_fee ?? 0)).toFixed(2);
 
-const filters = ref(initialStockFilter())
-const resetFilter = () => (filters.value = initialStockFilter())
-const filterFields = computed(() => Object.keys(filters.value))
-const heldByMatchMode = ref<'Any' | 'All'>('Any')
+const filters = ref(initialStockFilter());
+const resetFilter = () => (filters.value = initialStockFilter());
+const filterFields = computed(() => Object.keys(filters.value));
+const heldByMatchMode = ref<'Any' | 'All'>('Any');
 
 watch(heldByMatchMode, (value, _) => {
   // @ts-expect-error the type system for the filters object is a bit of a mess.
   filters.value.users.matchMode =
-    value == 'Any' ? CustomFilter.INCLUDES_ANY : CustomFilter.INCLUDES_ALL
-})
+    value == 'Any' ? CustomFilter.INCLUDES_ANY : CustomFilter.INCLUDES_ALL;
+});
 const filterAnyone = (filterModel: any) => {
-  heldByMatchMode.value = 'Any'
+  heldByMatchMode.value = 'Any';
   // @ts-expect-error the type system for the filters object is a bit of a mess.
-  filters.value.users.value = dataState.users.map((x) => x.id)
-}
+  filters.value.users.value = dataState.users.map((x) => x.id);
+};
 
 const filterNobody = (filterModel: any) => {
-  filterModel.value = [-1]
-}
+  filterModel.value = [-1];
+};
 </script>
 
 <template>

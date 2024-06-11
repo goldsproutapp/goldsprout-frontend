@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Calendar from 'primevue/calendar'
+import Calendar from 'primevue/calendar';
 
-const model = defineModel<Date>()
+const model = defineModel<Date>();
 </script>
 
 <template>

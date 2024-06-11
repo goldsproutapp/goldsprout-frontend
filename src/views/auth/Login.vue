@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { API_BASE_URL } from '@/lib/constants'
-import { logIn } from '@/lib/auth'
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
-import Button from 'primevue/button'
-const failure = ref(false)
-const uname = ref()
-const pw = ref()
+import { ref } from 'vue';
+import { API_BASE_URL } from '@/lib/constants';
+import { logIn } from '@/lib/auth';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
+import Button from 'primevue/button';
+const failure = ref(false);
+const uname = ref();
+const pw = ref();
 
 const login = async () => {
   const res = await fetch(`${API_BASE_URL}/login`, {
@@ -15,14 +15,14 @@ const login = async () => {
     headers: {
       Authorization: `${uname.value}:${pw.value}`
     }
-  })
+  });
   if (res.status != 200) {
-    failure.value = true
-    return
+    failure.value = true;
+    return;
   }
-  const data = await res.json()
-  logIn(data)
-}
+  const data = await res.json();
+  logIn(data);
+};
 </script>
 
 <template>

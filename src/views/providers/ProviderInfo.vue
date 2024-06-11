@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import SaveCancel from '@/components/buttons/SaveCancel.vue'
-import { getProviderByID } from '@/lib/data'
-import { authenticatedRequest } from '@/lib/requests'
-import { type Provider } from '@/lib/types'
-import router from '@/router'
-import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
-import { ref, watch } from 'vue'
+import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import { getProviderByID } from '@/lib/data';
+import { authenticatedRequest } from '@/lib/requests';
+import { type Provider } from '@/lib/types';
+import router from '@/router';
+import InputNumber from 'primevue/inputnumber';
+import InputText from 'primevue/inputtext';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
-  providerID?: number
-}>()
+  providerID?: number;
+}>();
 
 const provider = ref<Provider>({
   id: 0,
@@ -18,7 +18,7 @@ const provider = ref<Provider>({
   csv_format: '',
   csv_format_obj: {},
   annual_fee: 0
-})
+});
 
 watch(
   props,
@@ -26,22 +26,22 @@ watch(
     if (providerID !== undefined)
       getProviderByID(providerID).then(
         (result) => (provider.value = result ? result : provider.value)
-      )
+      );
   },
   {
     immediate: true
   }
-)
+);
 const save = async () => {
   const payload = {
     provider: provider.value
-  }
+  };
   await authenticatedRequest('/providers', {
     method: 'PUT',
     body: JSON.stringify(payload)
-  })
-  router.push('/providers')
-}
+  });
+  router.push('/providers');
+};
 </script>
 
 <template>

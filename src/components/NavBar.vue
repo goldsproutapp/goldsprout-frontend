@@ -1,44 +1,44 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { authState } from '@/lib/state'
-import { headerRoutes } from '@/router'
-import { getUserDisplayName } from '@/lib/data'
-import Menubar from 'primevue/menubar'
-import type { MenuItem } from 'primevue/menuitem'
-import Menu from 'primevue/menu'
-import Button from 'primevue/button'
+import { computed, ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import { authState } from '@/lib/state';
+import { headerRoutes } from '@/router';
+import { getUserDisplayName } from '@/lib/data';
+import Menubar from 'primevue/menubar';
+import type { MenuItem } from 'primevue/menuitem';
+import Menu from 'primevue/menu';
+import Button from 'primevue/button';
 const visibleRoutes = computed(() =>
   headerRoutes.filter(
     (route) => !route.meta?.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)
   )
-)
+);
 const items = computed<MenuItem[]>(() =>
   visibleRoutes.value.map((route) => ({ label: route.name, route: route.path }))
-)
+);
 const profileMenuItems = ref([
   {
     label: 'Options',
     route: '/options'
   }
-])
+]);
 const adminMenuRoutes = ref([
   {
     label: 'User management',
     route: '/users'
   }
-])
+]);
 const logoutRoute = {
   label: 'Log out',
   route: '/logout'
-}
+};
 const allMenuRoutes = computed(() =>
   authState.userInfo.is_admin
     ? [...profileMenuItems.value, ...adminMenuRoutes.value, logoutRoute]
     : [...profileMenuItems.value, logoutRoute]
-)
-const profileMenu = ref()
-const toggle = (evt: any) => profileMenu.value.toggle(evt)
+);
+const profileMenu = ref();
+const toggle = (evt: any) => profileMenu.value.toggle(evt);
 </script>
 
 <template>

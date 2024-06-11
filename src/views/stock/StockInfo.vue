@@ -1,83 +1,83 @@
 <script setup lang="ts">
-import SaveCancel from '@/components/buttons/SaveCancel.vue'
-import ProviderDropdown from '@/components/select/ProviderDropdown.vue'
-import { stocks, providers, getUserByID, getUserDisplayName, formatDecimal } from '@/lib/data'
+import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
+import { stocks, providers, getUserByID, getUserDisplayName, formatDecimal } from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,
   getRegions,
   getSectors,
   getStockList
-} from '@/lib/requests'
-import { type Provider, type Stock } from '@/lib/types'
-import router from '@/router'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
-import Button from 'primevue/button'
-import { computed, onMounted, ref } from 'vue'
-import PerformanceGraph from '../performance/PerformanceGraph.vue'
-import { dataState } from '@/lib/state'
-import Inplace from 'primevue/inplace'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-import Dialog from 'primevue/dialog'
-import StockDropdown from '@/components/select/StockDropdown.vue'
-import { useToast } from 'primevue/usetoast'
-import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses'
-import { watch } from 'vue'
+} from '@/lib/requests';
+import { type Provider, type Stock } from '@/lib/types';
+import router from '@/router';
+import Dropdown from 'primevue/dropdown';
+import InputSwitch from 'primevue/inputswitch';
+import Button from 'primevue/button';
+import { computed, onMounted, ref } from 'vue';
+import PerformanceGraph from '../performance/PerformanceGraph.vue';
+import { dataState } from '@/lib/state';
+import Inplace from 'primevue/inplace';
+import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
+import Dialog from 'primevue/dialog';
+import StockDropdown from '@/components/select/StockDropdown.vue';
+import { useToast } from 'primevue/usetoast';
+import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
+import { watch } from 'vue';
 const props = defineProps<{
-  id: string
-}>()
+  id: string;
+}>();
 
-const stock = ref<Stock | undefined | null>(undefined)
-const providerList = ref<Provider[]>([])
-const regions = computed(() => dataState.regions)
-const sectors = computed(() => dataState.sectors)
+const stock = ref<Stock | undefined | null>(undefined);
+const providerList = ref<Provider[]>([]);
+const regions = computed(() => dataState.regions);
+const sectors = computed(() => dataState.sectors);
 
-const mergeModal = ref(false)
-const mergeInto = ref<Stock | null>(null)
+const mergeModal = ref(false);
+const mergeInto = ref<Stock | null>(null);
 
-const toast = useToast()
+const toast = useToast();
 
 onMounted(async () => {
-  stock.value = (await stocks()).find(({ id }) => id.toString() == props.id) || null
-  stock.value = Object.assign({}, stock.value)
-  providerList.value = await providers()
-  getRegions()
-  getSectors()
-})
+  stock.value = (await stocks()).find(({ id }) => id.toString() == props.id) || null;
+  stock.value = Object.assign({}, stock.value);
+  providerList.value = await providers();
+  getRegions();
+  getSectors();
+});
 
-const holding = ref<any>(null)
+const holding = ref<any>(null);
 
 watch(stock, async (v, _) => {
-  if (!v) return
-  const info = dataState.stockHoldings[v.id]
-  if (!info) await getHoldings()
-  const data: any = []
+  if (!v) return;
+  const info = dataState.stockHoldings[v.id];
+  if (!info) await getHoldings();
+  const data: any = [];
   await Promise.all(
     Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, value]) =>
       data.push([await getUserByID(Number.parseInt(uid)), value])
     )
-  )
-  holding.value = data
-})
+  );
+  holding.value = data;
+});
 
 const save = async () => {
-  const obj = stock.value as Stock
-  const prov = providerList.value.find((provider) => provider.name == obj.provider_name)
-  obj.provider = prov ? prov : obj.provider
+  const obj = stock.value as Stock;
+  const prov = providerList.value.find((provider) => provider.name == obj.provider_name);
+  obj.provider = prov ? prov : obj.provider;
   const payload = {
     stock: obj
-  }
+  };
   await authenticatedRequest('/stocks', {
     method: 'PUT',
     body: JSON.stringify(payload)
-  })
-  getStockList()
-  router.push('/stocks')
-}
+  });
+  getStockList();
+  router.push('/stocks');
+};
 const merge = async () => {
-  mergeModal.value = false
+  mergeModal.value = false;
   if (mergeInto.value == null) {
     toast.add({
       summary: 'Error',
@@ -85,18 +85,18 @@ const merge = async () => {
       group: 'bl',
       severity: 'error',
       life: 2000
-    })
-    return
+    });
+    return;
   }
   const payload = {
     stock: stock.value?.id ?? 0, // stock can't be null if we're getting here.
     merge_into: mergeInto.value.id
-  }
+  };
   const res = await authenticatedRequest('/stocks/merge', {
     method: 'POST',
     body: JSON.stringify(payload)
-  })
-  const status = statusFrom(res.status)
+  });
+  const status = statusFrom(res.status);
   if (status !== StatusCode.NoContent) {
     toast.add({
       summary: 'Error',
@@ -104,8 +104,8 @@ const merge = async () => {
       group: 'bl',
       severity: 'error',
       life: 2000
-    })
-    return
+    });
+    return;
   }
   toast.add({
     summary: 'Success',
@@ -113,9 +113,9 @@ const merge = async () => {
     group: 'bl',
     severity: 'success',
     life: 2000
-  })
-  getStockList().then(() => router.push('/stocks'))
-}
+  });
+  getStockList().then(() => router.push('/stocks'));
+};
 </script>
 
 <template>

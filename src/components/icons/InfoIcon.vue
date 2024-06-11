@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { RelativePosition } from '@/lib/options'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import Tooltip from '../layout/Tooltip.vue'
+import type { RelativePosition } from '@/lib/options';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Tooltip from '../layout/Tooltip.vue';
 
 const props = withDefaults(
   defineProps<{
-    preset: keyof typeof presets
-    tooltipPosition?: RelativePosition
+    preset: keyof typeof presets;
+    tooltipPosition?: RelativePosition;
   }>(),
   {
     tooltipPosition: 'top'
   }
-)
+);
 </script>
 
 <script lang="ts">
@@ -32,7 +32,7 @@ export const presets = {
     colour: 'var(--warning-colour)',
     tooltip: "This user's invitation is pending."
   }
-}
+};
 </script>
 
 <template>

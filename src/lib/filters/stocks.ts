@@ -1,6 +1,6 @@
-import { FilterOperator, FilterMatchMode } from 'primevue/api'
-import type { DataTableFilterMeta } from 'primevue/datatable'
-import { CustomFilter } from './methods'
+import { FilterOperator, FilterMatchMode } from 'primevue/api';
+import type { DataTableFilterMeta } from 'primevue/datatable';
+import { CustomFilter } from './methods';
 
 export function initialStockFilter(): DataTableFilterMeta {
   return {
@@ -42,5 +42,5 @@ export function initialStockFilter(): DataTableFilterMeta {
       value: [],
       matchMode: CustomFilter.INCLUDES_ANY
     }
-  }
+  };
 }

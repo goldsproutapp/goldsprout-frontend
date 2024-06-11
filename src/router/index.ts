@@ -1,31 +1,31 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw, RouteComponent } from 'vue-router'
-import StockList from '../views/stock/StockList.vue'
-import StockInfo from '../views/stock/StockInfo.vue'
-import Snapshots from '../views/snapshot/Snapshots.vue'
-import CreateSnapshot from '../views/snapshot/CreateSnapshot.vue'
-import Login from '@/views/auth/Login.vue'
-import Logout from '@/views/auth/Logout.vue'
-import ProviderList from '@/views/providers/ProviderList.vue'
-import ProviderInfo from '@/views/providers/ProviderInfo.vue'
-import PerformanceVue from '@/views/performance/Performance.vue'
-import Overview from '@/views/Overview.vue'
-import Profile from '@/views/auth/Profile.vue'
-import Invitation from '@/views/auth/Invitation.vue'
-import UserList from '@/views/admin/UserList.vue'
-import InviteUser from '@/views/admin/InviteUser.vue'
-import EditUser from '@/views/admin/EditUser.vue'
-import ImportSnapshots from '@/views/snapshot/ImportSnapshots.vue'
-import AnalysisVue from '@/views/analysis/Analysis.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw, RouteComponent } from 'vue-router';
+import StockList from '../views/stock/StockList.vue';
+import StockInfo from '../views/stock/StockInfo.vue';
+import Snapshots from '../views/snapshot/Snapshots.vue';
+import CreateSnapshot from '../views/snapshot/CreateSnapshot.vue';
+import Login from '@/views/auth/Login.vue';
+import Logout from '@/views/auth/Logout.vue';
+import ProviderList from '@/views/providers/ProviderList.vue';
+import ProviderInfo from '@/views/providers/ProviderInfo.vue';
+import PerformanceVue from '@/views/performance/Performance.vue';
+import Overview from '@/views/Overview.vue';
+import Profile from '@/views/auth/Profile.vue';
+import Invitation from '@/views/auth/Invitation.vue';
+import UserList from '@/views/admin/UserList.vue';
+import InviteUser from '@/views/admin/InviteUser.vue';
+import EditUser from '@/views/admin/EditUser.vue';
+import ImportSnapshots from '@/views/snapshot/ImportSnapshots.vue';
+import AnalysisVue from '@/views/analysis/Analysis.vue';
 
 export type Route = RouteRecordRaw & {
-  component: RouteComponent & { __name?: string }
+  component: RouteComponent & { __name?: string };
   meta?: {
-    requireAdmin?: boolean
-    allowNoAuth?: boolean
-    keepAlive?: boolean
-  }
-}
+    requireAdmin?: boolean;
+    allowNoAuth?: boolean;
+    keepAlive?: boolean;
+  };
+};
 
 export const headerRoutes = [
   {
@@ -77,7 +77,7 @@ export const headerRoutes = [
       keepAlive: true
     }
   }
-]
+];
 
 const routes = [
   {
@@ -116,7 +116,7 @@ const routes = [
     name: 'Stock Info',
     component: StockInfo
   }
-]
+];
 
 const authRoutes = [
   {
@@ -148,7 +148,7 @@ const authRoutes = [
     name: 'Options',
     component: Profile
   }
-]
+];
 const adminRoutes = [
   {
     path: '/users',
@@ -175,13 +175,13 @@ const adminRoutes = [
       requireAdmin: true
     }
   }
-]
+];
 
-export const allRoutes: Route[] = [...headerRoutes, ...routes, ...authRoutes, ...adminRoutes]
+export const allRoutes: Route[] = [...headerRoutes, ...routes, ...authRoutes, ...adminRoutes];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: allRoutes
-})
+});
 
-export default router
+export default router;

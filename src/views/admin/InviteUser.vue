@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import SaveCancel from '@/components/buttons/SaveCancel.vue'
-import FormContainer from '@/components/layout/FormContainer.vue'
-import { authenticatedRequest } from '@/lib/requests'
-import router from '@/router'
-import InputText from 'primevue/inputtext'
-import Message from 'primevue/message'
-import { ref } from 'vue'
+import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import FormContainer from '@/components/layout/FormContainer.vue';
+import { authenticatedRequest } from '@/lib/requests';
+import router from '@/router';
+import InputText from 'primevue/inputtext';
+import Message from 'primevue/message';
+import { ref } from 'vue';
 
-const email = ref()
-const firstName = ref()
-const lastName = ref()
+const email = ref();
+const firstName = ref();
+const lastName = ref();
 
-const message = ref()
-const messageColour = ref()
+const message = ref();
+const messageColour = ref();
 
 const submit = async () => {
   const payload = {
     email: email.value,
     first_name: firstName.value,
     last_name: lastName.value
-  }
+  };
   const res = await authenticatedRequest('/invite', {
     method: 'POST',
     body: JSON.stringify(payload)
-  })
-  messageColour.value = 'var(--failure-colour)'
+  });
+  messageColour.value = 'var(--failure-colour)';
   if (res.status == 209) {
-    message.value = 'A user with this email address already exists'
+    message.value = 'A user with this email address already exists';
   } else if (res.status != 201) {
-    message.value = 'An unkown error occurred.'
+    message.value = 'An unkown error occurred.';
   } else {
-    messageColour.value = 'var(--success-colour)'
-    message.value = 'An invitation has been sent by email.'
+    messageColour.value = 'var(--success-colour)';
+    message.value = 'An invitation has been sent by email.';
   }
-}
+};
 </script>
 
 <template>

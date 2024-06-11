@@ -1,66 +1,66 @@
 <script setup lang="ts">
-import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue'
-import PerformanceFilter from '@/components/select/PerformanceFilter.vue'
-import { formatDecimal } from '@/lib/data'
-import { cachedRequest, getSnapshots } from '@/lib/requests'
-import Button from 'primevue/button'
-import Dropdown from 'primevue/dropdown'
-import { onMounted, ref } from 'vue'
+import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
+import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
+import { formatDecimal } from '@/lib/data';
+import { cachedRequest, getSnapshots } from '@/lib/requests';
+import Button from 'primevue/button';
+import Dropdown from 'primevue/dropdown';
+import { onMounted, ref } from 'vue';
 
-const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings']
-const comparing = ref(comparisonOptions[0])
+const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
+const comparing = ref(comparisonOptions[0]);
 
-const targetOptions = ['Person', 'Provider', 'Sector', 'Region', 'Stock', 'All']
+const targetOptions = ['Person', 'Provider', 'Sector', 'Region', 'Stock', 'All'];
 
 const formats: any = {
   Performance: '{}%',
   'Weighted Performance': '{}%',
   Holdings: '£{}'
-}
-const target = ref('All')
-const against = ref(targetOptions[0])
-const timeOptions = ['Years', 'Quarters', 'Months']
-const time = ref(timeOptions[0])
+};
+const target = ref('All');
+const against = ref(targetOptions[0]);
+const timeOptions = ['Years', 'Quarters', 'Months'];
+const time = ref(timeOptions[0]);
 
-const showTable = ref(false)
+const showTable = ref(false);
 
-const data = ref<any>({})
+const data = ref<any>({});
 
 const displayedOpts: any = ref({
   comparing: comparing.value,
   target: target.value,
   against: against.value,
   time: time.value
-})
+});
 const format = (str: string) =>
-  formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str))
-const filterObj = ref<{ [key: string]: string }>({})
+  formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str));
+const filterObj = ref<{ [key: string]: string }>({});
 
 onMounted(async () => {
-  await getSnapshots('all')
-  update()
-})
+  await getSnapshots('all');
+  update();
+});
 
 const update = async () => {
-  const query = new URLSearchParams()
+  const query = new URLSearchParams();
 
-  query.set('compare', comparing.value.toLowerCase().replace(' ', '_'))
-  query.set('of', target.value.toLowerCase())
-  query.set('for', against.value.toLowerCase())
-  query.set('over', time.value.toLowerCase())
-  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value))
-  const res = await cachedRequest(`/performance?${query.toString()}`)
+  query.set('compare', comparing.value.toLowerCase().replace(' ', '_'));
+  query.set('of', target.value.toLowerCase());
+  query.set('for', against.value.toLowerCase());
+  query.set('over', time.value.toLowerCase());
+  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
+  const res = await cachedRequest(`/performance?${query.toString()}`);
   if (res.status === 200) {
-    data.value = await res.json()
-    showTable.value = true
+    data.value = await res.json();
+    showTable.value = true;
     displayedOpts.value = {
       comparing: comparing.value,
       target: target.value,
       against: against.value,
       time: time.value
-    }
+    };
   }
-}
+};
 </script>
 
 <template>

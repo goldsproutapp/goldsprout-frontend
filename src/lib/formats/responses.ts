@@ -7,11 +7,11 @@ export enum StatusCode {
   Unauthorized = 401,
   Forbidden = 403
 }
-const unkownCode: StatusCode = StatusCode.BadRequest
+const unkownCode: StatusCode = StatusCode.BadRequest;
 
 export function statusFrom(code: number): StatusCode {
-  if (Object.values(StatusCode).includes(code)) return code
-  else return unkownCode
+  if (Object.values(StatusCode).includes(code)) return code;
+  else return unkownCode;
 }
 
 const labelMapping: { [key in StatusCode]: string } = {
@@ -21,14 +21,14 @@ const labelMapping: { [key in StatusCode]: string } = {
   [StatusCode.BadRequest]: 'Bad Request',
   [StatusCode.Unauthorized]: 'Unauthorised',
   [StatusCode.Forbidden]: 'Forbidden'
-}
+};
 
 export function statusText(code: StatusCode): string {
-  return labelMapping[code]
+  return labelMapping[code];
 }
 
-const successCodes: StatusCode[] = [StatusCode.OK, StatusCode.Created, StatusCode.NoContent]
+const successCodes: StatusCode[] = [StatusCode.OK, StatusCode.Created, StatusCode.NoContent];
 
 export function isSuccessful(code: StatusCode): boolean {
-  return successCodes.includes(code)
+  return successCodes.includes(code);
 }

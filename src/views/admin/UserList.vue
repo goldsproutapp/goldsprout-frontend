@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import InfoIcon from '@/components/icons/InfoIcon.vue'
-import { getUsers } from '@/lib/requests'
-import { dataState } from '@/lib/state'
-import type { User } from '@/lib/types'
-import router from '@/router'
-import Button from 'primevue/button'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { computed, onMounted } from 'vue'
+import InfoIcon from '@/components/icons/InfoIcon.vue';
+import { getUsers } from '@/lib/requests';
+import { dataState } from '@/lib/state';
+import type { User } from '@/lib/types';
+import router from '@/router';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import { computed, onMounted } from 'vue';
 
-onMounted(getUsers)
+onMounted(getUsers);
 
 const headings = {
   email: 'Email',
   first_name: 'First name',
   last_name: 'Last name',
   created_at: 'Created at'
-}
+};
 const users = computed(() =>
   dataState.users.map((user: User) => ({
     ...user,
     created_at: new Date(user.created_at).toLocaleDateString()
   }))
-)
+);
 </script>
 
 <template>

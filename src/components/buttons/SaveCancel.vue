@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
+import Button from 'primevue/button';
 
-defineEmits(['save', 'cancel'])
+defineEmits(['save', 'cancel']);
 const props = withDefaults(
   defineProps<{
-    saveLabel?: string
-    cancelLabel?: string
+    saveLabel?: string;
+    cancelLabel?: string;
   }>(),
   {
     saveLabel: 'Save',
     cancelLabel: 'Cancel'
   }
-)
+);
 </script>
 
 <template>

@@ -1,44 +1,44 @@
 <script setup lang="ts">
-import SaveCancel from '@/components/buttons/SaveCancel.vue'
-import { getUserByID, getUserDisplayName } from '@/lib/data'
-import { authenticatedRequest } from '@/lib/requests'
-import { dataState } from '@/lib/state'
-import { type AccessPermission, type User } from '@/lib/types'
-import router from '@/router'
-import Checkbox from 'primevue/checkbox'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import { ref, watch } from 'vue'
-import { useToast } from 'primevue/usetoast'
-import InputSwitch from 'primevue/inputswitch'
-import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses'
+import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import { getUserByID, getUserDisplayName } from '@/lib/data';
+import { authenticatedRequest } from '@/lib/requests';
+import { dataState } from '@/lib/state';
+import { type AccessPermission, type User } from '@/lib/types';
+import router from '@/router';
+import Checkbox from 'primevue/checkbox';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import { ref, watch } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import InputSwitch from 'primevue/inputswitch';
+import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 
 const props = defineProps<{
-  id: string
-}>()
+  id: string;
+}>();
 
-const toast = useToast()
+const toast = useToast();
 
-type Permission = AccessPermission & { access_for: string }
-const user = ref<User | null>()
+type Permission = AccessPermission & { access_for: string };
+const user = ref<User | null>();
 
 watch(
   props,
   ({ id }, _) => {
     if (id !== undefined)
-      getUserByID(parseInt(id)).then((result) => (user.value = result ? result : user.value))
+      getUserByID(parseInt(id)).then((result) => (user.value = result ? result : user.value));
   },
   {
     immediate: true
   }
-)
-const perms = ref<{ [key: string]: Permission }>()
+);
+const perms = ref<{ [key: string]: Permission }>();
 watch(user, (next, old) => {
-  if (next == null) return
-  perms.value = generatePerms(next)
-})
+  if (next == null) return;
+  perms.value = generatePerms(next);
+});
 const generatePerms = (u: User): { [key: string]: Permission } => {
-  const out: { [key: string]: Permission } = {}
+  const out: { [key: string]: Permission } = {};
   dataState.users.forEach(
     (user) =>
       (out[user.id.toString()] = {
@@ -48,7 +48,7 @@ const generatePerms = (u: User): { [key: string]: Permission } => {
         write: false,
         user_id: u.id
       })
-  )
+  );
   if (u.access_permissions)
     u.access_permissions.forEach(
       async (perm) =>
@@ -56,11 +56,11 @@ const generatePerms = (u: User): { [key: string]: Permission } => {
           ...perm,
           access_for: getUserDisplayName(await getUserByID(perm.access_for_id))
         })
-    )
-  return out
-}
+    );
+  return out;
+};
 const process = async () => {
-  if (!user.value || !perms.value) return // TODO: error handling
+  if (!user.value || !perms.value) return; // TODO: error handling
   const payload = {
     user: user.value.id,
     trusted: user.value.trusted,
@@ -69,12 +69,12 @@ const process = async () => {
       read: perm.read,
       write: perm.write
     }))
-  }
+  };
   const res = await authenticatedRequest('/permissions', {
     method: 'PUT',
     body: JSON.stringify(payload)
-  })
-  const status = statusFrom(res.status)
+  });
+  const status = statusFrom(res.status);
   if (status === StatusCode.OK) {
     toast.add({
       severity: 'success',
@@ -82,8 +82,8 @@ const process = async () => {
       detail: 'Permissions successfully updated',
       life: 2000,
       group: 'br'
-    })
-    router.push('/users')
+    });
+    router.push('/users');
   } else {
     toast.add({
       severity: 'error',
@@ -91,9 +91,9 @@ const process = async () => {
       detail: `Failed to update permissions: ${statusText(status)}`,
       life: 2000,
       group: 'br'
-    })
+    });
   }
-}
+};
 </script>
 
 <template>

@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import NavBar from './components/NavBar.vue'
-import Footer from './components/Footer.vue'
-import { authState, updateAuthState } from './lib/state'
-import { onMounted, watch } from 'vue'
-import router, { allRoutes } from './router'
-import { usePrimeVue } from 'primevue/config'
-import Toast from 'primevue/toast'
-import Unauthorised from './views/auth/Unauthorised.vue'
-import { computed } from 'vue'
+import { RouterView } from 'vue-router';
+import NavBar from './components/NavBar.vue';
+import Footer from './components/Footer.vue';
+import { authState, updateAuthState } from './lib/state';
+import { onMounted, watch } from 'vue';
+import router, { allRoutes } from './router';
+import { usePrimeVue } from 'primevue/config';
+import Toast from 'primevue/toast';
+import Unauthorised from './views/auth/Unauthorised.vue';
+import { computed } from 'vue';
 
-const primeVue = usePrimeVue()
+const primeVue = usePrimeVue();
 
 watch(router.currentRoute, (newRoute, _) => {
-  if (!authState.loggedIn && !newRoute.meta?.allowNoAuth) router.push('/login')
-})
+  if (!authState.loggedIn && !newRoute.meta?.allowNoAuth) router.push('/login');
+});
 onMounted(() => {
-  primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {})
-  updateAuthState()
-})
+  primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {});
+  updateAuthState();
+});
 const includeKeepAlive = computed(() =>
   allRoutes
     .filter((route) => route.meta?.keepAlive ?? false)
     .filter((route) => route.component?.__name)
     .map((route) => route.component?.__name ?? '')
-)
+);
 </script>
 <template>
   <div class="root">

@@ -1,1 +1,1 @@
-export type RelativePosition = 'left' | 'right' | 'top' | 'bottom'
+export type RelativePosition = 'left' | 'right' | 'top' | 'bottom';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import router from '@/router'
-import Button from 'primevue/button'
+import router from '@/router';
+import Button from 'primevue/button';
 </script>
 
 <template>
