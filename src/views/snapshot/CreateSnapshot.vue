@@ -3,7 +3,7 @@ import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
 import { formatDecimal, getUserDisplayName, pluralise } from '@/lib/data';
 import { parseCSV } from '@/lib/formats/csv';
-import { authenticatedRequest, getSnapshots, getStockList } from '@/lib/requests';
+import { authenticatedRequest, getHoldings, getSnapshots, getStockList } from '@/lib/requests';
 import { authState, dataState } from '@/lib/state';
 import { type Snapshot, type Stock, type User } from '@/lib/types';
 import router from '@/router';
@@ -31,7 +31,7 @@ const providerName = ref<string>();
 const provider = computed(() =>
   dataState.providers.find((provider) => provider.name === providerName.value)
 );
-onMounted(getStockList);
+onMounted(() => getStockList(true));
 
 const username = ref<string>(getUserDisplayName(authState.userInfo));
 const user = computed<User | undefined>(() =>
@@ -159,7 +159,9 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
     (total: number, snapshot: Snapshot) => total + Number.parseFloat(snapshot.value),
     0
   );
-  getSnapshots();
+  getSnapshots(false);
+  getStockList(false);
+  getHoldings(false);
 };
 
 const submit = () => {

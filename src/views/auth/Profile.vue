@@ -21,7 +21,7 @@ const toast = useToast();
 const { userInfo } = authState;
 const editingInfo = ref(Object.assign({}, userInfo));
 const visibility = ref<User[]>();
-onMounted(() => getUserVisibility().then((res) => (visibility.value = res)));
+onMounted(() => getUserVisibility(true).then((res) => (visibility.value = res)));
 const editing = ref(false);
 
 const changingPassword = ref(false);

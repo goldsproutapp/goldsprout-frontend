@@ -5,7 +5,7 @@ import { type User, type Stock, type Provider } from './types';
 export async function getStockByID(id: number, request_if_none: boolean = true): Promise<Stock> {
   const stock = dataState.stocks.find((stock) => stock.id === id);
   if (stock === undefined && request_if_none) {
-    await getStockList();
+    await getStockList(false);
     return getStockByID(id, false);
   }
   return stock as Stock;
@@ -18,7 +18,7 @@ export function getCachedUser(id: number): User | undefined {
 export async function getUserByID(id: number, request_if_none: boolean = true): Promise<User> {
   const user = getCachedUser(id);
   if (user === undefined && request_if_none) {
-    await getUsers();
+    await getUsers(false);
     return getUserByID(id, false);
   }
   return user as User;
@@ -27,7 +27,7 @@ export async function getUserByID(id: number, request_if_none: boolean = true): 
 export async function getUserByName(name: string, request_if_none: boolean = true): Promise<User> {
   const user = dataState.users.find((user) => getUserDisplayName(user) === name);
   if (user === undefined && request_if_none) {
-    await getUsers();
+    await getUsers(false);
     return await getUserByName(name, false);
   }
   return user as User;
@@ -39,7 +39,7 @@ export async function getProviderByID(
 ): Promise<Provider> {
   const provider = dataState.providers.find((provider) => provider.id === id);
   if (provider === undefined && request_if_none) {
-    await getProviderList();
+    await getProviderList(false);
     return getProviderByID(id, false);
   }
   return provider as Provider;
@@ -51,24 +51,24 @@ export async function getProviderByName(
 ): Promise<Provider> {
   const provider = dataState.providers.find((provider) => provider.name === name);
   if (provider === undefined && request_if_none) {
-    await getProviderList();
+    await getProviderList(false);
     return getProviderByName(name, false);
   }
   return provider as Provider;
 }
 
 export async function stocks() {
-  if (dataState.stocks.length == 0) await getStockList();
+  if (dataState.stocks.length == 0) await getStockList(false);
   return dataState.stocks;
 }
 
 export async function providers() {
-  if (dataState.providers.length == 0) await getProviderList();
+  if (dataState.providers.length == 0) await getProviderList(false);
   return dataState.providers;
 }
 
 export async function users() {
-  if (dataState.users.length == 0) await getUsers();
+  if (dataState.users.length == 0) await getUsers(false);
   return dataState.users;
 }
 

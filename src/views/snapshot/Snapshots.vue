@@ -23,7 +23,7 @@ const snapshots = computed(() =>
 const loading = ref(true);
 onMounted(() => {
   loading.value = snapshots.value.length == 0;
-  getSnapshots().then(() => (loading.value = false));
+  getSnapshots(true).then(() => (loading.value = false));
 });
 const headings = {
   user_name: 'User',
@@ -59,7 +59,7 @@ const deleteSnapshot = async (id: string) => {
         severity: 'success',
         life: 2000
       });
-      getSnapshots();
+      getSnapshots(false);
     })
     .catch((e) => {
       toast.add({

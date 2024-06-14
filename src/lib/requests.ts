@@ -1,4 +1,5 @@
 import { logOut } from './auth';
+import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
 import { getStockByID, getUserByID, getUserDisplayName } from './data';
 import { processFormat } from './formats/csv';
@@ -19,16 +20,39 @@ export async function authenticatedRequest(path: string, options?: RequestInit):
   }
   return res;
 }
-export async function cachedRequest(path: string, options?: RequestInit): Promise<Response> {
-  // TODO: actually cache requests, or decide that it's a bad idea.
-  return authenticatedRequest(path, options);
+export async function cachedRequest<T>(
+  path: string,
+  useCache: boolean = false,
+  options?: RequestInit,
+  cachePool?: string
+): Promise<T | null> {
+  if (useCache && isDataCached(path)) return getCachedData(path);
+  const res = await authenticatedRequest(path, options);
+  if (res.status !== 200) return null;
+  const json = await res.json();
+  cacheData(path, json, cachePool);
+  return json;
 }
 
-export async function getStockList(): Promise<Stock[]> {
-  const res = await cachedRequest('/stocks');
+export async function keyCachedRequest(
+  path: string,
+  useCache: boolean = false,
+  cachePool?: string
+): Promise<Response | null> {
+  if (useCache && isKeyCached(path)) {
+    return null;
+  }
+  const res = authenticatedRequest(path);
+  cacheKey(path, cachePool);
+  return res;
+}
+
+export async function getStockList(useCache: boolean = false): Promise<Stock[]> {
+  const res = await keyCachedRequest('/stocks', useCache);
+  if (res === null) return dataState.stocks;
   if (res.status != 200) return [];
   const json = await res.json();
-  const providers = await getProviderList();
+  const providers = await getProviderList(true);
   let stocks = json.reduce(
     (obj: Object, userStock: any) =>
       Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [] } }),
@@ -50,8 +74,9 @@ export async function getStockList(): Promise<Stock[]> {
   return stocks;
 }
 
-export async function getProviderList(): Promise<Provider[]> {
-  const res = await cachedRequest('/providers');
+export async function getProviderList(useCache: boolean = false): Promise<Provider[]> {
+  const res = await keyCachedRequest('/providers', useCache);
+  if (res === null) return dataState.providers;
   if (res.status != 200) return [];
   const json = await res.json();
   json.forEach((provider: Provider) => {
@@ -61,10 +86,14 @@ export async function getProviderList(): Promise<Provider[]> {
   return json;
 }
 
-export async function getSnapshots(timeframe: 'latest' | 'all' = 'latest'): Promise<Snapshot[]> {
-  await getUsers();
-  await getStockList();
-  const res = await cachedRequest(`/snapshots/${timeframe}`);
+export async function getSnapshots(
+  useCache: boolean = false,
+  timeframe: 'latest' | 'all' = 'latest'
+): Promise<Snapshot[]> {
+  await getUsers(useCache);
+  await getStockList(useCache);
+  const res = await keyCachedRequest(`/snapshots/${timeframe}`, useCache);
+  if (res === null) return dataState[`snapshots_${timeframe}`];
   if (res.status != 200) return [];
   const json = await res.json();
   await Promise.all(
@@ -79,8 +108,9 @@ export async function getSnapshots(timeframe: 'latest' | 'all' = 'latest'): Prom
   return json;
 }
 
-export async function getUsers(): Promise<User[]> {
-  const res = await cachedRequest('/users');
+export async function getUsers(useCache: boolean = false): Promise<User[]> {
+  const res = await keyCachedRequest('/users', useCache);
+  if (res === null) return dataState.users;
   if (res.status != 200) return [];
   const json = await res.json();
   json.created_at = new Date(json.created_at);
@@ -88,18 +118,16 @@ export async function getUsers(): Promise<User[]> {
   return json;
 }
 
-export async function getUserVisibility(): Promise<User[]> {
-  const res = await cachedRequest('/uservisibility');
-  if (res.status != 200) return [];
-  const json = await res.json();
+export async function getUserVisibility(useCache: boolean = true): Promise<User[]> {
+  const json = await cachedRequest<User[]>('/uservisibility', useCache);
+  if (json === null) return [];
   return json;
 }
 
-export async function getOverview(): Promise<Overview | null> {
-  await getUsers();
-  const res = await cachedRequest('/overview');
-  if (res.status != 200) return null;
-  const json: Overview = await res.json();
+export async function getOverview(useCache: boolean = true): Promise<Overview | null> {
+  await getUsers(useCache);
+  const json = await cachedRequest<Overview>('/overview', useCache);
+  if (json === null) return null;
   json.last_snapshot = new Date(json.last_snapshot);
   if (json.users) {
     Object.keys(json.users).forEach(async (uid) => {
@@ -111,22 +139,26 @@ export async function getOverview(): Promise<Overview | null> {
   }
   return json;
 }
-export async function getRegions(): Promise<string[]> {
-  const res = await authenticatedRequest('/regions');
+export async function getRegions(useCache: boolean = false): Promise<string[]> {
+  const res = await keyCachedRequest('/regions', useCache);
+  if (res === null) return dataState.regions;
+
   const json = await res.json();
   dataState.regions = json.regions;
   return dataState.regions;
 }
 
-export async function getSectors(): Promise<string[]> {
-  const res = await authenticatedRequest('/sectors');
+export async function getSectors(useCache: boolean = false): Promise<string[]> {
+  const res = await keyCachedRequest('/sectors', useCache);
+  if (res === null) return dataState.sectors;
   const json = await res.json();
   dataState.sectors = json.sectors;
   return dataState.sectors;
 }
 
-export async function getHoldings() {
-  const res = await cachedRequest('/holdings');
+export async function getHoldings(useCache: boolean = false) {
+  const res = await keyCachedRequest('/holdings', useCache);
+  if (res === null) return;
   const { data } = await res.json();
   dataState.userHoldings = data.by_user;
   dataState.stockHoldings = data.by_stock;

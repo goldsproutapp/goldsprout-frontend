@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import { computed, onMounted } from 'vue';
-onMounted(getProviderList);
+onMounted(() => getProviderList(true));
 const providers = computed(() => dataState.providers);
 const headings = {
   name: 'Name',

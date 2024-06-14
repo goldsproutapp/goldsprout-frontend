@@ -2,7 +2,7 @@
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
 import { formatDecimal } from '@/lib/data';
-import { cachedRequest, getSnapshots } from '@/lib/requests';
+import { authenticatedRequest } from '@/lib/requests';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import { onMounted, ref } from 'vue';
@@ -37,7 +37,6 @@ const format = (str: string) =>
 const filterObj = ref<{ [key: string]: string }>({});
 
 onMounted(async () => {
-  await getSnapshots('all');
   update();
 });
 
@@ -49,7 +48,7 @@ const update = async () => {
   query.set('for', against.value.toLowerCase());
   query.set('over', time.value.toLowerCase());
   Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
-  const res = await cachedRequest(`/performance?${query.toString()}`);
+  const res = await authenticatedRequest(`/performance?${query.toString()}`);
   if (res.status === 200) {
     data.value = await res.json();
     showTable.value = true;

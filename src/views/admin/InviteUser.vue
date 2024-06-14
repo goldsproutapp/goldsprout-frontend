@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import FormContainer from '@/components/layout/FormContainer.vue';
-import { authenticatedRequest } from '@/lib/requests';
+import { authenticatedRequest, getUsers } from '@/lib/requests';
 import router from '@/router';
 import InputText from 'primevue/inputtext';
 import Message from 'primevue/message';
@@ -32,6 +32,7 @@ const submit = async () => {
   } else {
     messageColour.value = 'var(--success-colour)';
     message.value = 'An invitation has been sent by email.';
+    getUsers(false);
   }
 };
 </script>

@@ -9,7 +9,7 @@ import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import { computed, onMounted } from 'vue';
 
-onMounted(getUsers);
+onMounted(() => getUsers(true));
 
 const headings = {
   email: 'Email',

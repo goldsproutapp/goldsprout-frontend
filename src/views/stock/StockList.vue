@@ -7,7 +7,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InfoIcon from '@/components/icons/InfoIcon.vue';
 import ProgressSpinner from 'primevue/progressspinner';
-import type { Stock, User } from '@/lib/types';
+import type { Stock } from '@/lib/types';
 import { initialStockFilter } from '@/lib/filters/stocks';
 import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
@@ -24,11 +24,11 @@ const loading = ref(true);
 const stocks = computed(() => dataState.stocks);
 onMounted(() => {
   loading.value = stocks.value.length == 0;
-  getStockList().then(() => (loading.value = false));
-  getHoldings();
-  getRegions();
-  getSectors();
-  getUsers();
+  getStockList(true).then(() => (loading.value = false));
+  getHoldings(true);
+  getRegions(true);
+  getSectors(true);
+  getUsers(true);
 });
 const selection = ref();
 watch(selection, () => (selection.value = null)); // don't highlight the 'selection', we just want to identify a click.
@@ -44,7 +44,7 @@ watch(heldByMatchMode, (value, _) => {
   filters.value.users.matchMode =
     value == 'Any' ? CustomFilter.INCLUDES_ANY : CustomFilter.INCLUDES_ALL;
 });
-const filterAnyone = (filterModel: any) => {
+const filterAnyone = (_: any) => {
   heldByMatchMode.value = 'Any';
   // @ts-expect-error the type system for the filters object is a bit of a mess.
   filters.value.users.value = dataState.users.map((x) => x.id);

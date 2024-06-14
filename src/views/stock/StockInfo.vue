@@ -43,8 +43,8 @@ onMounted(async () => {
   stock.value = (await stocks()).find(({ id }) => id.toString() == props.id) || null;
   stock.value = Object.assign({}, stock.value);
   providerList.value = await providers();
-  getRegions();
-  getSectors();
+  getRegions(true);
+  getSectors(true);
 });
 
 const holding = ref<any>(null);
@@ -52,7 +52,7 @@ const holding = ref<any>(null);
 watch(stock, async (v, _) => {
   if (!v) return;
   const info = dataState.stockHoldings[v.id];
-  if (!info) await getHoldings();
+  if (!info) await getHoldings(true);
   const data: any = [];
   await Promise.all(
     Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, value]) =>
@@ -73,7 +73,9 @@ const save = async () => {
     method: 'PUT',
     body: JSON.stringify(payload)
   });
-  getStockList();
+  dataState.stocks[dataState.stocks.findIndex((s: Stock) => s.id === obj.id)] = obj;
+  if (!dataState.regions.includes(obj.region)) dataState.regions.push(obj.region);
+  if (!dataState.sectors.includes(obj.sector)) dataState.sectors.push(obj.sector);
   router.push('/stocks');
 };
 const merge = async () => {
@@ -114,7 +116,7 @@ const merge = async () => {
     severity: 'success',
     life: 2000
   });
-  getStockList().then(() => router.push('/stocks'));
+  getStockList(false).then(() => router.push('/stocks'));
 };
 </script>
 

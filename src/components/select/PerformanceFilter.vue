@@ -30,9 +30,11 @@ const props = withDefaults(
   }
 );
 
-onMounted(getRegions);
-onMounted(getProviderList);
-onMounted(getUsers);
+onMounted(() => {
+  getRegions(true);
+  getProviderList(true);
+  getUsers(true);
+});
 
 const filterObj = computed(() => {
   const obj: any = {};

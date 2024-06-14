@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import { getUserByID, getUserDisplayName } from '@/lib/data';
-import { authenticatedRequest } from '@/lib/requests';
+import { authenticatedRequest, getUsers } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import { type AccessPermission, type User } from '@/lib/types';
 import router from '@/router';
@@ -33,7 +33,7 @@ watch(
   }
 );
 const perms = ref<{ [key: string]: Permission }>();
-watch(user, (next, old) => {
+watch(user, (next, _) => {
   if (next == null) return;
   perms.value = generatePerms(next);
 });
@@ -83,6 +83,7 @@ const process = async () => {
       life: 2000,
       group: 'br'
     });
+    getUsers(false);
     router.push('/users');
   } else {
     toast.add({

@@ -11,7 +11,7 @@ import Divider from 'primevue/divider';
 
 const overview = ref<Overview | null>();
 
-onMounted(() => getOverview().then((res) => (overview.value = res)));
+onMounted(() => getOverview(false).then((res) => (overview.value = res)));
 </script>
 
 <template>
