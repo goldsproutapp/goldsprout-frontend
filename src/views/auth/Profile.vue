@@ -12,9 +12,9 @@ import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
 import TabMenu from 'primevue/tabmenu';
 import router from '@/router';
-import Tooltip from '@/components/layout/Tooltip.vue';
 import Dialog from 'primevue/dialog';
 import Checkbox from 'primevue/checkbox';
+import { downloadFile } from '@/lib/utils';
 
 const toast = useToast();
 
@@ -102,6 +102,10 @@ const confirmDelete = async () => {
   });
   return;
 };
+const exportData = async () => {
+  const res = await authenticatedRequest('/export/csv');
+  downloadFile(res);
+};
 </script>
 
 <template>
@@ -158,9 +162,7 @@ const confirmDelete = async () => {
         @click="router.push('/snapshots/import')"
       />
       <br />
-      <Tooltip content="Not available yet" position="right">
-        <Button label="Export data" disabled />
-      </Tooltip>
+      <Button label="Export data" @click="exportData" />
       <br />
       <Button
         v-if="authState.userInfo.is_admin"
