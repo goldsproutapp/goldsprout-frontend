@@ -17,6 +17,9 @@ import InviteUser from '@/views/admin/InviteUser.vue';
 import EditUser from '@/views/admin/EditUser.vue';
 import ImportSnapshots from '@/views/snapshot/ImportSnapshots.vue';
 import AnalysisVue from '@/views/analysis/Analysis.vue';
+import AccountList from '@/views/accounts/AccountList.vue';
+import AccountInfo from '@/views/accounts/AccountInfo.vue';
+import CreateAccount from '@/views/accounts/CreateAccount.vue';
 
 export type Route = RouteRecordRaw & {
   component: RouteComponent & { __name?: string };
@@ -69,6 +72,14 @@ export const headerRoutes = [
     }
   },
   {
+    path: '/accounts',
+    name: 'Accounts',
+    component: AccountList,
+    meta: {
+      keepAlive: true
+    }
+  },
+  {
     path: '/providers',
     name: 'Providers',
     component: ProviderList,
@@ -109,6 +120,17 @@ const routes = [
     meta: {
       requireAdmin: true
     }
+  },
+  {
+    path: '/accounts/create',
+    name: 'Create Account',
+    component: CreateAccount,
+  },
+  {
+    path: '/accounts/:accountID',
+    name: 'Update Account',
+    props: (route: any) => ({ accountID: parseInt(route.params.accountID) }),
+    component: AccountInfo,
   },
   {
     path: '/stocks/:id',

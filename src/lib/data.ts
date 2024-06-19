@@ -1,6 +1,6 @@
-import { getProviderList, getStockList, getUsers } from './requests';
+import { getAccounts, getProviderList, getStockList, getUsers } from './requests';
 import { dataState } from './state';
-import { type User, type Stock, type Provider } from './types';
+import { type User, type Stock, type Provider, type Account } from './types';
 
 export async function getStockByID(id: number, request_if_none: boolean = true): Promise<Stock> {
   const stock = dataState.stocks.find((stock) => stock.id === id);
@@ -55,6 +55,18 @@ export async function getProviderByName(
     return getProviderByName(name, false);
   }
   return provider as Provider;
+}
+
+export async function getAccountByID(
+  id: number,
+  request_if_none: boolean = true
+): Promise<Account> {
+  const account = dataState.accounts.find((account) => account.id === id);
+  if (account === undefined && request_if_none) {
+    await getAccounts(false);
+    return getAccountByID(id, false);
+  }
+  return account as Account;
 }
 
 export async function stocks() {

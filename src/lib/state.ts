@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 import { emptyUser } from './data';
-import { type User, type Provider, type Stock, type Snapshot } from './types';
+import { type User, type Provider, type Stock, type Snapshot, type Account } from './types';
 
 export const authState = reactive<{
   loggedIn: boolean;
@@ -15,6 +15,7 @@ export const authState = reactive<{
 export const dataState = reactive({
   stocks: new Array<Stock>(),
   providers: new Array<Provider>(),
+  accounts: new Array<Account>(),
   snapshots_latest: new Array<Snapshot>(),
   snapshots_all: new Array<Snapshot>(),
   users: new Array<User>(),

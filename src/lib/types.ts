@@ -24,6 +24,15 @@ export interface Provider {
   annual_fee: number;
 }
 
+export interface Account {
+  id: number;
+  name: string;
+  provider_id: number;
+  provider?: Provider;
+  user_id: number;
+  user?: User;
+}
+
 export interface Snapshot {
   stock: Stock;
   date: Date;

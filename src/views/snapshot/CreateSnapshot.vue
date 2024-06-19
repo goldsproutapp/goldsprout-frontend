@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import UserDropdown from '@/components/select/UserDropdown.vue';
 import { formatDecimal, getUserDisplayName, pluralise } from '@/lib/data';
 import { parseCSV } from '@/lib/formats/csv';
-import { authenticatedRequest, getHoldings, getSnapshots, getStockList } from '@/lib/requests';
+import {
+  authenticatedRequest,
+  getAccounts,
+  getHoldings,
+  getSnapshots,
+  getStockList
+} from '@/lib/requests';
 import { authState, dataState } from '@/lib/state';
-import { type Snapshot, type Stock, type User } from '@/lib/types';
+import { type Account, type Provider, type Snapshot, type Stock, type User } from '@/lib/types';
 import router from '@/router';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import DateInput from '@/components/select/DateInput.vue';
 import DataTable from 'primevue/datatable';
@@ -16,6 +20,7 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
+import AccountDropdown from '@/components/select/AccountDropdown.vue';
 
 const headings = {
   stock_name: 'Name',
@@ -27,16 +32,14 @@ const headings = {
 };
 
 const replaceCommas = ['units', 'price', 'value', 'cost', 'absolute_change'];
-const providerName = ref<string>();
-const provider = computed(() =>
-  dataState.providers.find((provider) => provider.name === providerName.value)
-);
-onMounted(() => getStockList(true));
+const provider = ref<Provider>();
+onMounted(() => {
+  getStockList(true);
+  getAccounts(true);
+});
 
-const username = ref<string>(getUserDisplayName(authState.userInfo));
-const user = computed<User | undefined>(() =>
-  dataState.users.find((user) => getUserDisplayName(user) === username.value)
-);
+const user = ref<User>(authState.userInfo);
+const account = ref<Account>();
 
 const entries = ref<any>([]);
 const inputDiv: any = ref(null);
@@ -82,7 +85,7 @@ function findMissingStocks(): boolean {
 }
 
 function process() {
-  if (providerName.value === '' || providerName.value === undefined) {
+  if (provider.value === null || provider.value === undefined) {
     toast.add({
       summary: 'Error',
       detail: 'Please select a provider.',
@@ -232,10 +235,6 @@ const submit = () => {
       />
     </Dialog>
     <h1>Create snapshot</h1>
-    <div class="misc-inputs">
-      <DateInput id="date-input" v-model="dateInput" />
-      <ProviderDropdown l_id="createsnapshot-provider" v-model="providerName" />
-    </div>
     <div contenteditable ref="inputDiv" class="csv-input"></div>
     <hr />
     <Button class="button" @click="process" label="Add" severity="primary" />
@@ -250,8 +249,13 @@ const submit = () => {
     </DataTable>
     <hr />
     <div class="control-items">
-      <UserDropdown v-model="username" />
-      <SaveCancel @save="submit" @cancel="router.back()" />
+      <div>
+        <DateInput id="date-input" v-model="dateInput" />
+        <AccountDropdown v-model="account" />
+      </div>
+      <div class="save-cancel">
+        <SaveCancel class="save-cancel" @save="submit" @cancel="router.back()" />
+      </div>
     </div>
   </div>
 </template>
@@ -286,21 +290,23 @@ const submit = () => {
 }
 
 .button {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.savecancel-button {
-  margin-right: 0.5rem;
+  margin-right: var(--inline-spacing);
+  margin-bottom: var(--inline-spacing);
 }
 
 .control-items {
   display: flex;
+  flex-direction: column;
   justify-content: start;
-  column-gap: 1rem;
+  column-gap: var(--inline-spacing);
 }
 
 .modal-button {
   margin: 0.5rem;
+}
+.save-cancel {
+  display: flex;
+  column-gap: var(--inline-spacing);
+  margin-top: var(--inline-spacing);
 }
 </style>

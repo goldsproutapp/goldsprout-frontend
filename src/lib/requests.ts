@@ -1,10 +1,17 @@
 import { logOut } from './auth';
 import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
-import { getStockByID, getUserByID, getUserDisplayName } from './data';
+import { getProviderByID, getStockByID, getUserByID, getUserDisplayName } from './data';
 import { processFormat } from './formats/csv';
 import { authState, dataState } from './state';
-import { type Snapshot, type Provider, type Stock, type User, type Overview } from './types';
+import {
+  type Snapshot,
+  type Provider,
+  type Stock,
+  type User,
+  type Overview,
+  type Account
+} from './types';
 
 export async function authenticatedRequest(path: string, options?: RequestInit): Promise<Response> {
   let notNullOpts = options == null ? {} : options;
@@ -34,25 +41,34 @@ export async function cachedRequest<T>(
   return json;
 }
 
+export async function keyCachedRequestCacheLater(
+  path: string,
+  useCache: boolean,
+  cachePool?: string
+): Promise<[Response | null, () => void]> {
+  if (useCache && isKeyCached(path)) {
+    return [null, () => {}];
+  }
+  const res = await authenticatedRequest(path);
+  return [res, () => cacheKey(path, cachePool)];
+}
+
 export async function keyCachedRequest(
   path: string,
   useCache: boolean = false,
   cachePool?: string
 ): Promise<Response | null> {
-  if (useCache && isKeyCached(path)) {
-    return null;
-  }
-  const res = authenticatedRequest(path);
-  cacheKey(path, cachePool);
-  return res;
+    const [res, cacheFunc] = await keyCachedRequestCacheLater(path, useCache, cachePool);
+    cacheFunc();
+    return res;
 }
 
 export async function getStockList(useCache: boolean = false): Promise<Stock[]> {
-  const res = await keyCachedRequest('/stocks', useCache);
+  const [res, cacheFunc] = await keyCachedRequestCacheLater('/stocks', useCache);
   if (res === null) return dataState.stocks;
   if (res.status != 200) return [];
   const json = await res.json();
-  const providers = await getProviderList(true);
+  const providers = await getProviderList(useCache);
   let stocks = json.reduce(
     (obj: Object, userStock: any) =>
       Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [] } }),
@@ -71,6 +87,7 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
     (stock: any) => (stock.total_fee = (stock.annual_fee ?? 0) + (stock.provider.annual_fee ?? 0))
   );
   dataState.stocks = stocks;
+  cacheFunc();
   return stocks;
 }
 
@@ -162,4 +179,20 @@ export async function getHoldings(useCache: boolean = false) {
   const { data } = await res.json();
   dataState.userHoldings = data.by_user;
   dataState.stockHoldings = data.by_stock;
+}
+
+export async function getAccounts(useCache: boolean = false): Promise<Account[]> {
+  const [res, cacheFunc] = await keyCachedRequestCacheLater('/accounts', useCache);
+  if (res === null) return dataState.accounts;
+  const json = await res.json();
+  const accounts = json.data;
+  await Promise.all(
+    accounts.map(async (account: Account) => {
+      account.provider = await getProviderByID(account.provider_id);
+      account.user = await getUserByID(account.user_id);
+    })
+  );
+  dataState.accounts = accounts;
+  cacheFunc();
+  return dataState.accounts;
 }

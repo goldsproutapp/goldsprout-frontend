@@ -19,7 +19,7 @@ export function isKeyCached(key: string): boolean {
 
 export function cacheKey(key: string, pool: string = GLOBAL_POOL) {
   addToPool(pool, key);
-  cachedKeys[key] = Date.now();
+  if (!Object.keys(cachedKeys).includes(key)) cachedKeys[key] = Date.now(); // don't update the last access time if the cache has been hit.
 }
 
 export function isDataCached(key: string): boolean {

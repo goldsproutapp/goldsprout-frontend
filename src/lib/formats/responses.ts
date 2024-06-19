@@ -5,7 +5,8 @@ export enum StatusCode {
 
   BadRequest = 400,
   Unauthorized = 401,
-  Forbidden = 403
+  Forbidden = 403,
+  NotFound = 404
 }
 const unkownCode: StatusCode = StatusCode.BadRequest;
 
@@ -20,7 +21,8 @@ const labelMapping: { [key in StatusCode]: string } = {
   [StatusCode.NoContent]: 'Success',
   [StatusCode.BadRequest]: 'Bad Request',
   [StatusCode.Unauthorized]: 'Unauthorised',
-  [StatusCode.Forbidden]: 'Forbidden'
+  [StatusCode.Forbidden]: 'Forbidden',
+  [StatusCode.NotFound]: 'Not Found'
 };
 
 export function statusText(code: StatusCode): string {

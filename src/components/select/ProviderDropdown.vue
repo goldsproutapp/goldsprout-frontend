@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { providers } from '@/lib/data';
 import { type Provider } from '@/lib/types';
 import Dropdown from 'primevue/dropdown';
 
 const providerList = ref<Provider[]>([]);
-const providerNames = computed(() => providerList.value.map(({ name }) => name));
 
 onMounted(async () => {
   providerList.value = await providers();
@@ -16,7 +15,8 @@ const model = defineModel();
 <template>
   <Dropdown
     v-model="model"
-    :options="providerNames"
+    :options="providerList"
+    option-label="name"
     placeholder="Provider"
     class="w-full md:w-14rem"
   />
