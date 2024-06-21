@@ -1,7 +1,14 @@
 import { logOut } from './auth';
 import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
-import { getProviderByID, getStockByID, getUserByID, getUserDisplayName } from './data';
+import {
+  getAccountByID,
+  getProviderByID,
+  getStockByID,
+  getUserByID,
+  getUserDisplayName,
+  users
+} from './data';
 import { processFormat } from './formats/csv';
 import { authState, dataState } from './state';
 import {
@@ -58,9 +65,9 @@ export async function keyCachedRequest(
   useCache: boolean = false,
   cachePool?: string
 ): Promise<Response | null> {
-    const [res, cacheFunc] = await keyCachedRequestCacheLater(path, useCache, cachePool);
-    cacheFunc();
-    return res;
+  const [res, cacheFunc] = await keyCachedRequestCacheLater(path, useCache, cachePool);
+  cacheFunc();
+  return res;
 }
 
 export async function getStockList(useCache: boolean = false): Promise<Stock[]> {
@@ -68,19 +75,22 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
   if (res === null) return dataState.stocks;
   if (res.status != 200) return [];
   const json = await res.json();
-  const providers = await getProviderList(useCache);
   let stocks = json.reduce(
     (obj: Object, userStock: any) =>
-      Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [] } }),
+      Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [], accounts: [] } }),
     {}
   );
   json
     .filter((userStock: any) => userStock.currently_held)
-    .forEach((userStock: any) => stocks[userStock.stock.id].users.push(userStock.user_id));
+    .forEach((userStock: any) => {
+      stocks[userStock.stock.id].users.push(userStock.user_id);
+      stocks[userStock.stock.id].accounts.push(userStock.account_id);
+    });
   stocks = Object.values(stocks);
-  stocks.forEach(
-    (stock: any) =>
-      (stock.provider = providers.find((provider) => provider.id == stock.provider_id))
+  await Promise.all(
+    stocks.map(async (stock: any) => {
+      stock.provider = await getProviderByID(stock.provider_id);
+    })
   );
   stocks.forEach((stock: any) => (stock.provider_name = stock.provider.name));
   stocks.forEach(

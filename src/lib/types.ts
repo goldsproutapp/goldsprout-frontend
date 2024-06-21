@@ -11,6 +11,7 @@ export interface Stock {
   tracking_strategy: TrackingStrategy;
   needs_attention: boolean;
   users: number[]; // list of visible users holding this stock
+  accounts: number[];
   currently_held: boolean;
   annual_fee: number;
   total_fee: number; // including provider fee
@@ -28,9 +29,9 @@ export interface Account {
   id: number;
   name: string;
   provider_id: number;
-  provider?: Provider;
+  provider: Provider;
   user_id: number;
-  user?: User;
+  user: User;
 }
 
 export interface Snapshot {

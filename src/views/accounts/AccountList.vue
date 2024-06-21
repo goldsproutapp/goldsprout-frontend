@@ -42,9 +42,7 @@ onMounted(() => getAccounts(true));
         </template>
       </Column>
       <Column header="Value">
-        <template #body="{ data }">
-            £0
-        </template>
+        <template #body="{ data }"> £0 </template>
       </Column>
     </DataTable>
   </div>

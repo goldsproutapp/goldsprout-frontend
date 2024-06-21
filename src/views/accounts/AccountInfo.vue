@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <!-- code... -->
+  <!-- code... -->
 </template>
 
 <style scoped>

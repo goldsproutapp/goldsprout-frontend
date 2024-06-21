@@ -9,7 +9,7 @@ import {
   getStockList
 } from '@/lib/requests';
 import { authState, dataState } from '@/lib/state';
-import { type Account, type Provider, type Snapshot, type Stock, type User } from '@/lib/types';
+import { type Account, type Snapshot, type Stock, type User } from '@/lib/types';
 import router from '@/router';
 import { onMounted, ref } from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
@@ -32,7 +32,6 @@ const headings = {
 };
 
 const replaceCommas = ['units', 'price', 'value', 'cost', 'absolute_change'];
-const provider = ref<Provider>();
 onMounted(() => {
   getStockList(true);
   getAccounts(true);
@@ -41,7 +40,7 @@ onMounted(() => {
 const user = ref<User>(authState.userInfo);
 const account = ref<Account>();
 
-const entries = ref<any>([]);
+const entries = ref<any[]>([]);
 const inputDiv: any = ref(null);
 const dateInput = ref<Date>(new Date(new Date().toDateString()));
 
@@ -57,26 +56,22 @@ const summary = ref({
 const toast = useToast();
 
 function findMissingStocks(): boolean {
-  const providers = new Set(entries.value.map((entry: any) => entry.provider_id));
-  const snapshotsStocksNames = entries.value.map(
-    (entry: any) => `${entry.stock_name}:${entry.provider_id}`
-  );
+  const account_id = account.value?.id ?? 0;
+  const snapshotsStocksNames = entries.value.map((entry: any) => entry.stock_name);
   const snapshotsStocksCodes = entries.value
     .filter((entry: any) => entry.stock_code != '')
-    .map((entry: any) => `${entry.stock_code}:${entry.provider_id}`);
+    .map((entry: any) => entry.stock_code);
   const applicableStocks = dataState.stocks.filter(
     (stock) =>
       stock.tracking_strategy === 'DATA_IMPORT' &&
-      // @ts-ignore
       stock.users.includes(user.value.id) &&
-      providers.has(stock.provider.id)
+      stock.accounts.includes(account_id)
   );
   missingStocks.value = applicableStocks.filter(
     (stock) =>
       !(
-        (stock.stock_code != '' &&
-          snapshotsStocksCodes.includes(`${stock.stock_code}:${stock.provider.id}`)) ||
-        snapshotsStocksNames.includes(`${stock.name}:${stock.provider.id}`)
+        (stock.stock_code != '' && snapshotsStocksCodes.includes(stock.stock_code)) ||
+        snapshotsStocksNames.includes(stock.name)
       )
   );
   const missing = missingStocks.value.length !== 0;
@@ -85,10 +80,10 @@ function findMissingStocks(): boolean {
 }
 
 function process() {
-  if (provider.value === null || provider.value === undefined) {
+  if (account.value === null || account.value === undefined) {
     toast.add({
       summary: 'Error',
-      detail: 'Please select a provider.',
+      detail: 'Please select an account.',
       group: 'bl',
       severity: 'error',
       life: 2000
@@ -96,21 +91,20 @@ function process() {
     return;
   }
   const raw = inputDiv.value.innerText;
-  const rows = raw.split('\n');
+  const rows = raw.split('\n').filter((r: string) => r);
   const parsedRows = rows.map(parseCSV);
   try {
-    const objs = parsedRows.map((row: any) => {
-      const obj: { [key: string]: string | number } = {};
-      // @ts-ignore
-      Object.entries(provider.value.csv_format_obj).forEach(
-        ([key, idx]) =>
-          (obj[key] = replaceCommas.includes(key) ? row[idx].replace(',', '') : row[idx])
-      );
-      // @ts-ignore
-      obj.provider_id = provider.value.id;
-      return obj;
-    });
-    // @ts-ignore
+    const objs = parsedRows
+      .filter((row: string[]) => row)
+      .map((row: string[]) => {
+        const obj: { [key: string]: string | number } = {};
+        // @ts-ignore acccount.value cannot be undefined, this is ensured above
+        Object.entries(account.value.provider.csv_format_obj).forEach(
+          ([key, idx]) =>
+            (obj[key] = replaceCommas.includes(key) ? row[idx].replace(',', '') : row[idx])
+        );
+        return obj;
+      });
     entries.value.push(...objs);
   } catch (e) {
     toast.add({
@@ -128,7 +122,7 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
   const date = dateInput.value;
   const payload = {
     date: Math.floor(date.getTime() / 1000),
-    user_id: user.value?.id || 0,
+    account_id: account.value?.id ?? 0,
     entries: entries.value,
     delete_sold_stocks: deleteSoldStocks
   };

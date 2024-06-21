@@ -124,13 +124,13 @@ const routes = [
   {
     path: '/accounts/create',
     name: 'Create Account',
-    component: CreateAccount,
+    component: CreateAccount
   },
   {
     path: '/accounts/:accountID',
     name: 'Update Account',
     props: (route: any) => ({ accountID: parseInt(route.params.accountID) }),
-    component: AccountInfo,
+    component: AccountInfo
   },
   {
     path: '/stocks/:id',
