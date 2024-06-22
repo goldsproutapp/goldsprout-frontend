@@ -87,9 +87,10 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
       stocks[userStock.stock.id].accounts.push(userStock.account_id);
     });
   stocks = Object.values(stocks);
+  await getProviderList(true);
   await Promise.all(
     stocks.map(async (stock: any) => {
-      stock.provider = await getProviderByID(stock.provider_id);
+      stock.provider = await getProviderByID(stock.provider_id, false);
     })
   );
   stocks.forEach((stock: any) => (stock.provider_name = stock.provider.name));

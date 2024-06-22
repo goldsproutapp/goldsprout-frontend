@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import { stocks, providers, getUserByID, getUserDisplayName, formatDecimal } from '@/lib/data';
+import { stocks, providers, getUserByID, getUserDisplayName, formatDecimal, getStockByID } from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,
@@ -30,7 +30,6 @@ const props = defineProps<{
 }>();
 
 const stock = ref<Stock | undefined | null>(undefined);
-const providerList = ref<Provider[]>([]);
 const regions = computed(() => dataState.regions);
 const sectors = computed(() => dataState.sectors);
 
@@ -40,9 +39,8 @@ const mergeInto = ref<Stock | null>(null);
 const toast = useToast();
 
 onMounted(async () => {
-  stock.value = (await stocks()).find(({ id }) => id.toString() == props.id) || null;
+  stock.value = await getStockByID(Number.parseInt(props.id));
   stock.value = Object.assign({}, stock.value);
-  providerList.value = await providers();
   getRegions(true);
   getSectors(true);
 });
@@ -54,6 +52,7 @@ watch(stock, async (v, _) => {
   const info = dataState.stockHoldings[v.id];
   if (!info) await getHoldings(true);
   const data: any = [];
+  if (!dataState.stockHoldings[v.id]) return;
   await Promise.all(
     Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, value]) =>
       data.push([await getUserByID(Number.parseInt(uid)), value])
@@ -64,8 +63,7 @@ watch(stock, async (v, _) => {
 
 const save = async () => {
   const obj = stock.value as Stock;
-  const prov = providerList.value.find((provider) => provider.name == obj.provider_name);
-  obj.provider = prov ? prov : obj.provider;
+  obj.provider_name = obj.provider.name;
   const payload = {
     stock: obj
   };
@@ -136,7 +134,7 @@ const merge = async () => {
       <div class="info-section">
         <div class="option-container">
           Provider:
-          <ProviderDropdown v-model="stock.provider_name" />
+          <ProviderDropdown v-model="stock.provider" />
         </div>
         <div class="option-container">
           Sector:
