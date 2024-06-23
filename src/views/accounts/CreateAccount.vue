@@ -17,7 +17,9 @@ const account = ref<Account>({
   provider_id: 0,
   provider: null,
   user_id: 0,
-  user: authState.userInfo
+  user: authState.userInfo,
+  stock_count: 0,
+  value: ''
 });
 
 const toast = useToast();
