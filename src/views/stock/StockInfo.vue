@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import { stocks, providers, getUserByID, getUserDisplayName, formatDecimal, getStockByID } from '@/lib/data';
+import {
+  stocks,
+  providers,
+  getUserByID,
+  getUserDisplayName,
+  formatDecimal,
+  getStockByID
+} from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,

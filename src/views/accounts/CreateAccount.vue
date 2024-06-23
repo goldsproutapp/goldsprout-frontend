@@ -15,6 +15,7 @@ const account = ref<Account>({
   id: 0,
   name: '',
   provider_id: 0,
+  provider: null,
   user_id: 0,
   user: authState.userInfo
 });

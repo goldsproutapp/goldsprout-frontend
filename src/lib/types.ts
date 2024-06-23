@@ -29,9 +29,11 @@ export interface Account {
   id: number;
   name: string;
   provider_id: number;
-  provider: Provider;
+  provider: Provider | null;
   user_id: number;
   user: User;
+  value: string;
+  stock_count: number;
 }
 
 export interface Snapshot {

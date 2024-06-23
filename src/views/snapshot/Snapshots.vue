@@ -10,6 +10,7 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { computed, onMounted, ref } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
+import { formatDecimal } from '@/lib/data';
 
 const snapshots = computed(() =>
   dataState.snapshots_latest.map((snapshot) => ({
@@ -32,9 +33,10 @@ const headings = {
   price: 'Price (£)',
   cost: 'Cost (£)',
   value: 'Value (£)',
-  changeSinceLast: 'Change (£)',
-  normalisedPerformance: 'Normalised performance (%)'
+  change_since_last: 'Change (£)',
+  normalised_performance: 'Normalised performance (%)'
 };
+const numerical = ['units', 'price', 'cost', 'value', 'change_since_last', 'normalised_perforance'];
 const toast = useToast();
 const confirm = useConfirm();
 const deleteSnapshot = async (id: string) => {
@@ -107,7 +109,7 @@ const deleteSnapshotButton = (evt: MouseEvent, id: string) => {
       <Column
         v-for="[key, display] in Object.entries(headings)"
         :key="key"
-        :field="key"
+        :field="(x) => (numerical.includes(key) ? formatDecimal(x[key]) : x[key])"
         :header="display"
         sortable
       >

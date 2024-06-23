@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
-import { getProviderByName, getUserByName } from '@/lib/data';
+import { DEFAULT_IMPORT_FORMAT } from '@/lib/constants';
+import { getAccountByName, getProviderByName, getUserByName } from '@/lib/data';
 import { parseCSV, processFormat } from '@/lib/formats/csv';
 import { authenticatedRequest } from '@/lib/requests';
 import router from '@/router';
@@ -21,10 +22,11 @@ const requiredFields = [
   'absolute_change',
   'user',
   'provider',
+  'account',
   'date'
 ];
 
-const fmt = ref('');
+const fmt = ref(DEFAULT_IMPORT_FORMAT);
 const dataText = ref();
 const toast = useToast();
 
@@ -56,14 +58,14 @@ const process = async () => {
   const parsedRows = rows.map(parseCSV);
   const format = processFormat(fmt.value);
   const data: { [key: string]: { [key: string]: any } } = {}; // date -> user -> snapshot[]
-  const pushSnapshot = (timestamp: number, uid: number, snapshot: any) => {
+  const pushSnapshot = (timestamp: number, account_id: number, snapshot: any) => {
     numEntries.value++;
     if (!Object.keys(data).includes(timestamp.toString())) data[timestamp.toString()] = {};
-    if (!Object.keys(data[timestamp.toString()]).includes(uid.toString())) {
+    if (!Object.keys(data[timestamp.toString()]).includes(account_id.toString())) {
       numBatches.value++;
-      data[timestamp.toString()][uid.toString()] = [];
+      data[timestamp.toString()][account_id.toString()] = [];
     }
-    data[timestamp.toString()][uid.toString()].push(snapshot);
+    data[timestamp.toString()][account_id.toString()].push(snapshot);
   };
 
   try {
@@ -84,7 +86,6 @@ const process = async () => {
         });
         return cancel();
       }
-      obj.provider_id = provider.id;
       const user = await getUserByName(obj.user.toString());
       if (!user) {
         toast.add({
@@ -96,7 +97,8 @@ const process = async () => {
         });
         return cancel();
       }
-      obj.user_id = user.id;
+      const account = await getAccountByName(obj.account.toString(), user.id, provider.id);
+      obj.account_id = account.id;
       const timestamp = Math.floor(Date.parse(obj.date.toString()) / 1000);
       if (isNaN(timestamp)) {
         toast.add({
@@ -108,15 +110,19 @@ const process = async () => {
         });
         return cancel();
       }
-      pushSnapshot(timestamp, obj.user_id, {
-        provider_id: provider.id,
+      const meta: any = {};
+      if (obj.region) meta.region = obj.region;
+      if (obj.sector) meta.sector = obj.sector;
+      if (obj.annual_fee) meta.annual_fee = obj.annual_fee;
+      pushSnapshot(timestamp, obj.account_id, {
         stock_name: obj.stock_name,
         stock_code: obj.stock_code,
         units: obj.units,
         price: obj.price,
         value: obj.value,
         cost: obj.cost,
-        absolute_change: obj.absolute_change
+        absolute_change: obj.absolute_change,
+        ...meta
       });
     }
     groupedData.value = data;
@@ -133,19 +139,19 @@ function dateKeys(): string[] {
 const submit = async () => {
   let i = 0;
   for (const date of dateKeys()) {
-    for (const user of Object.keys(groupedData.value[date])) {
+    for (const account of Object.keys(groupedData.value[date])) {
       i++;
       const payload = {
         date: Number.parseInt(date),
-        user_id: Number.parseInt(user),
-        entries: groupedData.value[date][user],
+        account_id: Number.parseInt(account),
+        entries: groupedData.value[date][account],
         delete_sold_stocks: true
       };
       const res = await authenticatedRequest('/snapshots', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      progress.value += Math.floor(100 / numBatches.value);
+      progress.value += 100 / numBatches.value;
       if (res.status == 201) {
       } else {
         toast.add({
@@ -185,7 +191,7 @@ const cancel = () => {
         >You have entered {{ numEntries }} records, which will be created in
         {{ numBatches }} batches.</span
       >
-      <ProgressBar v-if="progress > 0" :value="progress"></ProgressBar>
+      <ProgressBar v-if="progress > 0" :value="Math.floor(progress)"></ProgressBar>
       <div class="btn-container" v-else>
         <SaveCancel saveLabel="Confirm" @save="submit" @cancel="cancel" />
       </div>

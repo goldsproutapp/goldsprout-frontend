@@ -69,6 +69,23 @@ export async function getAccountByID(
   return account as Account;
 }
 
+export async function getAccountByName(
+  name: string,
+  user_id: number,
+  provider_id: number,
+  request_if_none: boolean = true
+): Promise<Account> {
+  const account = dataState.accounts.find(
+    (account: Account) =>
+      account.name == name && account.user_id == user_id && account.provider_id == provider_id
+  );
+  if (account === undefined && request_if_none) {
+    await getAccounts(false);
+    return getAccountByName(name, user_id, provider_id, false);
+  }
+  return account as Account;
+}
+
 export async function stocks() {
   if (dataState.stocks.length == 0) await getStockList(false);
   return dataState.stocks;

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { getUserDisplayName } from '@/lib/data';
+import { formatDecimal, getUserDisplayName } from '@/lib/data';
 import { getAccounts } from '@/lib/requests';
 import { dataState } from '@/lib/state';
+import type { Account } from '@/lib/types';
 import router from '@/router';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
@@ -25,24 +26,28 @@ onMounted(() => getAccounts(true));
       :value="dataState.accounts"
       selection-mode="single"
       @row-select="(row) => router.push(`/accounts/${row.data.id}`)"
+      removable-sort
     >
-      <Column header="User">
+      <Column header="User" sortable :sort-field="(acc: Account) => getUserDisplayName(acc.user)">
         <template #body="{ data }">
           {{ getUserDisplayName(data.user) }}
         </template>
       </Column>
-      <Column header="Provider">
+      <Column header="Provider" sortable sort-field="provider.name">
         <template #body="{ data }">
           {{ data.provider.name }}
         </template>
       </Column>
-      <Column header="Name">
+      <Column header="Name" sortable sort-field="name">
         <template #body="{ data }">
           {{ data.name }}
         </template>
       </Column>
-      <Column header="Value">
-        <template #body="{ data }"> £0 </template>
+      <Column header="Value" sortable data-type="numeric" sort-field="value">
+        <template #body="{ data }"> £{{ formatDecimal(data.value) }} </template>
+      </Column>
+      <Column header="Holdings" sortable sort-field="stock_count">
+        <template #body="{ data }">{{ data.stock_count }} </template>
       </Column>
     </DataTable>
   </div>

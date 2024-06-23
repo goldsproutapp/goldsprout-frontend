@@ -2,12 +2,10 @@ import { logOut } from './auth';
 import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
 import {
-  getAccountByID,
   getProviderByID,
   getStockByID,
   getUserByID,
   getUserDisplayName,
-  users
 } from './data';
 import { processFormat } from './formats/csv';
 import { authState, dataState } from './state';
@@ -197,10 +195,12 @@ export async function getAccounts(useCache: boolean = false): Promise<Account[]>
   if (res === null) return dataState.accounts;
   const json = await res.json();
   const accounts = json.data;
+  await getUsers(true);
+  await getProviderList(true);
   await Promise.all(
     accounts.map(async (account: Account) => {
-      account.provider = await getProviderByID(account.provider_id);
-      account.user = await getUserByID(account.user_id);
+      account.provider = await getProviderByID(account.provider_id, false);
+      account.user = await getUserByID(account.user_id, false);
     })
   );
   dataState.accounts = accounts;
