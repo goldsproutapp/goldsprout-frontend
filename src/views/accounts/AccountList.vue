@@ -7,6 +7,7 @@ import router from '@/router';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
+import ProgressSpinner from 'primevue/progressspinner';
 import { onMounted } from 'vue';
 const providers: any = [];
 const headings = {};
@@ -26,8 +27,12 @@ onMounted(() => getAccounts(true));
       :value="dataState.accounts"
       selection-mode="single"
       @row-select="(row) => router.push(`/accounts/${row.data.id}`)"
+      :loading="!dataState.accounts.length"
       removable-sort
     >
+      <template #loading>
+        <ProgressSpinner />
+      </template>
       <Column header="User" sortable :sort-field="(acc: Account) => getUserDisplayName(acc.user)">
         <template #body="{ data }">
           {{ getUserDisplayName(data.user) }}
