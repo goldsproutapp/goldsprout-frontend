@@ -68,7 +68,7 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
   if (res === null) return dataState.stocks;
   if (res.status != 200) return [];
   const json = await res.json();
-  let stocks = json.reduce(
+  let stocks: Stock[] = json.reduce(
     (obj: Object, userStock: any) =>
       Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [], accounts: [] } }),
     {}
@@ -76,7 +76,7 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
   json
     .filter((userStock: any) => userStock.currently_held)
     .forEach((userStock: any) => {
-      stocks[userStock.stock.id].users.push(userStock.user_id);
+      stocks[userStock.stock.id].users.add(userStock.user_id)
       stocks[userStock.stock.id].accounts.push(userStock.account_id);
     });
   stocks = Object.values(stocks);

@@ -64,7 +64,7 @@ function findMissingStocks(): boolean {
   const applicableStocks = dataState.stocks.filter(
     (stock) =>
       stock.tracking_strategy === 'DATA_IMPORT' &&
-      stock.users.includes(user.value.id) &&
+      stock.users.has(user.value.id) &&
       stock.accounts.includes(account_id)
   );
   missingStocks.value = applicableStocks.filter(

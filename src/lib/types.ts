@@ -10,7 +10,7 @@ export interface Stock {
   stock_code: string;
   tracking_strategy: TrackingStrategy;
   needs_attention: boolean;
-  users: number[]; // list of visible users holding this stock
+  users: Set<number>; // list of visible users holding this stock
   accounts: number[];
   currently_held: boolean;
   annual_fee: number;
