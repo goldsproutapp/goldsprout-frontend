@@ -1,8 +1,10 @@
 import router from '@/router';
 import { emptyUser } from './data';
 import { authState } from './state';
+import { clearCache } from './cache';
 
 export function logIn(data: any) {
+  clearCache();
   authState.loggedIn = true;
   authState.token = data.token;
   authState.userInfo = data.data;
@@ -21,6 +23,7 @@ export function logOut(require_login: boolean = false) {
   authState.loggedIn = false;
   authState.token = '';
   authState.userInfo = emptyUser();
+  clearCache();
   if (require_login) {
     router.push('/login');
   }

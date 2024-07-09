@@ -15,6 +15,7 @@ import router from '@/router';
 import Dialog from 'primevue/dialog';
 import Checkbox from 'primevue/checkbox';
 import { downloadFile } from '@/lib/utils';
+import { clearCache } from '@/lib/cache';
 
 const toast = useToast();
 
@@ -100,6 +101,7 @@ const confirmDelete = async () => {
     severity: 'success',
     life: 2000
   });
+  clearCache();
   return;
 };
 const exportData = async () => {

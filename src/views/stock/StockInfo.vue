@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import {
-  stocks,
-  providers,
-  getUserByID,
-  getUserDisplayName,
-  formatDecimal,
-  getStockByID
-} from '@/lib/data';
+import { getUserByID, getUserDisplayName, formatDecimal, getStockByID } from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,
@@ -16,7 +9,7 @@ import {
   getSectors,
   getStockList
 } from '@/lib/requests';
-import { type Provider, type Stock } from '@/lib/types';
+import { type Stock } from '@/lib/types';
 import router from '@/router';
 import Dropdown from 'primevue/dropdown';
 import InputSwitch from 'primevue/inputswitch';

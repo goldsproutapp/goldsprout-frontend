@@ -22,7 +22,8 @@ export const dataState = reactive({
   regions: new Array<string>(),
   sectors: new Array<string>(),
   userHoldings: {} as { [key: string]: { [key: string]: string } },
-  stockHoldings: {} as { [key: string]: { [key: string]: string } }
+  stockHoldings: {} as { [key: string]: { [key: string]: string } },
+  accountHoldings: {} as { [key: string]: { [key: string]: string } }
 });
 
 export function updateAuthState() {

@@ -1,9 +1,9 @@
 import { DATA_CACHE_TIMEOUT_MS, KEY_CACHE_TIMEOUT_MS } from './constants';
 
-const cachedKeys: { [key: string]: number } = {};
-const cachedData: { [key: string]: [number, any] } = {};
+let cachedKeys: { [key: string]: number } = {};
+let cachedData: { [key: string]: [number, any] } = {};
 
-const pools: { [key: string]: Set<string> } = {};
+let pools: { [key: string]: Set<string> } = {};
 const GLOBAL_POOL = 'global';
 
 function addToPool(pool: string, key: string) {
@@ -48,4 +48,10 @@ export function invalidatePool(pool: string) {
     delete cachedKeys[key];
     delete cachedData[key];
   });
+}
+
+export function clearCache() {
+  cachedKeys = {};
+  cachedData = {};
+  pools = {};
 }

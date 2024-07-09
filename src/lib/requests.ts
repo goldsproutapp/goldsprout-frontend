@@ -1,12 +1,7 @@
 import { logOut } from './auth';
 import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
-import {
-  getProviderByID,
-  getStockByID,
-  getUserByID,
-  getUserDisplayName,
-} from './data';
+import { getProviderByID, getStockByID, getUserByID, getUserDisplayName } from './data';
 import { processFormat } from './formats/csv';
 import { authState, dataState } from './state';
 import {
@@ -188,6 +183,7 @@ export async function getHoldings(useCache: boolean = false) {
   const { data } = await res.json();
   dataState.userHoldings = data.by_user;
   dataState.stockHoldings = data.by_stock;
+  dataState.accountHoldings = data.by_account;
 }
 
 export async function getAccounts(useCache: boolean = false): Promise<Account[]> {
