@@ -1,19 +1,22 @@
 import { FilterService } from 'primevue/api';
 
-function areArrays(...args: any[]) {
-  return args.every((arg) => arg && typeof arg == 'object' && typeof arg.includes == 'function');
+function areIterable(...args: any[]) {
+  return args.every(
+    (arg) =>
+      arg && typeof arg == 'object' && typeof (arg.includes == 'function' || arg.has == 'function')
+  );
 }
 
 function filterIncludesAny(value: Array<any>, filter: Array<any>): boolean {
   if (filter[0] === -1) return value.length == 0;
-  if (!areArrays(value, filter)) return false;
+  if (!areIterable(value, filter)) return false;
   if (filter.length === 0) return true;
   return filter.some((v) => value.includes(v));
 }
 
 function filterIncludesAll(value: Array<any>, filter: Array<any>): boolean {
   if (filter[0] === -1) return value.length == 0;
-  if (!areArrays(value, filter)) return false;
+  if (!areIterable(value, filter)) return false;
   if (filter.length === 0) return true;
   return filter.every((v) => value.includes(v));
 }
