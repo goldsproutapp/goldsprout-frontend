@@ -70,13 +70,15 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
   const json = await res.json();
   let stocks: Stock[] = json.reduce(
     (obj: Object, userStock: any) =>
-      Object.assign(obj, { [userStock.stock.id]: { ...userStock.stock, users: [], accounts: [] } }),
+      Object.assign(obj, {
+        [userStock.stock.id]: { ...userStock.stock, users: new Set<number>(), accounts: [] }
+      }),
     {}
   );
   json
     .filter((userStock: any) => userStock.currently_held)
     .forEach((userStock: any) => {
-      stocks[userStock.stock.id].users.add(userStock.user_id)
+      stocks[userStock.stock.id].users.add(userStock.user_id);
       stocks[userStock.stock.id].accounts.push(userStock.account_id);
     });
   stocks = Object.values(stocks);
