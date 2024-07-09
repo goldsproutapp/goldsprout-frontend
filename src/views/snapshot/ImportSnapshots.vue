@@ -33,7 +33,7 @@ const toast = useToast();
 function checkFormat(): boolean {
   const format = processFormat(fmt.value);
   const missingFields = requiredFields.filter((field) => !Object.keys(format).includes(field));
-  if (missingFields.length > 1) {
+  if (missingFields.length >= 1) {
     toast.add({
       summary: 'Error',
       detail: `Format is missing the following fields: ${missingFields.join(',')}`,
@@ -126,7 +126,15 @@ const process = async () => {
       });
     }
     groupedData.value = data;
-  } catch (e) {}
+  } catch (e) {
+    toast.add({
+      summary: 'Error',
+      detail: `An error has occurred: '${e}'`,
+      group: 'bl',
+      severity: 'error',
+      life: 3000
+    });
+  }
   modal.value = true;
 };
 
