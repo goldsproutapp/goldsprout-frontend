@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import { clearCache } from '@/lib/cache';
 import { DEFAULT_IMPORT_FORMAT } from '@/lib/constants';
 import { getAccountByName, getProviderByName, getUserByName } from '@/lib/data';
 import { parseCSV, processFormat } from '@/lib/formats/csv';
@@ -182,6 +183,8 @@ const submit = async () => {
     group: 'bl'
   });
   cancel();
+  clearCache();
+  router.push('/');
 };
 const cancel = () => {
   numBatches.value = 0;
