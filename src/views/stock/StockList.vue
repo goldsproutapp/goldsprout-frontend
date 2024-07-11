@@ -180,8 +180,15 @@ const filterNobody = (filterModel: any) => {
         <template #body="{ data }">
           <Tooltip
             position="left"
-            :content="data.users.map(getCachedUser).map(getUserDisplayName).join(', ')"
-            v-if="data.users.length"
+            :content="
+              Array.from<number>(data.users)
+                .map(getCachedUser)
+                .map((user) => {
+                  if (user) return getUserDisplayName(user);
+                })
+                .join(', ')
+            "
+            v-if="data.users.size"
           >
             <i class="pi pi-users" />
           </Tooltip>

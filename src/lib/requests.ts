@@ -89,9 +89,10 @@ export async function getStockList(useCache: boolean = false): Promise<Stock[]> 
     })
   );
   stocks.forEach((stock: any) => (stock.provider_name = stock.provider.name));
-  stocks.forEach(
-    (stock: any) => (stock.total_fee = (stock.annual_fee ?? 0) + (stock.provider.annual_fee ?? 0))
-  );
+  stocks.forEach((stock: any) => {
+    stock.annual_fee = stock.annual_fee ?? 0;
+    stock.total_fee = stock.annual_fee + (stock.provider.annual_fee ?? 0);
+  });
   dataState.stocks = stocks;
   cacheFunc();
   return stocks;
