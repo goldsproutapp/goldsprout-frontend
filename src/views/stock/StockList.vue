@@ -23,7 +23,6 @@ import Tooltip from '@/components/layout/Tooltip.vue';
 const loading = ref(true);
 const stocks = computed<Stock[]>(() => dataState.stocks);
 onMounted(() => {
-  loading.value = stocks.value.length == 0;
   getStockList(true).then(() => (loading.value = false));
   getHoldings(true);
   getRegions(true);

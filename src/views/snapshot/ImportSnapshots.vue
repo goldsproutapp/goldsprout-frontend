@@ -209,6 +209,12 @@ const cancel = () => {
     </div>
   </Dialog>
   <div class="container">
+    <span
+      >Required fields:
+      <template v-for="(field, i) in requiredFields">
+        <pre style="display: inline">{{ field }}{{ i < requiredFields.length - 1 ? ',' : '' }}</pre>
+      </template>
+    </span>
     <InputText v-model="fmt" placeholder="CSV Format" />
     <Textarea v-model="dataText" :rows="15" placeholder="Data" />
     <div class="btn-container">

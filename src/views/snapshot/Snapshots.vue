@@ -11,6 +11,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { computed, onMounted, ref } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { formatDecimal } from '@/lib/data';
+import { RouterLink } from 'vue-router';
 
 const snapshots = computed(() =>
   dataState.snapshots_latest.map((snapshot) => ({
@@ -104,6 +105,13 @@ const deleteSnapshotButton = (evt: MouseEvent, id: string) => {
       <template #empty v-if="!loading">No snapshots found.</template>
       <template #loading>
         <ProgressSpinner />
+      </template>
+      <template #empty>
+        No snapshots found.
+        <br />
+        <br />
+        <RouterLink to="/snapshots/create">Create a snapshot</RouterLink> or
+        <RouterLink to="/snapshots/import">import historical data</RouterLink>
       </template>
       <Column header="Date" field="date" sortable sortField="timestamp" />
       <Column
