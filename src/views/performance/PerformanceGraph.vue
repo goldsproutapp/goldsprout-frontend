@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import { authenticatedRequest } from '@/lib/requests';
 import Chart from 'primevue/chart';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import 'chartjs-adapter-date-fns';
 
+type PerformanceTarget = 'stock' | 'portfolio' | 'account';
 const props = defineProps<{
-  performanceType: string;
+  performanceType: PerformanceTarget;
   id: string;
 }>();
 
 const performance = ref<any>({});
+const emit = defineEmits<{
+  (e: 'ytd', ytd: number): void;
+}>();
+
+watch(performance, (p, _) => emit('ytd', Number.parseFloat(p.year_to_date)));
 
 onMounted(() =>
   authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`).then((res) =>
-    res.status != 200 ? {} : res.json().then((json) => (performance.value = json))
+    res.status != 200 ? {} : res.json().then(({ data }) => (performance.value = data))
   )
 );
 const graphOptions = computed(() => {

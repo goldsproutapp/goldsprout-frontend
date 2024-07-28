@@ -14,7 +14,7 @@ import {
 } from './types';
 
 export async function authenticatedRequest(path: string, options?: RequestInit): Promise<Response> {
-  let notNullOpts = options == null ? {} : options;
+  const notNullOpts = options == null ? {} : options;
   const opts = Object.assign({}, notNullOpts, {
     headers: Object.assign({}, notNullOpts.headers || {}, {
       Authorization: `Bearer ${authState.token}`

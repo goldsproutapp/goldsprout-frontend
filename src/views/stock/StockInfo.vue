@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import { getUserByID, getUserDisplayName, formatDecimal, getStockByID } from '@/lib/data';
+import { getUserByID, getUserDisplayName, getStockByID } from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,
@@ -25,6 +25,7 @@ import StockDropdown from '@/components/select/StockDropdown.vue';
 import { useToast } from 'primevue/usetoast';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import { watch } from 'vue';
+import HoldingTable from '@/components/display/HoldingTable.vue';
 const props = defineProps<{
   id: string;
 }>();
@@ -54,8 +55,8 @@ watch(stock, async (v, _) => {
   const data: any = [];
   if (!dataState.stockHoldings[v.id]) return;
   await Promise.all(
-    Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, value]) =>
-      data.push([await getUserByID(Number.parseInt(uid)), value])
+    Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, { value, units }]) =>
+      data.push([getUserDisplayName(await getUserByID(Number.parseInt(uid))), value])
     )
   );
   holding.value = data;
@@ -167,16 +168,7 @@ const merge = async () => {
       </div>
       <div class="holding-container">
         <h2>Holdings</h2>
-        <table v-if="holding !== null" class="holding-table">
-          <tbody>
-            <tr v-for="[user, value] in holding" :key="user.id">
-              <td>{{ getUserDisplayName(user) }}</td>
-              <td v-if="value == '0'">Previously held</td>
-              <td v-else>£{{ formatDecimal(value) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else></div>
+        <HoldingTable :holdings="holding" :key-display="(x) => x" />
       </div>
     </div>
     <div class="graph-container" display="height: 100rem;">

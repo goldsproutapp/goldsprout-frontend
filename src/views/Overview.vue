@@ -2,12 +2,13 @@
 import CountUp from '@/components/display/CountUp.vue';
 import { getOverview } from '@/lib/requests';
 import type { Overview } from '@/lib/types';
-import Card from 'primevue/card';
 import { onMounted, ref } from 'vue';
 import PerformanceGraph from './performance/PerformanceGraph.vue';
 import Carousel from 'primevue/carousel';
 import { formatDecimal } from '@/lib/data';
 import Divider from 'primevue/divider';
+import SummaryCards from '@/components/display/SummaryCards.vue';
+import SummaryCard from '@/components/display/SummaryCard.vue';
 
 const overview = ref<Overview | null>();
 
@@ -18,57 +19,43 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
   <div class="container">
     <h1>Overview</h1>
     <div v-if="overview != null" class="overview">
-      <div class="summary-cards">
-        <Card class="summary-card">
+      <SummaryCards>
+        <SummaryCard>
           <template #title> Portfolio value </template>
           <template #content>
-            <h1>
-              <b>
-                £
-                <CountUp
-                  :value="parseFloat(overview.total_value)"
-                  :duration="750"
-                  :decimal-precision="2"
-                />
-              </b>
-            </h1>
+            £
+            <CountUp
+              :value="parseFloat(overview.total_value)"
+              :duration="750"
+              :decimal-precision="2"
+            />
           </template>
-        </Card>
-        <Card class="summary-card">
+        </SummaryCard>
+
+        <SummaryCard>
           <template #title> All time </template>
           <template #content>
-            <h1>
-              <b
-                v-if="overview.all_time_change[0] == '-'"
-                style="color: var(--text-colour-negative)"
-              >
-                -£
-                <CountUp
-                  :value="parseFloat(overview.all_time_change.slice(1))"
-                  :duration="750"
-                  :decimal-precision="2"
-                />
-              </b>
-              <b v-else style="color: var(--text-colour-positive)">
-                +£
-                <CountUp
-                  :value="parseFloat(overview.all_time_change)"
-                  :duration="1000"
-                  :decimal-precision="2"
-                />
-              </b>
-            </h1>
+            <CountUp
+              :value="parseFloat(overview.all_time_change)"
+              :duration="750"
+              :decimal-precision="2"
+              :coloured="true"
+              :format="
+                (v: number, d: number) =>
+                  v < 0
+                    ? `-£${formatDecimal(v.toFixed(d).slice(1))}`
+                    : `+£${formatDecimal(v.toFixed(d))}`
+              "
+            />
           </template>
-        </Card>
-        <Card class="summary-card">
+        </SummaryCard>
+        <SummaryCard>
           <template #title> Last snapshot </template>
           <template #content>
-            <h1>
-              <b>{{ overview.last_snapshot.toLocaleDateString() }}</b>
-            </h1>
+            {{ overview.last_snapshot.toLocaleDateString() }}
           </template>
-        </Card>
-        <Card class="summary-card" v-if="overview.users" style="max-width: 50rem">
+        </SummaryCard>
+        <SummaryCard v-if="overview.users" style="max-width: 50rem">
           <template #content>
             <Carousel
               :value="Object.keys(overview.users)"
@@ -101,11 +88,11 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
               </template>
             </Carousel>
           </template>
-        </Card>
-      </div>
-      <div class="graph-container">
-        <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1" />
-      </div>
+        </SummaryCard>
+      </SummaryCards>
+    </div>
+    <div class="graph-container">
+      <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1" />
     </div>
   </div>
 </template>
@@ -117,17 +104,6 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
   display: flex;
   flex-direction: column;
 }
-
-.summary-cards {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.summary-card {
-  margin: var(--inline-spacing);
-  min-width: 20rem;
-}
-
 .carousel-item {
   display: flex;
   justify-content: start;
@@ -149,11 +125,6 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
 }
 </style>
 <style>
-.p-card-content {
-  padding: 0;
-  height: 100%;
-}
-
 .graph-container {
   flex-grow: 1;
   display: flex;

@@ -12,6 +12,12 @@ export const authState = reactive<{
   userInfo: emptyUser()
 });
 
+interface HoldingInfo {
+  units: string;
+  value: string;
+}
+type HoldingMap = { [key: string]: { [key: string]: HoldingInfo } };
+
 export const dataState = reactive({
   stocks: new Array<Stock>(),
   providers: new Array<Provider>(),
@@ -21,9 +27,9 @@ export const dataState = reactive({
   users: new Array<User>(),
   regions: new Array<string>(),
   sectors: new Array<string>(),
-  userHoldings: {} as { [key: string]: { [key: string]: string } },
-  stockHoldings: {} as { [key: string]: { [key: string]: string } },
-  accountHoldings: {} as { [key: string]: { [key: string]: string } }
+  userHoldings: {} as HoldingMap,
+  stockHoldings: {} as HoldingMap,
+  accountHoldings: {} as HoldingMap
 });
 
 export function updateAuthState() {

@@ -4,7 +4,7 @@ export function parseCSV(csv: string): string[] {
   let lastChar = '';
   let escapeNext = false;
   let inQuote = false;
-  for (let char of csv) {
+  for (const char of csv) {
     if (escapeNext) {
       builder += char;
       escapeNext = false;
