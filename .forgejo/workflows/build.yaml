@@ -8,7 +8,5 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
-      - name: Install dependencies
       - run: npm i
-      - name: Build project
       - run: npm run build
