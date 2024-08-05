@@ -2,6 +2,10 @@ on:
   push:
     branches:
       - master
+
+env:
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+
 jobs:
   build:
     runs-on: docker
@@ -10,3 +14,8 @@ jobs:
       - uses: actions/setup-node@master
       - run: npm i
       - run: npm run build
+      - uses: https://github.com/cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CF_PROJECT_NAME }}
