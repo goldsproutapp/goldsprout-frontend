@@ -130,6 +130,6 @@ const options = computed(() => {
 }
 
 .legend-container {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 </style>

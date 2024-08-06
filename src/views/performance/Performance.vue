@@ -139,7 +139,7 @@ const update = async () => {
 <style scoped>
 .comparison-container {
   display: flex;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .comparison-table {

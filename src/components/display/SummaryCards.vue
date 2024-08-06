@@ -12,9 +12,3 @@
   flex-wrap: wrap;
 }
 </style>
-<style>
-.p-card-content {
-  padding: 0;
-  height: 100%;
-}
-</style>

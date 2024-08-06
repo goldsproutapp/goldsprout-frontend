@@ -110,7 +110,6 @@ watch(
         sort-field="units"
       ></Column>
     </DataTable>
-    <!--<div class="graph-container" v-show="menuIdx == 1" >-->
     <div class="graph-container" v-show="menuIdx == 1">
       <PerformanceGraph
         performance-type="account"
@@ -136,7 +135,6 @@ watch(
   padding-left: 2rem;
   padding-right: 2rem;
   flex-grow: 1;
-  overflow: scroll;
 }
 .info-span {
   font-size: large;

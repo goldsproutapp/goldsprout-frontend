@@ -55,7 +55,7 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
             {{ overview.last_snapshot.toLocaleDateString() }}
           </template>
         </SummaryCard>
-        <SummaryCard v-if="overview.users" style="max-width: 50rem">
+        <SummaryCard v-if="overview.users" style="max-width: 40rem" :padding="false">
           <template #content>
             <Carousel
               :value="Object.keys(overview.users)"
@@ -90,9 +90,9 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
           </template>
         </SummaryCard>
       </SummaryCards>
-    </div>
-    <div class="graph-container">
-      <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1" />
+      <div class="graph-container">
+        <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1" />
+      </div>
     </div>
   </div>
 </template>
