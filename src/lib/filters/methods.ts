@@ -7,18 +7,18 @@ function areIterable(...args: any[]) {
   );
 }
 
-function filterIncludesAny(value: Array<any>, filter: Array<any>): boolean {
-  if (filter[0] === -1) return value.length == 0;
+function filterIncludesAny(value: Set<any>, filter: Array<any>): boolean {
+  if (filter[0] === -1) return value.size == 0;
   if (!areIterable(value, filter)) return false;
   if (filter.length === 0) return true;
-  return filter.some((v) => value.includes(v));
+  return filter.some((v) => value.has(v));
 }
 
-function filterIncludesAll(value: Array<any>, filter: Array<any>): boolean {
-  if (filter[0] === -1) return value.length == 0;
+function filterIncludesAll(value: Set<any>, filter: Array<any>): boolean {
+  if (filter[0] === -1) return value.size == 0;
   if (!areIterable(value, filter)) return false;
   if (filter.length === 0) return true;
-  return filter.every((v) => value.includes(v));
+  return filter.every((v) => value.has(v));
 }
 
 export const CustomFilter = {
