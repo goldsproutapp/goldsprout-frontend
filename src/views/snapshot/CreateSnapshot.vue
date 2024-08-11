@@ -243,7 +243,7 @@ const submit = () => {
     </DataTable>
     <hr />
     <div class="control-items">
-      <div>
+      <div class="option-container">
         <DateInput id="date-input" v-model="dateInput" />
         <AccountDropdown v-model="account" />
       </div>
@@ -272,10 +272,6 @@ const submit = () => {
   margin-bottom: 2rem;
 }
 
-#date-input {
-  margin-right: 1rem;
-}
-
 .error-message {
   color: var(--failure-colour);
   width: 100%;
@@ -302,5 +298,10 @@ const submit = () => {
   display: flex;
   column-gap: var(--inline-spacing);
   margin-top: var(--inline-spacing);
+}
+.option-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inline-spacing);
 }
 </style>
