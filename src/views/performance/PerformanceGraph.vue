@@ -126,7 +126,18 @@ const performanceGraph = computed(() => {
     v-if="performanceGraph"
     style="flex-grow: 1"
   />
-  <div v-else></div>
+  <div v-else class="no-data-container">
+    <span class="no-data-label">No data available.</span>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.no-data-label {
+  font-size: x-large;
+}
+</style>

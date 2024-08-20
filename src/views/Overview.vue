@@ -52,7 +52,8 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
         <SummaryCard>
           <template #title> Last snapshot </template>
           <template #content>
-            {{ overview.last_snapshot.toLocaleDateString() }}
+            <span v-if="overview.last_snapshot.getTime() == 0">N/A</span>
+            <span v-else>{{ overview.last_snapshot.toLocaleDateString() }}</span>
           </template>
         </SummaryCard>
         <SummaryCard v-if="overview.users" style="max-width: 40rem" :padding="false">
