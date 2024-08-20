@@ -10,7 +10,7 @@ import { onMounted, ref } from 'vue';
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
 const comparing = ref(comparisonOptions[0]);
 
-const targetOptions = ['Person', 'Provider', 'Sector', 'Region', 'Stock', 'All'];
+const targetOptions = ['Person', 'Provider', 'Account', 'Sector', 'Region', 'Stock', 'All'];
 
 const formats: any = {
   Performance: '{}%',

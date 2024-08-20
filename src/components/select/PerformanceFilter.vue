@@ -38,7 +38,6 @@ onMounted(() => {
 
 const filterObj = computed(() => {
   const obj: any = {};
-  console.log(dateRange);
   if (selectedRegions.value.length > 0) obj.filter_regions = selectedRegions.value.join(',');
   if (selectedProviders.value.length > 0)
     obj.filter_providers = selectedProviders.value.map((p) => p.id).join(',');
@@ -56,6 +55,7 @@ watch(filterObj, (obj, _) => {
 <template>
   <div>
     <h2>Filters</h2>
+    <Button label="Update" severity="secondary" class="update-btn" @click="$emit('update')" />
     <Accordion multiple :active-index="[]">
       <AccordionTab header="Regions">
         <Listbox
@@ -104,7 +104,6 @@ watch(filterObj, (obj, _) => {
         />
       </AccordionTab>
     </Accordion>
-    <Button label="Update" severity="secondary" class="update-btn" @click="$emit('update')" />
   </div>
 </template>
 
@@ -117,7 +116,7 @@ watch(filterObj, (obj, _) => {
 
 .update-btn {
   width: 100%;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .date-range-selector {
