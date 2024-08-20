@@ -133,33 +133,25 @@ const merge = async () => {
     </Inplace>
     <div class="info-container">
       <div class="info-section">
-        <div class="option-container">
-          Provider:
-          <ProviderDropdown v-model="stock.provider" />
-        </div>
-        <div class="option-container">
-          Sector:
-          <Dropdown v-model="stock.sector" :options="sectors" editable />
-        </div>
-        <div class="option-container">
-          Region:
-          <Dropdown v-model="stock.region" :options="regions" editable />
-        </div>
-        <div class="option-container">
-          Fee:
-          <InputNumber
-            v-model="stock.annual_fee"
-            :min="0"
-            :max="100"
-            :max-fraction-digits="2"
-            suffix="%"
-          />
-        </div>
-        <div class="option-container">
+        <span class="option-label"> Provider: </span>
+        <ProviderDropdown v-model="stock.provider" />
+        <span class="option-label"> Sector: </span>
+        <Dropdown v-model="stock.sector" :options="sectors" editable />
+        <span class="option-label"> Region: </span>
+        <Dropdown v-model="stock.region" :options="regions" editable />
+        <span class="option-label"> Fee: </span>
+        <InputNumber
+          v-model="stock.annual_fee"
+          :min="0"
+          :max="100"
+          :max-fraction-digits="2"
+          suffix="%"
+        />
+        <span class="option-label" style="display: flex; align-items: center">
           Needs attention:
-          <InputSwitch v-model="stock.needs_attention" />
-        </div>
-        <div class="option-container">
+        </span>
+        <InputSwitch v-model="stock.needs_attention" style="margin-left: var(--inline-spacing)" />
+        <div class="option-container control-container">
           <Button label="Merge into" severity="secondary" @click="mergeModal = true" />
         </div>
         <div class="option-container control-container">
@@ -243,7 +235,23 @@ const merge = async () => {
     margin-right: 5rem;
   }
 }
-.holding-table td:first-child {
-  padding-right: 1rem;
+.holding-container {
+  margin-left: var(--inline-spacing);
+}
+.info-section {
+  margin: var(--inline-spacing);
+  display: grid;
+  grid-template-columns: auto auto;
+  row-gap: 1rem;
+  column-gap: 1rem;
+}
+.option-label {
+  display: flex;
+  align-items: center;
+}
+@media screen and (max-width: 500px) {
+  .info-section {
+    grid-template-columns: auto;
+  }
 }
 </style>

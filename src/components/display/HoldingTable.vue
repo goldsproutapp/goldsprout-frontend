@@ -19,4 +19,8 @@ defineProps<{
   <div v-else></div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.holding-table td:first-child {
+  padding-right: 1rem;
+}
+</style>
