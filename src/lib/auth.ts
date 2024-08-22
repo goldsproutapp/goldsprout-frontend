@@ -2,6 +2,7 @@ import router from '@/router';
 import { emptyUser } from './data';
 import { authState } from './state';
 import { clearCache } from './cache';
+import { authenticatedRequest } from './requests';
 
 export function logIn(data: any) {
   clearCache();
@@ -20,6 +21,7 @@ export function saveAuthState() {
 }
 
 export function logOut(require_login: boolean = false) {
+  authenticatedRequest('/logout', { method: 'POST' });
   window.localStorage.removeItem('userinfo');
   window.localStorage.removeItem('token');
   authState.loggedIn = false;
