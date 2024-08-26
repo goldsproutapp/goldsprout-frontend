@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { API_BASE_URL } from '@/lib/constants';
+import { API_BASE_URL, DEMO_MODE_ENABLED } from '@/lib/constants';
 import { logIn } from '@/lib/auth';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -38,6 +38,9 @@ const login = async () => {
     />
     <Button type="submit" severity="success" label="Log in" />
     <span class="failure" v-if="failure">Incorrect username or password</span>
+    <span style="margin-top: var(--inline-spacing)" v-if="DEMO_MODE_ENABLED"
+      >To access the demo account, use username 'demo' and password 'demo'.</span
+    >
   </form>
 </template>
 
