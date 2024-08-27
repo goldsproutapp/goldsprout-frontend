@@ -11,10 +11,9 @@ import { capitalize } from 'vue';
 import { computed, onMounted } from 'vue';
 import { ref } from 'vue';
 
-// I don't know yet what else can go here, but having this keeps the UI consistent.
-const comparisonOptions: string[] = ['Split'];
+const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Account', 'Stock'];
 const compare = ref(comparisonOptions[0]);
-const comparisonTargetOptions: string[] = ['Portfolio'];
+const comparisonTargetOptions: string[] = ['Person', 'Provider', 'Account'];
 const compareTarget = ref(comparisonTargetOptions[0]);
 
 const filterObj = ref<{ [key: string]: string }>({});
@@ -22,6 +21,8 @@ const filterObj = ref<{ [key: string]: string }>({});
 const data = ref<any>({});
 const update = () => {
   const query = new URLSearchParams();
+  query.set('compare', compare.value.toLowerCase());
+  query.set('across', compareTarget.value.toLowerCase());
   Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
   authenticatedRequest(`/split?${query.toString()}`).then((res) => {
     if (res.status != 200) return;
@@ -77,8 +78,10 @@ const options = computed(() => {
       <span>
         Compare
         <Dropdown :options="comparisonOptions" v-model="compare" />
-        Of
-        <Dropdown :options="comparisonTargetOptions" v-model="compareTarget" />
+        <template v-if="compare !== 'All'">
+          Across
+          <Dropdown :options="comparisonTargetOptions" v-model="compareTarget" />
+        </template>
         <Button
           style="margin-left: 1rem"
           type="button"
