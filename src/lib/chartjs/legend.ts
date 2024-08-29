@@ -5,6 +5,10 @@ import type { Plugin } from 'chart.js';
  * https://www.chartjs.org/docs/latest/samples/legend/html.html
  */
 
+export function doesChartNeedLegend(chartType: string): boolean {
+  return ['pie', 'doughnut', 'polararea'].includes(chartType.toLowerCase());
+}
+
 const getOrCreateLegendList = (id: string) => {
   const legendContainer = document.getElementById(id);
   if (legendContainer == null) return;
@@ -35,6 +39,10 @@ export const htmlLegendPlugin: Plugin = {
       ul.firstChild.remove();
     }
 
+    // @ts-ignore
+    const { type } = chart.config;
+    if (!doesChartNeedLegend(type)) return;
+
     // Reuse the built-in legendItems generator
     const items = chart.options.plugins?.legend?.labels?.generateLabels?.(chart);
     if (!items) return;
@@ -48,8 +56,6 @@ export const htmlLegendPlugin: Plugin = {
       li.style.marginLeft = '10px';
 
       li.onclick = () => {
-        // @ts-ignore
-        const { type } = chart.config;
         if (type === 'pie' || type === 'doughnut') {
           // Pie and doughnut charts only have a single dataset and visibility is per item
           chart.toggleDataVisibility(item.index || 0);
