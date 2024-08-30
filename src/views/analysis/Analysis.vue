@@ -139,7 +139,7 @@ const options = computed(() => {
 <template>
   <OptionFilterLayout>
     <template #header>
-      <h1 class="title">Performance</h1>
+      <h1 class="title">Analysis</h1>
     </template>
     <template #options>
       <div style="display: flex; justify-content: space-between">
@@ -170,17 +170,19 @@ const options = computed(() => {
         <Panel
           v-for="key in Object.keys(graphData)"
           :header="capitalize(key)"
-          class="pie-container"
+          class="card-container"
         >
-          <div :id="containerID(key)" class="legend-container"></div>
-          <Chart
-            ref="cards"
-            :type="chartTypes[chartType]"
-            :data="graphData[key]"
-            :options="options[key]"
-            style="height: 20rem"
-            :plugins="[htmlLegendPlugin]"
-          />
+          <div class="pie-container">
+            <div :id="containerID(key)" class="legend-container"></div>
+            <Chart
+              ref="cards"
+              :type="chartTypes[chartType]"
+              :data="graphData[key]"
+              :options="options[key]"
+              style="height: 20rem"
+              :plugins="[htmlLegendPlugin]"
+            />
+          </div>
         </Panel>
       </div>
       <div v-else>No data available for the selected options and filters.</div>
@@ -195,7 +197,7 @@ const options = computed(() => {
   max-width: 100%;
 }
 
-.pie-container {
+.card-container {
   margin: var(--inline-spacing);
   flex-shrink: 1;
   max-width: 100%;
@@ -213,5 +215,9 @@ const options = computed(() => {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+.pie-container {
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>
