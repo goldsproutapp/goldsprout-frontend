@@ -9,6 +9,7 @@ import Chart from 'primevue/chart';
 import Dropdown from 'primevue/dropdown';
 import Panel from 'primevue/panel';
 import ProgressSpinner from 'primevue/progressspinner';
+import { onActivated } from 'vue';
 import { capitalize } from 'vue';
 import { computed, onMounted } from 'vue';
 import { ref } from 'vue';
@@ -30,6 +31,9 @@ const cards = ref([]);
 const loading = ref(true);
 
 const filterObj = ref<{ [key: string]: string }>({});
+onActivated(() => {
+  cards.value.forEach((card: any) => card.reinit());
+});
 
 const data = ref<any>({});
 const update = () => {
@@ -56,7 +60,7 @@ const graphData = computed(() => {
         {
           // @ts-ignores
           data: Object.values(data.value.data[key]).map(parseFloat),
-          backgroundColor: backgroundColours(),
+          backgroundColor: backgroundColours()
         }
       ]
     };
