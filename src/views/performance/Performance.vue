@@ -5,7 +5,7 @@ import { formatDecimal } from '@/lib/data';
 import { authenticatedRequest } from '@/lib/requests';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
-import { onMounted, ref } from 'vue';
+import { capitalize, onMounted, ref } from 'vue';
 
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
 const comparing = ref(comparisonOptions[0]);
@@ -60,6 +60,16 @@ const update = async () => {
     };
   }
 };
+const focus = (i: number) => {
+  if (i == data.value.time_focus.length - 1) return;
+  const focus = data.value.time_focus[i];
+  if (focus.length == 0) return;
+  const [period, lower, upper] = focus;
+  time.value = capitalize(period);
+  filterObj.value.filter_ignore_before = lower;
+  filterObj.value.filter_ignore_after = upper;
+  update();
+};
 </script>
 
 <template>
@@ -100,7 +110,12 @@ const update = async () => {
               <tr>
                 <th>{{ displayedOpts.target }}</th>
                 <th>{{ displayedOpts.against }}</th>
-                <th class="header-td" v-for="period in data.time_periods" :key="period">
+                <th
+                  class="header-td"
+                  v-for="(period, i) in data.time_periods"
+                  :key="period"
+                  @click="focus(i)"
+                >
                   {{ period }}
                 </th>
               </tr>
@@ -162,5 +177,8 @@ td {
 
 .category-separator {
   border-top: 1px solid var(--text-colour);
+}
+.header-td {
+  cursor: pointer;
 }
 </style>
