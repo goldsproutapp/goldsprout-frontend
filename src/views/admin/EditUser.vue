@@ -35,9 +35,9 @@ watch(
 const perms = ref<{ [key: string]: Permission }>();
 watch(user, (next, _) => {
   if (next == null) return;
-  perms.value = generatePerms(next);
+  generatePerms(next).then((result) => (perms.value = result));
 });
-const generatePerms = (u: User): { [key: string]: Permission } => {
+const generatePerms = async (u: User): Promise<{ [key: string]: Permission }> => {
   const out: { [key: string]: Permission } = {};
   dataState.users.forEach(
     (user) =>
@@ -50,12 +50,14 @@ const generatePerms = (u: User): { [key: string]: Permission } => {
       })
   );
   if (u.access_permissions)
-    u.access_permissions.forEach(
-      async (perm) =>
-        (out[perm.access_for_id.toString()] = {
-          ...perm,
-          access_for: getUserDisplayName(await getUserByID(perm.access_for_id))
-        })
+    await Promise.all(
+      u.access_permissions.map(
+        async (perm) =>
+          (out[perm.access_for_id.toString()] = {
+            ...perm,
+            access_for: getUserDisplayName(await getUserByID(perm.access_for_id))
+          })
+      )
     );
   return out;
 };
