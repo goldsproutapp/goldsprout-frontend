@@ -8,7 +8,7 @@ import AccordionTab from 'primevue/accordiontab';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import Listbox from 'primevue/listbox';
-import { watch } from 'vue';
+import { nextTick, watch } from 'vue';
 import { computed } from 'vue';
 import { onMounted } from 'vue';
 import { ref } from 'vue';
@@ -23,7 +23,7 @@ const model = defineModel();
 const emit = defineEmits(['update']);
 const props = withDefaults(
   defineProps<{
-    upperDateOnly: boolean;
+    upperDateOnly?: boolean;
   }>(),
   {
     upperDateOnly: false
@@ -50,12 +50,18 @@ const filterObj = computed(() => {
 watch(filterObj, (obj, _) => {
   model.value = obj;
 });
+const reset = () => {
+  [selectedRegions, selectedProviders, selectedUsers].forEach((x) => (x.value = []));
+  [lowerDate, upperDate].forEach((x) => (x.value = null));
+  nextTick(() => emit('update'));
+};
 </script>
 
 <template>
   <div>
     <h2>Filters</h2>
-    <Button label="Update" severity="secondary" class="update-btn" @click="$emit('update')" />
+    <Button label="Update" severity="success" class="update-btn" @click="$emit('update')" />
+    <Button label="Reset" severity="warning" class="update-btn" @click="reset" />
     <Accordion multiple :active-index="[]">
       <AccordionTab header="Regions">
         <Listbox
