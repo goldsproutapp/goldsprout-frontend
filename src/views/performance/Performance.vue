@@ -61,7 +61,7 @@ const update = async () => {
   }
 };
 const focus = (i: number) => {
-  if (i == data.value.time_focus.length - 1) return;
+  if (i == data.value.time_focus.length) return;
   const focus = data.value.time_focus[i];
   if (focus.length == 0) return;
   const [period, lower, upper] = focus;
