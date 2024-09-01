@@ -119,6 +119,12 @@ const options = computed(() => {
       (out[key] = {
         maintainAspectRatio: false,
         plugins: {
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              label: (context: any) => `${context.formattedValue}%`
+            }
+          },
           legend: {
             display: false
           },
@@ -158,7 +164,9 @@ const options = computed(() => {
             @click="update"
           />
         </span>
-        <Dropdown :options="chartTypeOptions" v-model="chartType" />
+        <div>
+          <Dropdown :options="chartTypeOptions" v-model="chartType" />
+        </div>
       </div>
     </template>
     <template #filter>
