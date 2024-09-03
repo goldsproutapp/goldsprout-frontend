@@ -18,10 +18,12 @@ export function backgroundColours(scheme: number = DEFAULT_SCHEME): string[] {
     c('teal'),
     c('orange'),
     c('purple'),
+    c('cyan'),
     c('yellow'),
     c('bluegray'),
     c('green'),
-    c('indigo')
+    c('indigo'),
+    c('gray')
   ];
 }
 

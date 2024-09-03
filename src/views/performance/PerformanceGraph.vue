@@ -3,6 +3,7 @@ import { authenticatedRequest } from '@/lib/requests';
 import Chart from 'primevue/chart';
 import { computed, onMounted, ref, watch } from 'vue';
 import 'chartjs-adapter-date-fns';
+import Dialog from 'primevue/dialog';
 
 type PerformanceTarget = 'stock' | 'portfolio' | 'account';
 const props = defineProps<{
@@ -16,6 +17,13 @@ const emit = defineEmits<{
 }>();
 
 watch(performance, (p, _) => emit('ytd', Number.parseFloat(p.year_to_date)));
+const fullScreen = ref(false);
+const graph = ref();
+const modal = ref();
+const maximiseModal = () => {
+  if (modal.value.maximized) return;
+  modal.value.maximize();
+};
 
 onMounted(() =>
   authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`).then((res) =>
@@ -67,6 +75,11 @@ const graphOptions = computed(() => {
         type: 'linear',
         display: true,
         position: 'left',
+        title: {
+          display: true,
+          text: 'Performance',
+          color: textColorSecondary
+        },
         ticks: {
           color: textColorSecondary
         },
@@ -78,6 +91,11 @@ const graphOptions = computed(() => {
         type: 'linear',
         display: true,
         position: 'right',
+        title: {
+          display: true,
+          text: 'Value',
+          color: textColorSecondary
+        },
         ticks: {
           color: textColorSecondary
         },
@@ -119,12 +137,35 @@ const performanceGraph = computed(() => {
 </script>
 
 <template>
+  <i class="pi pi-expand" @click="fullScreen = true" />
+  <Dialog
+    v-model:visible="fullScreen"
+    header="Performance"
+    modal
+    maximizable
+    class="dialog"
+    style="width: 100%"
+    @show="maximiseModal"
+    ref="modal"
+    :pt:maximizableButton:style="{ display: 'none' }"
+  >
+    <Chart
+      ref="graph"
+      :data="performanceGraph"
+      :options="graphOptions"
+      type="line"
+      v-if="performanceGraph"
+      class="performance-graph modal-graph"
+    />
+  </Dialog>
   <Chart
+    ref="graph"
     :data="performanceGraph"
     :options="graphOptions"
     type="line"
+    v-show="!fullScreen"
     v-if="performanceGraph"
-    style="flex-grow: 1"
+    class="performance-graph"
   />
   <div v-else class="no-data-container">
     <span class="no-data-label">No data available.</span>
@@ -139,5 +180,10 @@ const performanceGraph = computed(() => {
 }
 .no-data-label {
   font-size: x-large;
+}
+.performance-graph {
+  flex-grow: 1;
+  min-height: 20rem;
+  height: 100%;
 }
 </style>
