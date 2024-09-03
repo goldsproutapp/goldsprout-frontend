@@ -12,6 +12,7 @@ import TabMenu from 'primevue/tabmenu';
 import CountUp from '@/components/display/CountUp.vue';
 import SummaryCards from '@/components/display/SummaryCards.vue';
 import SummaryCard from '@/components/display/SummaryCard.vue';
+import router from '@/router';
 
 const props = defineProps<{
   accountID: number;
@@ -20,6 +21,7 @@ const props = defineProps<{
 const account = ref<Account | null>(null);
 const holding = ref<any>(null);
 const ytd = ref(0);
+const selection = ref();
 
 const menu = ref([
   {
@@ -93,7 +95,14 @@ watch(
       v-model:activeIndex="menuIdx"
       style="margin-left: var(--inline-spacing)"
     />
-    <DataTable v-if="menuIdx == 0" :value="holding" class="table">
+    <DataTable
+      v-if="menuIdx == 0"
+      :value="holding"
+      class="table"
+      selection-mode="single"
+      v-model:selection="selection"
+      @row-select="(row) => router.push(`/stocks/${row.data.stock.id}`)"
+    >
       <Column header="Stock" field="stock.name" sortable></Column>
       <Column
         header="Holding"
