@@ -11,6 +11,7 @@ import SummaryCards from '@/components/display/SummaryCards.vue';
 import SummaryCard from '@/components/display/SummaryCard.vue';
 
 const overview = ref<Overview | null>();
+const ytd = ref(0);
 
 onMounted(() => getOverview(false).then((res) => (overview.value = res)));
 </script>
@@ -46,6 +47,19 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
                     ? `-£${formatDecimal(v.toFixed(d).slice(1))}`
                     : `+£${formatDecimal(v.toFixed(d))}`
               "
+            />
+          </template>
+        </SummaryCard>
+        <SummaryCard>
+          <template #title>YTD</template>
+          <template #content>
+            <CountUp
+              :value="ytd"
+              :duration="750"
+              :decimal-precision="2"
+              v-if="ytd"
+              :format="(v, d) => `${formatDecimal(v.toFixed(d))}%`"
+              :coloured="true"
             />
           </template>
         </SummaryCard>
@@ -92,7 +106,12 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
         </SummaryCard>
       </SummaryCards>
       <div class="graph-container">
-        <PerformanceGraph id="" performance-type="portfolio" style="flex-grow: 1" />
+        <PerformanceGraph
+          id=""
+          performance-type="portfolio"
+          style="flex-grow: 1"
+          @ytd="(x) => (ytd = x)"
+        />
       </div>
     </div>
   </div>
