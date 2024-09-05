@@ -13,7 +13,10 @@ import {
   type Account
 } from './types';
 
-export async function authenticatedRequest(path: string, options?: RequestInit): Promise<Response> {
+export async function authenticatedRequest(
+  path: string,
+  options?: RequestInit & { ignoreUnauthorised?: boolean }
+): Promise<Response> {
   const notNullOpts = options == null ? {} : options;
   const opts = Object.assign({}, notNullOpts, {
     headers: Object.assign({}, notNullOpts.headers || {}, {
@@ -22,7 +25,7 @@ export async function authenticatedRequest(path: string, options?: RequestInit):
   });
   const url = `${API_BASE_URL}${path}`;
   const res = await fetch(url, opts);
-  if (res.status === 401) {
+  if (res.status === 401 && !opts.ignoreUnauthorised) {
     logOut(true);
   }
   return res;

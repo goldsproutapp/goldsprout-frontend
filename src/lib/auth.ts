@@ -21,7 +21,7 @@ export function saveAuthState() {
 }
 
 export function logOut(require_login: boolean = false) {
-  authenticatedRequest('/logout', { method: 'POST' });
+  authenticatedRequest('/logout', { method: 'POST', ignoreUnauthorised: true });
   window.localStorage.removeItem('userinfo');
   window.localStorage.removeItem('token');
   authState.loggedIn = false;
