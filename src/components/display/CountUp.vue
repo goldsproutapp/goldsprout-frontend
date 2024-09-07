@@ -24,7 +24,7 @@ const props = withDefaults(
 watch(
   props,
   () => {
-    current.value = 0;
+    current.value = 0.0001; // enough to trigger watcher without affecting output format.
     counting = true;
   },
   {}
