@@ -9,10 +9,7 @@ import Chart from 'primevue/chart';
 import Dropdown from 'primevue/dropdown';
 import Panel from 'primevue/panel';
 import ProgressSpinner from 'primevue/progressspinner';
-import { onActivated } from 'vue';
-import { capitalize } from 'vue';
-import { computed, onMounted } from 'vue';
-import { ref } from 'vue';
+import { capitalize, onActivated, computed, ref } from 'vue';
 
 const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Account', 'Stock'];
 const compare = ref(comparisonOptions[0]);
@@ -47,7 +44,7 @@ const update = () => {
     loading.value = false;
   });
 };
-onMounted(update);
+onActivated(update);
 const graphData = computed(() => {
   if (!data.value.success) return;
   const out: any = {};

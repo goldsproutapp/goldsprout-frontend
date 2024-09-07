@@ -2,7 +2,7 @@
 import CountUp from '@/components/display/CountUp.vue';
 import { getOverview } from '@/lib/requests';
 import type { Overview } from '@/lib/types';
-import { onMounted, ref } from 'vue';
+import { onActivated, ref } from 'vue';
 import PerformanceGraph from './performance/PerformanceGraph.vue';
 import Carousel from 'primevue/carousel';
 import { formatDecimal } from '@/lib/data';
@@ -13,7 +13,7 @@ import SummaryCard from '@/components/display/SummaryCard.vue';
 const overview = ref<Overview | null>();
 const ytd = ref(0);
 
-onMounted(() => getOverview(false).then((res) => (overview.value = res)));
+onActivated(() => getOverview(false).then((res) => (overview.value = res)));
 </script>
 
 <template>
@@ -57,7 +57,6 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
               :value="ytd"
               :duration="750"
               :decimal-precision="2"
-              v-if="ytd"
               :format="(v, d) => `${formatDecimal(v.toFixed(d))}%`"
               :coloured="true"
             />
@@ -106,12 +105,7 @@ onMounted(() => getOverview(false).then((res) => (overview.value = res)));
         </SummaryCard>
       </SummaryCards>
       <div class="graph-container">
-        <PerformanceGraph
-          id=""
-          performance-type="portfolio"
-          style="flex-grow: 1"
-          @ytd="(x) => (ytd = x)"
-        />
+        <PerformanceGraph id="" performance-type="portfolio" @ytd="(x) => (ytd = x)" />
       </div>
     </div>
   </div>

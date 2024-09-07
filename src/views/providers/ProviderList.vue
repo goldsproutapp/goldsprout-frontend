@@ -5,8 +5,8 @@ import router from '@/router';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
-import { computed, onMounted } from 'vue';
-onMounted(() => getProviderList(true));
+import { computed, onActivated } from 'vue';
+onActivated(() => getProviderList(true));
 const providers = computed(() => dataState.providers);
 const headings = {
   name: 'Name',

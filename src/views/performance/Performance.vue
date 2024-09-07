@@ -5,7 +5,7 @@ import { formatDecimal } from '@/lib/data';
 import { authenticatedRequest } from '@/lib/requests';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
-import { capitalize, onMounted, ref } from 'vue';
+import { capitalize, ref, onActivated } from 'vue';
 
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
 const comparing = ref(comparisonOptions[0]);
@@ -36,7 +36,7 @@ const format = (str: string) =>
   formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str));
 const filterObj = ref<{ [key: string]: string }>({});
 
-onMounted(async () => {
+onActivated(async () => {
   update();
 });
 

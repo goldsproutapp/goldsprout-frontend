@@ -2,7 +2,7 @@
 import { dataState } from '@/lib/state';
 import router from '@/router';
 import { getHoldings, getRegions, getSectors, getStockList, getUsers } from '@/lib/requests';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onActivated, ref, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InfoIcon from '@/components/icons/InfoIcon.vue';
@@ -22,7 +22,7 @@ import Tooltip from '@/components/layout/Tooltip.vue';
 
 const loading = ref(true);
 const stocks = computed<Stock[]>(() => dataState.stocks);
-onMounted(() => {
+onActivated(() => {
   getStockList(true).then(() => (loading.value = false));
   getHoldings(true);
   getRegions(true);

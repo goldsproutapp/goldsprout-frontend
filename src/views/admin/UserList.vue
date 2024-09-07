@@ -7,9 +7,9 @@ import router from '@/router';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
-import { computed, onMounted } from 'vue';
+import { computed, onActivated, onMounted } from 'vue';
 
-onMounted(() => getUsers(true));
+onActivated(() => getUsers(true));
 
 const headings = {
   email: 'Email',

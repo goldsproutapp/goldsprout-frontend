@@ -10,9 +10,7 @@ export function logIn(data: any) {
   authState.token = data.token;
   authState.userInfo = data.data;
   saveAuthState();
-  // this isn't exactly what I want, but the keep-alive cache needs to be
-  // invalidated and that doesn't seem possible so we'll reload the page instead.
-  window.location.href = '/';
+  router.push('/');
 }
 
 export function saveAuthState() {

@@ -8,7 +8,7 @@ import DataTable from 'primevue/datatable';
 import ProgressSpinner from 'primevue/progressspinner';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onActivated, ref } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { formatDecimal } from '@/lib/data';
 import { RouterLink } from 'vue-router';
@@ -23,7 +23,7 @@ const snapshots = computed(() =>
   }))
 );
 const loading = ref(true);
-onMounted(() => {
+onActivated(() => {
   loading.value = snapshots.value.length == 0;
   getSnapshots(true).then(() => (loading.value = false));
 });
@@ -102,11 +102,10 @@ const deleteSnapshotButton = (evt: MouseEvent, id: string) => {
     />
     <ConfirmDialog></ConfirmDialog>
     <DataTable :value="snapshots" :loading="loading">
-      <template #empty v-if="!loading">No snapshots found.</template>
       <template #loading>
         <ProgressSpinner />
       </template>
-      <template #empty>
+      <template #empty v-if="!loading">
         No snapshots found.
         <br />
         <br />
