@@ -25,6 +25,9 @@ const maximiseModal = () => {
   modal.value.maximize();
 };
 
+const tooltipLabel = ({ formattedValue, datasetIndex }: any) =>
+  [`${formattedValue}%`, `£${formattedValue}`][datasetIndex];
+
 onMounted(() =>
   authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`).then((res) =>
     res.status != 200 ? {} : res.json().then(({ data }) => (performance.value = data))
@@ -59,6 +62,12 @@ const graphOptions = computed(() => {
             }
           }
         ]
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: tooltipLabel
+        }
       }
     },
     scales: {
