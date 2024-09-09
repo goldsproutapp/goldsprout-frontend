@@ -48,7 +48,6 @@ const model = defineModel();
     v-model="model"
     :options="accountTree"
     option-label="name"
-    option-value="id"
     option-group-label="name"
     :option-group-children="['providers', 'accounts']"
     placeholder="Select an account"
@@ -56,7 +55,7 @@ const model = defineModel();
   >
     <template #value="{ value, placeholder }">
       <template v-if="value === undefined">{{ placeholder }}</template>
-      <template v-else>{{ displayAccount(value) }}</template>
+      <template v-else>{{ displayAccount(value.id) }}</template>
     </template>
   </CascadeSelect>
 </template>
