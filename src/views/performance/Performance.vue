@@ -127,8 +127,10 @@ const focus = (i: number) => {
                     <span>{{ col1 }}</span>
                   </td>
                   <td></td>
-                  <td v-for="key in Object.keys(data.data[col1].totals)">
-                    {{ format(data.data[col1].totals[key]) }}
+                  <td v-for="period in data.time_periods" :key="period">
+                    <span v-if="Object.keys(data.data[col1].totals).includes(period)">{{
+                      format(data.data[col1].totals[period])
+                    }}</span>
                   </td>
                 </tr>
                 <tr v-for="item in Object.keys(data.data[col1].items)" :key="item">
