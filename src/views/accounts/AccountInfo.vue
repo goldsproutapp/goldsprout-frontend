@@ -42,14 +42,15 @@ watch(
         getHoldings(true).then(async () => {
           const data: any = [];
           await Promise.all(
-            Object.entries(dataState.accountHoldings[accountID]).map(
-              async ([id, { value, units }]) =>
+            Object.entries(dataState.accountHoldings[accountID])
+              .filter(([_, { units }]) => units != '0')
+              .map(async ([id, { value, units }]) =>
                 data.push({
                   stock: await getStockByID(Number.parseInt(id), false),
                   value: value,
                   units: units
                 })
-            )
+              )
           );
           holding.value = data;
         })
