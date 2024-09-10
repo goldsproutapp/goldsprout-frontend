@@ -9,6 +9,7 @@ import { usePrimeVue } from 'primevue/config';
 import Toast from 'primevue/toast';
 import Unauthorised from './views/auth/Unauthorised.vue';
 import { computed } from 'vue';
+import DemoBanner from './components/layout/DemoBanner.vue';
 
 const primeVue = usePrimeVue();
 
@@ -32,6 +33,7 @@ const includeKeepAlive = computed(() =>
     <Toast position="bottom-right" group="br" />
     <Toast position="top-left" group="tl" />
     <Toast position="top-right" group="tr" />
+    <DemoBanner v-if="authState.loggedIn && authState.userInfo.is_demo_user" />
     <NavBar v-if="authState.loggedIn" />
     <div class="root-container">
       <RouterView v-slot="{ Component, route }">
