@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { formatDecimal, getAccountByID, getStockByID } from '@/lib/data';
 import { accountUniqueDisplay } from '@/lib/formats/display';
-import { getHoldings, getStockList } from '@/lib/requests';
+import { authenticatedRequest, getAccounts, getHoldings, getStockList } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import type { Account } from '@/lib/types';
 import Column from 'primevue/column';
@@ -13,6 +13,13 @@ import CountUp from '@/components/display/CountUp.vue';
 import SummaryCards from '@/components/display/SummaryCards.vue';
 import SummaryCard from '@/components/display/SummaryCard.vue';
 import router from '@/router';
+import Button from 'primevue/button';
+import Menu from 'primevue/menu';
+import { useConfirm } from 'primevue/useconfirm';
+import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
+import { useToast } from 'primevue/usetoast';
+import { clearCache } from '@/lib/cache';
+import { hasWritePermFor } from '@/lib/utils';
 
 const props = defineProps<{
   accountID: number;
@@ -23,6 +30,49 @@ const holding = ref<any>(null);
 const ytd = ref(0);
 const selection = ref();
 
+const confirm = useConfirm();
+const toast = useToast();
+
+const deleteAccount = () => {
+  confirm.require({
+    message:
+      'Are you sure that you want to permanantly delete this account and all associated data? This action is irreversible.',
+    header: 'Confirm',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: 'Cancel',
+    acceptLabel: 'Delete',
+    acceptClass: 'p-button-danger',
+    acceptIcon: 'pi pi-trash',
+    rejectIcon: 'pi pi-times',
+    async accept() {
+      const res = await authenticatedRequest(`/accounts/${account.value?.id}`, {
+        method: 'DELETE'
+      });
+      const status = statusFrom(res.status);
+      if (status != StatusCode.NoContent) {
+        toast.add({
+          summary: 'Error',
+          detail: `Failed to delete account: ${statusText(status)}.`,
+          severity: 'error',
+          life: 3000,
+          group: 'bl'
+        });
+      } else {
+        toast.add({
+          summary: 'Success',
+          detail: 'Successfully deleted account.',
+          severity: 'success',
+          life: 3000,
+          group: 'bl'
+        });
+        clearCache();
+        getAccounts(false);
+        router.push('/accounts');
+      }
+    }
+  });
+};
+
 const menu = ref([
   {
     label: 'Holdings'
@@ -32,6 +82,26 @@ const menu = ref([
   }
 ]);
 const menuIdx = ref(0);
+
+const editMenu = ref([
+  {
+    label: 'Options',
+    items: [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        disabled: true
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: deleteAccount
+      }
+    ]
+  }
+]);
+const editMenuRef = ref();
+const toggleOptionsMenu = (evt: any) => editMenuRef.value.toggle(evt);
 
 watch(
   props,
@@ -65,7 +135,17 @@ watch(
 
 <template>
   <div v-if="account !== null" class="container">
-    <h1>{{ accountUniqueDisplay(account) }}</h1>
+    <div class="header">
+      <h1>{{ accountUniqueDisplay(account) }}</h1>
+      <Button
+        type="button"
+        outlined
+        icon="pi pi-ellipsis-v"
+        @click="toggleOptionsMenu"
+        v-if="hasWritePermFor(account.user_id)"
+      />
+      <Menu ref="editMenuRef" id="options_menu" :model="editMenu" popup />
+    </div>
     <SummaryCards>
       <SummaryCard>
         <template #title>Value </template>
@@ -152,6 +232,11 @@ watch(
 }
 .table {
   margin: var(--inline-spacing);
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
 <style>
