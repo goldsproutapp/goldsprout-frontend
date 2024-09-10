@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getUserDisplayName } from '@/lib/data';
-import { getProviderList, getRegions, getUsers } from '@/lib/requests';
+import { getAccounts, getProviderList, getRegions, getUsers } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import type { Provider, User } from '@/lib/types';
 import Accordion from 'primevue/accordion';
@@ -16,7 +16,7 @@ import { ref } from 'vue';
 const selectedRegions = ref<string[]>([]);
 const selectedProviders = ref<Provider[]>([]);
 const selectedUsers = ref<User[]>([]);
-const dateRange = ref();
+const selectedAccounts = ref<string[]>([]);
 const lowerDate = ref();
 const upperDate = ref();
 const model = defineModel();
@@ -34,6 +34,7 @@ onMounted(() => {
   getRegions(true);
   getProviderList(true);
   getUsers(true);
+  getAccounts(true);
 });
 
 const filterObj = computed(() => {
@@ -43,6 +44,7 @@ const filterObj = computed(() => {
     obj.filter_providers = selectedProviders.value.map((p) => p.id).join(',');
   if (selectedUsers.value.length > 0)
     obj.filter_users = selectedUsers.value.map((p) => p.id).join(',');
+  if (selectedAccounts.value.length > 0) obj.filter_accounts = selectedAccounts.value.join(',');
   if (lowerDate.value) obj.filter_ignore_before = Math.floor(lowerDate.value.getTime() / 1000);
   if (upperDate.value) obj.filter_ignore_after = Math.floor(upperDate.value.getTime() / 1000);
   return obj;
@@ -51,7 +53,7 @@ watch(filterObj, (obj, _) => {
   model.value = obj;
 });
 const reset = () => {
-  [selectedRegions, selectedProviders, selectedUsers].forEach((x) => (x.value = []));
+  [selectedRegions, selectedProviders, selectedUsers, selectedAccounts].forEach((x) => (x.value = []));
   [lowerDate, upperDate].forEach((x) => (x.value = null));
   nextTick(() => emit('update'));
 };
@@ -76,6 +78,14 @@ const reset = () => {
           v-model="selectedProviders"
           :options="dataState.providers"
           option-label="name"
+          multiple
+          list-style="max-height: 20rem"
+        />
+      </AccordionTab>
+      <AccordionTab header="Accounts">
+        <Listbox
+          v-model="selectedAccounts"
+          :options="Array.from(new Set(dataState.accounts.map((x) => x.name)))"
           multiple
           list-style="max-height: 20rem"
         />
