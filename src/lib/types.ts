@@ -55,6 +55,7 @@ export interface User {
   first_name: string;
   last_name: string;
   is_admin: boolean;
+  is_demo_user: boolean;
   trusted: boolean;
   client_options: string;
   access_permissions: AccessPermission[]; // TODO: type properly

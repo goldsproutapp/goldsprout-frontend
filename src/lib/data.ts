@@ -139,6 +139,7 @@ export function emptyUser(): User {
     first_name: '',
     last_name: '',
     is_admin: false,
+    is_demo_user: false,
     trusted: false,
     access_permissions: []
   };
