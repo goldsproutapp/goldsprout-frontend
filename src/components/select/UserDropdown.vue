@@ -13,5 +13,10 @@ onMounted(async () => {
 const model = defineModel();
 </script>
 <template>
-  <Dropdown v-model="model" :options="userList" :option-label="getUserDisplayName" />
+  <Dropdown
+    v-model="model"
+    :options="userList"
+    :option-label="getUserDisplayName"
+    placeholder="User"
+  />
 </template>

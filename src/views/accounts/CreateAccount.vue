@@ -4,12 +4,12 @@ import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
 import UserDropdown from '@/components/select/UserDropdown.vue';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import { authenticatedRequest, getAccounts } from '@/lib/requests';
-import { authState } from '@/lib/state';
+import { authState, dataState } from '@/lib/state';
 import type { Account } from '@/lib/types';
 import router from '@/router';
-import InputText from 'primevue/inputtext';
+import Dropdown from 'primevue/dropdown';
 import { useToast } from 'primevue/usetoast';
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const account = ref<Account>({
   id: 0,
@@ -23,6 +23,8 @@ const account = ref<Account>({
 });
 
 const toast = useToast();
+
+onMounted(() => getAccounts(true));
 
 const save = async () => {
   updateIDs();
@@ -49,6 +51,8 @@ const save = async () => {
   }
 };
 
+const accountTypes = computed(() => Array.from(new Set(dataState.accounts.map((x) => x.name))));
+
 const updateIDs = () => {
   account.value.provider_id = account.value.provider?.id ?? 0;
   account.value.user_id = account.value.user?.id ?? 0;
@@ -56,9 +60,10 @@ const updateIDs = () => {
 </script>
 
 <template>
+  <h1>Create account</h1>
   <div class="container">
     <div class="input-item">
-      <InputText placeholder="Name" v-model="account.name" type="text" />
+      <Dropdown v-model="account.name" :options="accountTypes" editable placeholder="Type" />
     </div>
     <div class="input-item">
       <ProviderDropdown v-model="account.provider" />
@@ -73,12 +78,6 @@ const updateIDs = () => {
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-}
-
 .input-item {
   padding-bottom: 1rem;
   display: flex;
