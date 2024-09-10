@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import { getProviderByID } from '@/lib/data';
+import { processFormat } from '@/lib/formats/csv';
+import { optionalFields, requiredFields, validate_csv_format } from '@/lib/processing/snapshot';
 import { authenticatedRequest } from '@/lib/requests';
 import { type Provider } from '@/lib/types';
 import router from '@/router';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
   providerID?: number;
 }>();
+
+const toast = useToast();
 
 const provider = ref<Provider>({
   id: 0,
@@ -32,7 +38,24 @@ watch(
     immediate: true
   }
 );
+function validate_csv(): boolean {
+  const fmt = processFormat(provider.value.csv_format);
+  const [valid, missing] = validate_csv_format(Object.keys(fmt), false);
+  if (!valid) {
+    toast.add({
+      summary: 'Error',
+      detail: `Missing required fields: ${missing.join(',')}`,
+      group: 'bl',
+      severity: 'error',
+      life: 2000
+    });
+  }
+  return valid;
+}
 const save = async () => {
+  if (!validate_csv()) {
+    return;
+  }
   const payload = {
     provider: provider.value
   };
@@ -53,26 +76,18 @@ const save = async () => {
       <div>
         <span style="color: var(--warning-colour)">
           Required fields:
-          <pre style="display: inline">stock_code</pre>
-          ,
-          <pre style="display: inline">stock_name</pre>
-          ,
-          <pre style="display: inline">units</pre>
-          ,
-          <pre style="display: inline">price</pre>
-          ,
-          <pre style="display: inline">value</pre>
-          ,
-          <pre style="display: inline">cost</pre>
-          ,
-          <pre style="display: inline">absolute_change</pre>
+          <template v-for="(field, idx) in requiredFields(false, true)">
+            <template v-if="idx != 0">,&nbsp;</template>
+            <pre style="display: inline">{{ field }}</pre>
+          </template>
         </span>
         <br />
         <span style="color: var(--success-colour)">
           Optional fields:
-          <pre style="display: inline">region</pre>
-          ,
-          <pre style="display: inline">sector</pre>
+          <template v-for="(field, idx) in optionalFields()">
+            <template v-if="idx != 0">,&nbsp;</template>
+            <pre style="display: inline">{{ field }}</pre>
+          </template>
         </span>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { clearCache } from '@/lib/cache';
 import { DEFAULT_IMPORT_FORMAT } from '@/lib/constants';
 import { getAccountByName, getProviderByName, getUserByName } from '@/lib/data';
 import { parseCSV, processFormat } from '@/lib/formats/csv';
+import { fillGaps, validate_csv_format } from '@/lib/processing/snapshot';
 import { authenticatedRequest } from '@/lib/requests';
 import router from '@/router';
 import Button from 'primevue/button';
@@ -33,18 +34,17 @@ const toast = useToast();
 
 function checkFormat(): boolean {
   const format = processFormat(fmt.value);
-  const missingFields = requiredFields.filter((field) => !Object.keys(format).includes(field));
-  if (missingFields.length >= 1) {
+  const [valid, missing] = validate_csv_format(Object.keys(format), true);
+  if (!valid) {
     toast.add({
       summary: 'Error',
-      detail: `Format is missing the following fields: ${missingFields.join(',')}`,
+      detail: `Format is missing the following fields: ${missing.join(',')}`,
       group: 'bl',
       severity: 'error',
       life: 3000
     });
-    return false;
   }
-  return true;
+  return valid;
 }
 const groupedData = ref<{ [key: string]: { [key: string]: any } }>({});
 const modal = ref(false);
@@ -111,18 +111,29 @@ const process = async () => {
         });
         return cancel();
       }
+      const [filled, err] = fillGaps(obj);
+      if (err != null) {
+        toast.add({
+          summary: 'Error',
+          detail: `An error has occurred: '${err}'`,
+          group: 'bl',
+          severity: 'error',
+          life: 3000
+        });
+        return cancel();
+      }
       const meta: any = {};
       if (obj.region) meta.region = obj.region;
       if (obj.sector) meta.sector = obj.sector;
       if (obj.annual_fee) meta.annual_fee = obj.annual_fee;
       pushSnapshot(timestamp, obj.account_id, {
-        stock_name: obj.stock_name,
-        stock_code: obj.stock_code,
-        units: obj.units,
-        price: obj.price,
-        value: obj.value,
-        cost: obj.cost,
-        absolute_change: obj.absolute_change,
+        stock_name: filled.stock_name,
+        stock_code: filled.stock_code,
+        units: filled.units,
+        price: filled.price,
+        value: filled.value,
+        cost: filled.cost,
+        absolute_change: filled.absolute_change,
         ...meta
       });
     }

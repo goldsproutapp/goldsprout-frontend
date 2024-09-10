@@ -21,6 +21,7 @@ import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import AccountDropdown from '@/components/select/AccountDropdown.vue';
+import { fillGaps } from '@/lib/processing/snapshot';
 
 const headings = {
   stock_name: 'Name',
@@ -93,6 +94,7 @@ function process() {
   const raw = inputDiv.value.innerText;
   const rows = raw.split('\n').filter((r: string) => r);
   const parsedRows = rows.map(parseCSV);
+  let error: string | null = null;
   try {
     const objs = parsedRows
       .filter((row: string[]) => row)
@@ -103,7 +105,9 @@ function process() {
           ([key, idx]) =>
             (obj[key] = replaceCommas.includes(key) ? row[idx].replace(',', '') : row[idx])
         );
-        return obj;
+        const [filled, err] = fillGaps(obj);
+        if (err != null) error = err;
+        return filled;
       });
     entries.value.push(...objs);
   } catch (e) {
@@ -115,6 +119,15 @@ function process() {
       life: 2000
     });
     return;
+  }
+  if (error != null) {
+    toast.add({
+      summary: 'Error',
+      detail: error,
+      group: 'bl',
+      severity: 'error',
+      life: 2000
+    });
   }
   inputDiv.value.innerText = '';
 }
