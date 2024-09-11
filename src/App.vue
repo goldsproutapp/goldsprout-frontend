@@ -5,20 +5,16 @@ import Footer from './components/Footer.vue';
 import { authState, updateAuthState } from './lib/state';
 import { onMounted, watch } from 'vue';
 import router, { allRoutes } from './router';
-import { usePrimeVue } from 'primevue/config';
 import Toast from 'primevue/toast';
 import Unauthorised from './views/auth/Unauthorised.vue';
 import { computed } from 'vue';
 import DemoBanner from './components/layout/DemoBanner.vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 
-const primeVue = usePrimeVue();
-
 watch(router.currentRoute, (newRoute, _) => {
   if (!authState.loggedIn && !newRoute.meta?.allowNoAuth) router.push('/login');
 });
 onMounted(() => {
-  primeVue.changeTheme('', 'lara-dark-green', 'theme-link', () => {});
   updateAuthState();
 });
 const includeKeepAlive = computed(() =>
