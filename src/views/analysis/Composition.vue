@@ -142,7 +142,7 @@ const options = computed(() => {
 <template>
   <OptionFilterLayout>
     <template #header>
-      <h1 class="title">Analysis</h1>
+      <h1 class="title">Composition</h1>
     </template>
     <template #options>
       <div style="display: flex; justify-content: space-between">

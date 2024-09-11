@@ -2,19 +2,19 @@
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { authState } from '@/lib/state';
-import { headerRoutes } from '@/router';
+import { type Route, headerRoutes } from '@/router';
 import { getUserDisplayName } from '@/lib/data';
 import Menubar from 'primevue/menubar';
 import type { MenuItem } from 'primevue/menuitem';
 import Menu from 'primevue/menu';
 import Button from 'primevue/button';
-const visibleRoutes = computed(() =>
+const visibleRoutes = computed<Route[]>(() =>
   headerRoutes.filter(
     (route) => !route.meta?.requireAdmin || (authState.loggedIn && authState.userInfo.is_admin)
   )
 );
 const items = computed<MenuItem[]>(() =>
-  visibleRoutes.value.map((route) => ({ label: route.name, route: route.path }))
+  visibleRoutes.value.map((route) => ({ label: route.name, route: route.path }) as MenuItem)
 );
 const profileMenuItems = ref([
   {
@@ -26,6 +26,10 @@ const adminMenuRoutes = ref([
   {
     label: 'User management',
     route: '/users'
+  },
+  {
+    label: 'Providers',
+    route: '/providers'
   }
 ]);
 const logoutRoute = {

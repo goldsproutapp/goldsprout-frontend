@@ -8,7 +8,7 @@ import Login from '@/views/auth/Login.vue';
 import Logout from '@/views/auth/Logout.vue';
 import ProviderList from '@/views/providers/ProviderList.vue';
 import ProviderInfo from '@/views/providers/ProviderInfo.vue';
-import PerformanceVue from '@/views/performance/Performance.vue';
+import TrendsVue from '@/views/analysis/Trends.vue';
 import Overview from '@/views/Overview.vue';
 import Profile from '@/views/auth/Profile.vue';
 import Invitation from '@/views/auth/Invitation.vue';
@@ -16,7 +16,7 @@ import UserList from '@/views/admin/UserList.vue';
 import InviteUser from '@/views/admin/InviteUser.vue';
 import EditUser from '@/views/admin/EditUser.vue';
 import ImportSnapshots from '@/views/snapshot/ImportSnapshots.vue';
-import AnalysisVue from '@/views/analysis/Analysis.vue';
+import CompositionVue from '@/views/analysis/Composition.vue';
 import AccountList from '@/views/accounts/AccountList.vue';
 import AccountInfo from '@/views/accounts/AccountInfo.vue';
 import CreateAccount from '@/views/accounts/CreateAccount.vue';
@@ -30,7 +30,7 @@ export type Route = RouteRecordRaw & {
   };
 };
 
-export const headerRoutes = [
+export const headerRoutes: Route[] = [
   {
     path: '/',
     name: 'Home',
@@ -56,17 +56,17 @@ export const headerRoutes = [
     }
   },
   {
-    path: '/performance',
-    name: 'Performance',
-    component: PerformanceVue,
+    path: '/trends',
+    name: 'Trends',
+    component: TrendsVue,
     meta: {
       keepAlive: true
     }
   },
   {
-    path: '/analysis',
-    name: 'Analysis',
-    component: AnalysisVue,
+    path: '/composition',
+    name: 'Composition',
+    component: CompositionVue,
     meta: {
       keepAlive: true
     }
@@ -76,15 +76,6 @@ export const headerRoutes = [
     name: 'Accounts',
     component: AccountList,
     meta: {
-      keepAlive: true
-    }
-  },
-  {
-    path: '/providers',
-    name: 'Providers',
-    component: ProviderList,
-    meta: {
-      requireAdmin: true,
       keepAlive: true
     }
   }
@@ -195,6 +186,15 @@ const adminRoutes = [
     props: true,
     meta: {
       requireAdmin: true
+    }
+  },
+  {
+    path: '/providers',
+    name: 'Providers',
+    component: ProviderList,
+    meta: {
+      requireAdmin: true,
+      keepAlive: true
     }
   }
 ];

@@ -3,7 +3,7 @@ import CountUp from '@/components/display/CountUp.vue';
 import { getOverview } from '@/lib/requests';
 import type { Overview } from '@/lib/types';
 import { onActivated, ref } from 'vue';
-import PerformanceGraph from './performance/PerformanceGraph.vue';
+import PerformanceGraph from '@/components/display/PerformanceGraph.vue';
 import Carousel from 'primevue/carousel';
 import { formatDecimal } from '@/lib/data';
 import Divider from 'primevue/divider';

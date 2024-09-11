@@ -7,7 +7,7 @@ import type { Account } from '@/lib/types';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import { ref, watch } from 'vue';
-import PerformanceGraph from '../performance/PerformanceGraph.vue';
+import PerformanceGraph from '@/components/display/PerformanceGraph.vue';
 import TabMenu from 'primevue/tabmenu';
 import CountUp from '@/components/display/CountUp.vue';
 import SummaryCards from '@/components/display/SummaryCards.vue';

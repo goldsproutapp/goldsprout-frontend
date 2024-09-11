@@ -15,7 +15,7 @@ import Dropdown from 'primevue/dropdown';
 import InputSwitch from 'primevue/inputswitch';
 import Button from 'primevue/button';
 import { computed, onMounted, ref } from 'vue';
-import PerformanceGraph from '../performance/PerformanceGraph.vue';
+import PerformanceGraph from '@/components/display/PerformanceGraph.vue';
 import { dataState } from '@/lib/state';
 import Inplace from 'primevue/inplace';
 import InputText from 'primevue/inputtext';

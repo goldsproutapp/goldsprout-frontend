@@ -75,7 +75,7 @@ const focus = (i: number) => {
 <template>
   <OptionFilterLayout>
     <template #header>
-      <h1 class="title">Performance</h1>
+      <h1 class="title">Trends</h1>
     </template>
 
     <template #options>
