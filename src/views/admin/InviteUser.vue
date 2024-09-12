@@ -5,14 +5,14 @@ import { authenticatedRequest, getUsers } from '@/lib/requests';
 import router from '@/router';
 import InputText from 'primevue/inputtext';
 import Message from 'primevue/message';
+import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 
 const email = ref();
 const firstName = ref();
 const lastName = ref();
 
-const message = ref();
-const messageColour = ref();
+const toast = useToast();
 
 const submit = async () => {
   const payload = {
@@ -24,15 +24,32 @@ const submit = async () => {
     method: 'POST',
     body: JSON.stringify(payload)
   });
-  messageColour.value = 'var(--failure-colour)';
   if (res.status == 209) {
-    message.value = 'A user with this email address already exists';
+    toast.add({
+      summary: 'Error',
+      detail: 'A user with this email address already exists',
+      severity: 'error',
+      group: 'bl',
+      life: 3000
+    });
   } else if (res.status != 201) {
-    message.value = 'An unkown error occurred.';
+    toast.add({
+      summary: 'Error',
+      detail: 'An unkown error occurred.',
+      severity: 'error',
+      group: 'bl',
+      life: 3000
+    });
   } else {
-    messageColour.value = 'var(--success-colour)';
-    message.value = 'An invitation has been sent by email.';
+    toast.add({
+      summary: 'Success',
+      detail: 'An invitation has been sent by email.',
+      severity: 'success',
+      group: 'bl',
+      life: 3000
+    });
     getUsers(false);
+    router.push('/users');
   }
 };
 </script>
@@ -50,7 +67,6 @@ const submit = async () => {
       <div class="save-cancel">
         <SaveCancel save-label="Invite" @save="submit" @cancel="router.back()" />
       </div>
-      <span :style="{ color: messageColour, paddingTop: '1rem' }">{{ message }}</span>
     </FormContainer>
   </div>
 </template>
