@@ -148,7 +148,10 @@ const scaleStyle = (num: string) => ({
                   <td>
                     <span>{{ col1 }}</span>
                   </td>
-                  <td></td>
+                  <td v-if="Object.keys(data.data[col1].items).length == 1">
+                    {{ Object.keys(data.data[col1].items)[0] }}
+                  </td>
+                  <td v-else></td>
                   <td
                     v-for="period in data.time_periods"
                     :key="period"
@@ -162,7 +165,11 @@ const scaleStyle = (num: string) => ({
                     </span>
                   </td>
                 </tr>
-                <tr v-for="item in Object.keys(data.data[col1].items)" :key="item">
+                <tr
+                  v-for="item in Object.keys(data.data[col1].items)"
+                  :key="item"
+                  v-if="Object.keys(data.data[col1].items).length > 1"
+                >
                   <td></td>
                   <td>
                     <span>{{ item }}</span>
