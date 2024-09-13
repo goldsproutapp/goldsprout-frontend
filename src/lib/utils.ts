@@ -1,5 +1,4 @@
 import { authState } from './state';
-import type { User } from './types';
 
 export async function downloadFile(res: Response) {
   const blob = await res.blob();
@@ -21,4 +20,25 @@ export function hasWritePermFor(forUserID: number): boolean {
   if (user.access_permissions.some((perm) => perm.access_for_id == forUserID && perm.write))
     return true;
   return false;
+}
+
+export function minmaxIgnoreOutliers(nums: number[], op: 'min' | 'max'): number {
+  if (nums.length == 0) return Infinity * (op == 'max' ? 1 : -1); // behaviour of Math[max|min]
+  const isMax = op == 'max';
+  const sorted = nums.sort((a, b) => a - b);
+
+  const iq = sorted.filter((_, i) => i > sorted.length / 4 && i < (3 * sorted.length) / 4);
+  const q1 = iq[0];
+  const q3 = iq[iq.length - 1];
+  const iqr = q3 - q1;
+  const outlierBoundary = 1.5;
+  const upperBoundary = q3 + iqr * outlierBoundary;
+  const lowerBoundary = q1 - iqr * outlierBoundary;
+
+  let max: number;
+  do {
+    max = Math[op](...nums);
+    nums.splice(nums.indexOf(max), 1);
+  } while (isMax ? max > upperBoundary : max < lowerBoundary);
+  return max;
 }

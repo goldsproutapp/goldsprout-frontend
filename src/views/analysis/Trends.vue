@@ -2,13 +2,17 @@
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
 import { formatDecimal } from '@/lib/data';
+import { divergingColourScale } from '@/lib/formats/colours';
 import { authenticatedRequest } from '@/lib/requests';
+import { minmaxIgnoreOutliers } from '@/lib/utils';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
+import { computed } from 'vue';
 import { capitalize, ref, onActivated } from 'vue';
 
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
 const comparing = ref(comparisonOptions[0]);
+const useColourScale = ref(false);
 
 const targetOptions = ['Person', 'Provider', 'Account', 'Sector', 'Region', 'Stock', 'All'];
 
@@ -58,6 +62,7 @@ const update = async () => {
       against: against.value,
       time: time.value
     };
+    useColourScale.value = comparing.value != 'Holdings';
   }
 };
 const focus = (i: number) => {
@@ -70,6 +75,23 @@ const focus = (i: number) => {
   filterObj.value.filter_ignore_after = upper;
   update();
 };
+
+const colours = computed(() => {
+  if (!useColourScale.value) return (_: any) => '';
+  const numbers: number[] = Object.values(data.value.data)
+    .map((x: any) => Object.values({ ...x.items, totals: x.totals }))
+    .flat()
+    .map((x: any) => Object.values(x))
+    .flat()
+    .map((x: any) => parseFloat(x));
+  return divergingColourScale(
+    minmaxIgnoreOutliers(numbers, 'min'),
+    minmaxIgnoreOutliers(numbers, 'max')
+  );
+});
+const scaleStyle = (num: string) => ({
+  backgroundColor: colours.value(parseFloat(num))
+});
 </script>
 
 <template>
@@ -127,10 +149,17 @@ const focus = (i: number) => {
                     <span>{{ col1 }}</span>
                   </td>
                   <td></td>
-                  <td v-for="period in data.time_periods" :key="period">
-                    <span v-if="Object.keys(data.data[col1].totals).includes(period)">{{
-                      format(data.data[col1].totals[period])
-                    }}</span>
+                  <td
+                    v-for="period in data.time_periods"
+                    :key="period"
+                    :style="scaleStyle(data.data[col1].totals[period])"
+                    :class="useColourScale ? 'coloured' : ''"
+                  >
+                    <span v-if="Object.keys(data.data[col1].totals).includes(period)">
+                      <b>
+                        {{ format(data.data[col1].totals[period]) }}
+                      </b>
+                    </span>
                   </td>
                 </tr>
                 <tr v-for="item in Object.keys(data.data[col1].items)" :key="item">
@@ -138,10 +167,15 @@ const focus = (i: number) => {
                   <td>
                     <span>{{ item }}</span>
                   </td>
-                  <td v-for="period in data.time_periods" :key="period">
-                    <span v-if="Object.keys(data.data[col1].items[item]).includes(period)">{{
-                      format(data.data[col1].items[item][period])
-                    }}</span>
+                  <td
+                    v-for="period in data.time_periods"
+                    :key="period"
+                    :style="scaleStyle(data.data[col1].items[item][period])"
+                    :class="useColourScale ? 'coloured' : ''"
+                  >
+                    <span v-if="Object.keys(data.data[col1].items[item]).includes(period)"
+                      >{{ format(data.data[col1].items[item][period]) }}
+                    </span>
                   </td>
                 </tr>
               </template>
@@ -164,12 +198,15 @@ const focus = (i: number) => {
   border: 2px solid var(--border-colour);
 }
 
-tr:not(.category-separator) {
+tr:not(.category-separator) td:not(.coloured) {
   border-top: 2px solid var(--border-colour);
 }
 
 tr:hover {
   background-color: var(--hover-colour);
+}
+tr:hover td.coloured {
+  filter: saturate(50%);
 }
 
 th,
