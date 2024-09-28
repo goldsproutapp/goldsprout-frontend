@@ -89,9 +89,12 @@ const colours = computed(() => {
     minmaxIgnoreOutliers(numbers, 'max')
   );
 });
-const scaleStyle = (num: string) => ({
-  backgroundColor: colours.value(parseFloat(num))
-});
+const scaleStyle = (num: string) =>
+  num == undefined
+    ? {}
+    : {
+        backgroundColor: colours.value(parseFloat(num))
+      };
 </script>
 
 <template>
