@@ -65,15 +65,13 @@ const update = async () => {
     useColourScale.value = comparing.value != 'Holdings';
   }
 };
+const perfFilter = ref();
 const focus = (i: number) => {
   if (i == data.value.time_focus.length) return;
-  const focus = data.value.time_focus[i];
-  if (focus.length == 0) return;
-  const [period, lower, upper] = focus;
-  time.value = capitalize(period);
-  filterObj.value.filter_ignore_before = lower;
-  filterObj.value.filter_ignore_after = upper;
-  update();
+  const f = data.value.time_focus[i];
+  if (f.length == 0) return;
+  perfFilter.value.timeFocus(f);
+  time.value = capitalize(f[0]);
 };
 
 const colours = computed(() => {
@@ -124,7 +122,7 @@ const scaleStyle = (num: string) =>
     </template>
 
     <template #filter>
-      <PerformanceFilter v-model="filterObj" @update="update" />
+      <PerformanceFilter v-model="filterObj" @update="update" ref="perfFilter" />
     </template>
 
     <template #body>

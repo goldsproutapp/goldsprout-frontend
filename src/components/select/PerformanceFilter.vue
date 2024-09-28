@@ -52,11 +52,23 @@ const filterObj = computed(() => {
 watch(filterObj, (obj, _) => {
   model.value = obj;
 });
+const timeFocus = (f: [string, number, number]) => {
+  const [_, lower, upper] = f;
+  lowerDate.value = new Date(lower * 1000);
+  upperDate.value = new Date(upper * 1000);
+  nextTick(() => emit('update'));
+};
 const reset = () => {
-  [selectedRegions, selectedProviders, selectedUsers, selectedAccounts].forEach((x) => (x.value = []));
+  [selectedRegions, selectedProviders, selectedUsers, selectedAccounts].forEach(
+    (x) => (x.value = [])
+  );
   [lowerDate, upperDate].forEach((x) => (x.value = null));
   nextTick(() => emit('update'));
 };
+
+defineExpose({
+  timeFocus
+});
 </script>
 
 <template>
