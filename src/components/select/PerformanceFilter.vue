@@ -74,8 +74,8 @@ defineExpose({
 <template>
   <div>
     <h2>Filters</h2>
-    <Button label="Update" severity="success" class="update-btn" @click="$emit('update')" />
-    <Button label="Reset" severity="warning" class="update-btn" @click="reset" />
+    <Button label="Update" severity="primary" class="update-btn" @click="$emit('update')" />
+    <Button label="Reset" severity="secondary" class="update-btn" @click="reset" />
     <Accordion multiple :active-index="[]">
       <AccordionTab header="Regions">
         <Listbox
