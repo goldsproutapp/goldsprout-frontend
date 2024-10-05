@@ -242,6 +242,15 @@ const submit = () => {
       />
     </Dialog>
     <h1>Create snapshot</h1>
+    <div style="margin-bottom: 1rem">
+      <span v-if="account">
+        Format:
+        <pre style="display: inline">{{ account.provider?.csv_format }}</pre>
+      </span>
+      <span v-else>
+          Select an account.
+      </span>
+    </div>
     <div contenteditable ref="inputDiv" class="csv-input"></div>
     <hr />
     <Button class="button" @click="process" label="Add" severity="primary" />
