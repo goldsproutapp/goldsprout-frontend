@@ -41,13 +41,15 @@ export function fillGaps(obj: {
   if (!contains(obj, 'price')) {
     if (!contains(obj, 'units')) return [{}, 'Must provide either price or units'];
     obj.price = (
-      Number.parseFloat(obj.value as string) / Number.parseFloat(obj.units as string)
+      (Number.parseFloat(obj.value as string) / Number.parseFloat(obj.units as string)) *
+      100
     ).toFixed(2);
   }
   if (!contains(obj, 'units')) {
     if (!contains(obj, 'price')) return [{}, 'Must provide either price or units'];
     obj.units = (
-      Number.parseFloat(obj.value as string) / Number.parseFloat(obj.price as string)
+      (Number.parseFloat(obj.value as string) * 100) /
+      Number.parseFloat(obj.price as string)
     ).toFixed(2);
   }
 
