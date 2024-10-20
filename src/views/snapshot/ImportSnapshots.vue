@@ -4,33 +4,23 @@ import { clearCache } from '@/lib/cache';
 import { DEFAULT_IMPORT_FORMAT } from '@/lib/constants';
 import { getAccountByName, getProviderByName, getUserByName } from '@/lib/data';
 import { parseCSV, processFormat } from '@/lib/formats/csv';
-import { fillGaps, validate_csv_format } from '@/lib/processing/snapshot';
+import { fillGaps, requiredFields, validate_csv_format } from '@/lib/processing/snapshot';
 import { authenticatedRequest } from '@/lib/requests';
 import router from '@/router';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
-import ProgressBar from 'primevue/progressbar';
+import ProgressSpinner from 'primevue/progressspinner';
 import Textarea from 'primevue/textarea';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 
 const replaceCommas = ['units', 'price', 'value', 'cost', 'absolute_change'];
-const requiredFields = [
-  'units',
-  'price',
-  'value',
-  'cost',
-  'absolute_change',
-  'user',
-  'provider',
-  'account',
-  'date'
-];
 
 const fmt = ref(DEFAULT_IMPORT_FORMAT);
 const dataText = ref();
 const toast = useToast();
+const waiting = ref(false);
 
 function checkFormat(): boolean {
   const format = processFormat(fmt.value);
@@ -50,7 +40,6 @@ const groupedData = ref<{ [key: string]: { [key: string]: any } }>({});
 const modal = ref(false);
 const numEntries = ref(0);
 const numBatches = ref(0);
-const progress = ref(0);
 
 const process = async () => {
   if (!checkFormat()) return;
@@ -99,6 +88,16 @@ const process = async () => {
         return cancel();
       }
       const account = await getAccountByName(obj.account.toString(), user.id, provider.id);
+      if (!account) {
+        toast.add({
+          summary: 'Error',
+          detail: `Invalid account for ${obj.user} with ${obj.provider}: '${obj.account}'`,
+          group: 'bl',
+          severity: 'error',
+          life: 3000
+        });
+        return cancel();
+      }
       obj.account_id = account.id;
       const timestamp = Math.floor(Date.parse(obj.date.toString()) / 1000);
       if (isNaN(timestamp)) {
@@ -157,7 +156,9 @@ function dateKeys(): string[] {
 }
 
 const submit = async () => {
+  waiting.value = true;
   let i = 0;
+  const batches = [];
   for (const date of dateKeys()) {
     for (const account of Object.keys(groupedData.value[date])) {
       i++;
@@ -167,25 +168,16 @@ const submit = async () => {
         entries: groupedData.value[date][account],
         delete_sold_stocks: true
       };
-      const res = await authenticatedRequest('/snapshots', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-      progress.value += 100 / numBatches.value;
-      if (res.status == 201) {
-      } else {
-        toast.add({
-          summary: 'Error',
-          detail: `An error occured while creating batch ${i} of ${numBatches.value}`,
-          severity: 'error',
-          life: 3000,
-          group: 'bl'
-        });
-      }
+      batches.push(payload);
     }
-    await new Promise((r) => setTimeout(r, 500));
   }
-  progress.value = 100;
+  const payload = {
+    batches: batches
+  };
+  await authenticatedRequest('/snapshots', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
   toast.add({
     summary: 'Complete',
     detail: 'Completed import',
@@ -193,6 +185,7 @@ const submit = async () => {
     life: 3000,
     group: 'bl'
   });
+  waiting.value = false;
   cancel();
   clearCache();
   router.push('/');
@@ -207,13 +200,13 @@ const cancel = () => {
 
 <template>
   <h1>Import data</h1>
-  <Dialog v-model:visible="modal" header="Import" :closable="progress == 0">
+  <Dialog v-model:visible="modal" header="Import" :closable="!waiting">
     <div class="dialog-container">
       <span
         >You have entered {{ numEntries }} records, which will be created in
         {{ numBatches }} batches.</span
       >
-      <ProgressBar v-if="progress > 0" :value="Math.floor(progress)"></ProgressBar>
+      <ProgressSpinner v-if="waiting" />
       <div class="btn-container" v-else>
         <SaveCancel saveLabel="Confirm" @save="submit" @cancel="cancel" />
       </div>
@@ -222,8 +215,8 @@ const cancel = () => {
   <div class="container">
     <span
       >Required fields:
-      <template v-for="(field, i) in requiredFields">
-        <pre style="display: inline">{{ field }}{{ i < requiredFields.length - 1 ? ',' : '' }}</pre>
+      <template v-for="(field, i) in requiredFields(true, true)">
+        <pre style="display: inline">{{ i > 0 ? ',' : '' }}&nbsp;{{ field }}</pre>
       </template>
     </span>
     <InputText v-model="fmt" placeholder="CSV Format" />

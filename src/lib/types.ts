@@ -68,6 +68,7 @@ export interface AccessPermission {
   access_for_id: number;
   read: boolean;
   write: boolean;
+  limited: boolean;
 }
 
 export interface Overview {

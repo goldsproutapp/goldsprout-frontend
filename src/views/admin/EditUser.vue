@@ -12,6 +12,7 @@ import { ref, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import InputSwitch from 'primevue/inputswitch';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
+import Tooltip from '@/components/layout/Tooltip.vue';
 
 const props = defineProps<{
   id: string;
@@ -39,16 +40,20 @@ watch(user, (next, _) => {
 });
 const generatePerms = async (u: User): Promise<{ [key: string]: Permission }> => {
   const out: { [key: string]: Permission } = {};
-  dataState.users.forEach(
-    (user) =>
-      (out[user.id.toString()] = {
-        access_for_id: user.id,
-        access_for: getUserDisplayName(user),
-        read: false,
-        write: false,
-        user_id: u.id
-      })
-  );
+  if (!user.value) return {};
+  dataState.users
+    .filter((u) => u.id != user.value.id)
+    .forEach(
+      (user) =>
+        (out[user.id.toString()] = {
+          access_for_id: user.id,
+          access_for: getUserDisplayName(user),
+          read: false,
+          write: false,
+          limited: false,
+          user_id: u.id
+        })
+    );
   if (u.access_permissions)
     await Promise.all(
       u.access_permissions.map(
@@ -69,7 +74,8 @@ const process = async () => {
     permissions: Object.values(perms.value).map((perm) => ({
       for_user: perm.access_for_id,
       read: perm.read,
-      write: perm.write
+      write: perm.write,
+      limited: perm.limited
     }))
   };
   const res = await authenticatedRequest('/permissions', {
@@ -135,6 +141,24 @@ const process = async () => {
           <Checkbox v-model="perms[row.data.access_for_id].write" :binary="true" />
         </template>
       </Column>
+      <Column field="limited">
+        <template #header>
+          <Tooltip
+          content="Warning: it may be possible for the user to calculate some of the hidden values, this option does not guarantee privacy."
+          position="bottom"
+          >
+          <Tooltip
+            content="View performance and relative composition info whilst omitting holding quantities and values."
+            position="top"
+          >
+            <span class="tooltip-text">Limited</span>
+          </Tooltip>
+          </Tooltip>
+        </template>
+        <template #body="row">
+          <Checkbox v-model="perms[row.data.access_for_id].limited" binary />
+        </template>
+      </Column>
     </DataTable>
     <div class="save-cancel">
       <SaveCancel @save="process" @cancel="router.back()" />
@@ -172,6 +196,9 @@ const process = async () => {
 
 .trusted-input span {
   margin-right: 1rem;
+}
+.trusted-input span,
+.tooltip-text {
   text-decoration: underline;
   text-decoration-style: dotted;
 }

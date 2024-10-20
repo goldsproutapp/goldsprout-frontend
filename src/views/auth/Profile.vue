@@ -5,7 +5,7 @@ import { getUserDisplayName } from '@/lib/data';
 import { authenticatedRequest, getUserVisibility } from '@/lib/requests';
 import { authState } from '@/lib/state';
 import { type User } from '@/lib/types';
-import { onActivated, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import PasswordChangeModal from '@/components/modals/PasswordChangeModal.vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
@@ -22,7 +22,7 @@ const toast = useToast();
 const { userInfo } = authState;
 const editingInfo = ref(Object.assign({}, userInfo));
 const visibility = ref<User[]>();
-onActivated(() => getUserVisibility(true).then((res) => (visibility.value = res)));
+onMounted(() => getUserVisibility(false).then((res) => (visibility.value = res)));
 const editing = ref(false);
 
 const changingPassword = ref(false);

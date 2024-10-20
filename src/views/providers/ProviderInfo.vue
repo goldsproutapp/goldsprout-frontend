@@ -8,7 +8,6 @@ import { type Provider } from '@/lib/types';
 import router from '@/router';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { ref, watch } from 'vue';
 

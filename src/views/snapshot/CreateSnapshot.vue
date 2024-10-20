@@ -134,10 +134,14 @@ function process() {
 const createSnapshots = async (deleteSoldStocks: boolean = true) => {
   const date = dateInput.value;
   const payload = {
-    date: Math.floor(date.getTime() / 1000),
-    account_id: account.value?.id ?? 0,
-    entries: entries.value,
-    delete_sold_stocks: deleteSoldStocks
+    batches: [
+      {
+        date: Math.floor(date.getTime() / 1000),
+        account_id: account.value?.id ?? 0,
+        entries: entries.value,
+        delete_sold_stocks: deleteSoldStocks
+      }
+    ]
   };
   const res = await authenticatedRequest('/snapshots', {
     method: 'POST',
@@ -247,9 +251,7 @@ const submit = () => {
         Format:
         <pre style="display: inline">{{ account.provider?.csv_format }}</pre>
       </span>
-      <span v-else>
-          Select an account.
-      </span>
+      <span v-else> Select an account. </span>
     </div>
     <div contenteditable ref="inputDiv" class="csv-input"></div>
     <hr />

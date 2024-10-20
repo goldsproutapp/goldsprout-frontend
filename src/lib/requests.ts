@@ -139,10 +139,10 @@ export async function getUsers(useCache: boolean = false): Promise<User[]> {
   const res = await keyCachedRequest('/users', useCache);
   if (res === null) return dataState.users;
   if (res.status != 200) return [];
-  const json = await res.json();
-  json.created_at = new Date(json.created_at);
-  dataState.users = json;
-  return json;
+  const { data } = await res.json();
+  data.forEach((u: any) => (u.created_at = new Date(u.created_at)));
+  dataState.users = data;
+  return data;
 }
 
 export async function getUserVisibility(useCache: boolean = true): Promise<User[]> {
