@@ -10,7 +10,7 @@ import Dropdown from 'primevue/dropdown';
 import { computed } from 'vue';
 import { capitalize, ref, onActivated } from 'vue';
 
-const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings'];
+const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings', 'Growth'];
 const comparing = ref(comparisonOptions[0]);
 const useColourScale = ref(false);
 
@@ -19,7 +19,8 @@ const targetOptions = ['Person', 'Provider', 'Account', 'Sector', 'Region', 'Sto
 const formats: any = {
   Performance: '{}%',
   'Weighted Performance': '{}%',
-  Holdings: '£{}'
+  Holdings: '£{}',
+  Growth: '{}%'
 };
 const target = ref('All');
 const against = ref(targetOptions[0]);
