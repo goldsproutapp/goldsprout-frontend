@@ -42,7 +42,7 @@ const generatePerms = async (u: User): Promise<{ [key: string]: Permission }> =>
   const out: { [key: string]: Permission } = {};
   if (!user.value) return {};
   dataState.users
-    .filter((u) => u.id != user.value.id)
+    .filter((u) => user.value && u.id != user.value.id)
     .forEach(
       (user) =>
         (out[user.id.toString()] = {
