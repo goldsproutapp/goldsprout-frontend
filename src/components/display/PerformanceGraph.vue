@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { authenticatedRequest } from '@/lib/requests';
 import Chart from 'primevue/chart';
-import { computed, onMounted, ref, watch } from 'vue';
+import { capitalize, computed, onMounted, ref, watch } from 'vue';
 import 'chartjs-adapter-date-fns';
 import Dialog from 'primevue/dialog';
 
 type PerformanceTarget = 'stock' | 'portfolio' | 'account';
-const props = defineProps<{
-  performanceType: PerformanceTarget;
-  id: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    performanceType: PerformanceTarget;
+    id: string;
+    valueType?: 'value' | 'price';
+  }>(),
+  {
+    valueType: 'value'
+  }
+);
 
 const performance = ref<any>({});
 const emit = defineEmits<{
@@ -25,8 +31,12 @@ const maximiseModal = () => {
   modal.value.maximize();
 };
 
+const valueFormat = computed(() => (props.valueType == 'value' ? '£{}' : '{}p'));
+
 const tooltipLabel = ({ formattedValue, datasetIndex }: any) =>
-  [`${formattedValue}%`, `£${formattedValue}`][datasetIndex];
+  [`${formattedValue}%`, valueFormat.value.replace('{}', formattedValue)][
+    Math.min(datasetIndex, 1)
+  ];
 
 onMounted(() =>
   authenticatedRequest(`/${props.performanceType}performance?id=${props.id}`).then((res) =>
@@ -102,7 +112,7 @@ const graphOptions = computed(() => {
         position: 'right',
         title: {
           display: true,
-          text: 'Value',
+          text: capitalize(props.valueType),
           color: textColorSecondary
         },
         ticks: {
@@ -120,6 +130,20 @@ const performanceGraph = computed(() => {
   if (!performance.value.performance) {
     return null;
   }
+  const costDataset =
+    'cost' in performance.value
+      ? [
+          {
+            label: 'Cost',
+            data: Object.entries(performance.value.cost).map(([k, v]) =>
+              // @ts-ignore
+              ({ x: new Date(k), y: parseFloat(v) })
+            ),
+            yAxisID: 'y1',
+            tension: 0.1
+          }
+        ]
+      : [];
   return {
     datasets: [
       {
@@ -132,14 +156,15 @@ const performanceGraph = computed(() => {
         tension: 0.1
       },
       {
-        label: 'Value',
+        label: capitalize(props.valueType),
         data: Object.entries(performance.value.value).map(([k, v]) =>
           // @ts-ignore
           ({ x: new Date(k), y: parseFloat(v) })
         ),
         yAxisID: 'y1',
         tension: 0.1
-      }
+      },
+      ...costDataset
     ]
   };
 });

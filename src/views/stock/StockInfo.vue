@@ -164,7 +164,7 @@ const merge = async () => {
       </div>
     </div>
     <div class="graph-container" display="height: 100rem;">
-      <PerformanceGraph :id="id" performance-type="stock" />
+      <PerformanceGraph :id="id" performance-type="stock" value-type="price" />
     </div>
     <Dialog v-model:visible="mergeModal" header="Merge stocks" modal :style="{ minWidth: '50rem' }">
       <div class="mergemodal-container">
