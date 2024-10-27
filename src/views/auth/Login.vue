@@ -7,6 +7,9 @@ import Button from 'primevue/button';
 import ResponsiveDivider from '@/components/layout/ResponsiveDivider.vue';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import { onMounted } from 'vue';
+import { authState } from '@/lib/state';
+import router from '@/router';
 const failure = ref(false);
 const uname = ref();
 const pw = ref();
@@ -25,6 +28,9 @@ const login = async () => {
   const data = await res.json();
   logIn(data);
 };
+onMounted(() => {
+  if (authState.loggedIn) router.push('/');
+});
 const demoLogin = () => {
   uname.value = 'demo';
   pw.value = 'demo';
