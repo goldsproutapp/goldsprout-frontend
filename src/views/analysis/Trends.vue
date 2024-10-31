@@ -66,6 +66,19 @@ const update = async () => {
     useColourScale.value = comparing.value != 'Holdings';
   }
 };
+const keys = computed(() => {
+  if (!data.value.data) return [];
+  const out = [];
+  if (data.value.summary_row != '') {
+    out.push(data.value.summary_row);
+  }
+  out.push(
+    ...Object.keys(data.value.data).filter(
+      (key) => data.value.summary_row == '' || data.value.summary_row != key
+    )
+  );
+  return out;
+});
 const perfFilter = ref();
 const focus = (i: number) => {
   if (i == data.value.time_focus.length) return;
@@ -145,10 +158,17 @@ const scaleStyle = (num: string) =>
               </tr>
             </thead>
             <tbody>
-              <template v-for="col1 in Object.keys(data.data)">
+              <template v-for="col1 in keys">
                 <tr class="category-separator">
                   <td>
-                    <span>{{ col1 }}</span>
+                    <span
+                      :style="
+                        col1 == data.summary_row
+                          ? { fontWeight: 'bold', textDecoration: 'underline' }
+                          : {}
+                      "
+                      >{{ col1 }}</span
+                    >
                   </td>
                   <td v-if="Object.keys(data.data[col1].items).length == 1">
                     {{ Object.keys(data.data[col1].items)[0] }}
