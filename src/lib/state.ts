@@ -23,7 +23,7 @@ export const dataState = reactive({
   providers: new Array<Provider>(),
   accounts: new Array<Account>(),
   snapshots_latest: new Array<Snapshot>(),
-  snapshots_all: new Array<Snapshot>(),
+  snapshots_by_stock: {} as { [key: string]: Snapshot[] },
   users: new Array<User>(),
   regions: new Array<string>(),
   sectors: new Array<string>(),

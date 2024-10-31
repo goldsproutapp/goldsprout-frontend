@@ -1,7 +1,14 @@
 import { logOut } from './auth';
 import { cacheData, cacheKey, getCachedData, isDataCached, isKeyCached } from './cache';
 import { API_BASE_URL } from './constants';
-import { getProviderByID, getStockByID, getUserByID, getUserDisplayName } from './data';
+import {
+  getAccountByID,
+  getProviderByID,
+  getStockByID,
+  getUserByID,
+  getUserDisplayName,
+  processSnapshotReponse
+} from './data';
 import { processFormat } from './formats/csv';
 import { authState, dataState } from './state';
 import {
@@ -113,26 +120,33 @@ export async function getProviderList(useCache: boolean = false): Promise<Provid
   return json;
 }
 
-export async function getSnapshots(
-  useCache: boolean = false,
-  timeframe: 'latest' | 'all' = 'latest'
+export async function getSnapshots(useCache: boolean = false): Promise<Snapshot[]> {
+  await getUsers(useCache);
+  await getStockList(useCache);
+  await getAccounts(useCache);
+  const res = await keyCachedRequest('/snapshots/latest', useCache);
+  if (res === null) return dataState.snapshots_latest;
+  if (res.status != 200) return [];
+  const { data } = await res.json();
+  const processed = await processSnapshotReponse(data);
+  dataState.snapshots_latest = processed;
+  return processed;
+}
+
+export async function getSnapshotsForStock(
+  stock_id: number | string,
+  useCache: boolean = false
 ): Promise<Snapshot[]> {
   await getUsers(useCache);
   await getStockList(useCache);
-  const res = await keyCachedRequest(`/snapshots/${timeframe}`, useCache);
-  if (res === null) return dataState[`snapshots_${timeframe}`];
+  await getAccounts(useCache);
+  const res = await keyCachedRequest(`/snapshots/for_stock?id=${stock_id}`, useCache);
+  if (res == null) return dataState.snapshots_by_stock[stock_id];
   if (res.status != 200) return [];
-  const json = await res.json();
-  await Promise.all(
-    json.map(async (snapshot: any) => {
-      snapshot.date = new Date(snapshot.date);
-      snapshot.user = await getUserByID(snapshot.user_id);
-      snapshot.stock = await getStockByID(snapshot.stock_id);
-      return snapshot;
-    })
-  );
-  dataState[`snapshots_${timeframe}`] = json;
-  return json;
+  const { data } = await res.json();
+  const processed = await processSnapshotReponse(data);
+  dataState.snapshots_by_stock[stock_id] = processed;
+  return processed;
 }
 
 export async function getUsers(useCache: boolean = false): Promise<User[]> {

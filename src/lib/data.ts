@@ -1,6 +1,7 @@
 import { getAccounts, getProviderList, getStockList, getUsers } from './requests';
 import { dataState } from './state';
-import { type User, type Stock, type Provider, type Account } from './types';
+import { type User, type Stock, type Provider, type Account, type Snapshot } from './types';
+import type { SnapshotTableInfo } from '@/lib/derived_types';
 
 export async function getStockByID(id: number, request_if_none: boolean = true): Promise<Stock> {
   const stock = dataState.stocks.find((stock) => stock.id === id);
@@ -143,4 +144,26 @@ export function emptyUser(): User {
     trusted: false,
     access_permissions: []
   };
+}
+
+export function snapshotTableInfo(snapshot: Snapshot): SnapshotTableInfo {
+  return {
+    ...snapshot,
+    stock_name: snapshot.stock?.name,
+    date_string: snapshot.date.toLocaleDateString(),
+    user_name: getUserDisplayName(snapshot.user),
+    account_name: snapshot.account?.name
+  };
+}
+
+export async function processSnapshotReponse(snapshots: Array<Object>) {
+  return await Promise.all(
+    snapshots.map(async (snapshot: any) => {
+      snapshot.date = new Date(snapshot.date);
+      snapshot.user = await getUserByID(snapshot.user_id);
+      snapshot.stock = await getStockByID(snapshot.stock_id);
+      snapshot.account = await getAccountByID(snapshot.account_id);
+      return snapshot;
+    })
+  );
 }

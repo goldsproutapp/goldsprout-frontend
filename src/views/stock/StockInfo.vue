@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
 import ProviderDropdown from '@/components/select/ProviderDropdown.vue';
-import { getUserByID, getUserDisplayName, getStockByID } from '@/lib/data';
+import { getUserByID, getUserDisplayName, getStockByID, snapshotTableInfo } from '@/lib/data';
 import {
   authenticatedRequest,
   getHoldings,
   getRegions,
   getSectors,
+  getSnapshotsForStock,
   getStockList
 } from '@/lib/requests';
 import { type Stock } from '@/lib/types';
+import { type SnapshotTableInfo } from '@/lib/derived_types';
 import router from '@/router';
 import Dropdown from 'primevue/dropdown';
 import InputSwitch from 'primevue/inputswitch';
@@ -26,6 +28,8 @@ import { useToast } from 'primevue/usetoast';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import { watch } from 'vue';
 import HoldingTable from '@/components/display/HoldingTable.vue';
+import SnapshotTable from '@/components/display/SnapshotTable.vue';
+import TabbedSection from '@/components/layout/TabbedSection.vue';
 const props = defineProps<{
   id: string;
 }>();
@@ -39,11 +43,20 @@ const mergeInto = ref<Stock | null>(null);
 
 const toast = useToast();
 
+const snapshots = computed<SnapshotTableInfo[]>(
+  () => dataState.snapshots_by_stock[props.id]?.map(snapshotTableInfo) ?? []
+);
+const snapshotLoading = ref(true);
+
 onMounted(async () => {
   stock.value = await getStockByID(Number.parseInt(props.id));
   stock.value = Object.assign({}, stock.value);
   getRegions(true);
   getSectors(true);
+  snapshotLoading.value = snapshots.value.length == 0;
+  getSnapshotsForStock(props.id, true).then((_) => {
+    snapshotLoading.value = false;
+  });
 });
 
 const holding = ref<any>(null);
@@ -163,9 +176,24 @@ const merge = async () => {
         <HoldingTable :holdings="holding" :key-display="(x) => x" />
       </div>
     </div>
-    <div class="graph-container" display="height: 100rem;">
-      <PerformanceGraph :id="id" performance-type="stock" value-type="price" />
-    </div>
+    <TabbedSection :tabs="['performance', 'snapshots']">
+      <template #performance>
+        <div class="graph-container" display="height: 100rem;">
+          <PerformanceGraph :id="id" performance-type="stock" value-type="price" />
+        </div>
+      </template>
+      <template #snapshots>
+        <div class="graph-container">
+          <SnapshotTable
+            :loading="snapshotLoading"
+            :snapshots="snapshots"
+            :exclude-headings="['stock_name', 'actions']"
+            @update="getSnapshotsForStock(id, false)"
+            paginate
+          />
+        </div>
+      </template>
+    </TabbedSection>
     <Dialog v-model:visible="mergeModal" header="Merge stocks" modal :style="{ minWidth: '50rem' }">
       <div class="mergemodal-container">
         <span>Merge this stock into another stock, deleting this stock.</span>

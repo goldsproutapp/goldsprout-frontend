@@ -242,6 +242,13 @@ tr {
   display: flex;
   justify-content: space-between;
 }
+@media screen and (max-width: 500px) {
+  .table-header {
+    flex-direction: column;
+    row-gap: var(--inline-spacing);
+    align-items: start;
+  }
+}
 </style>
 <style>
 .filter-menu {

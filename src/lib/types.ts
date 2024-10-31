@@ -38,6 +38,7 @@ export interface Account {
 
 export interface Snapshot {
   stock: Stock;
+  account: Account;
   date: Date;
   user: User;
 

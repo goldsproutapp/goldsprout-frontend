@@ -20,6 +20,7 @@ import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import { useToast } from 'primevue/usetoast';
 import { clearCache } from '@/lib/cache';
 import { hasWritePermFor } from '@/lib/utils';
+import TabbedSection from '@/components/layout/TabbedSection.vue';
 
 const props = defineProps<{
   accountID: number;
@@ -72,16 +73,6 @@ const deleteAccount = () => {
     }
   });
 };
-
-const menu = ref([
-  {
-    label: 'Holdings'
-  },
-  {
-    label: 'Performance'
-  }
-]);
-const menuIdx = ref(0);
 
 const editMenu = ref([
   {
@@ -167,47 +158,48 @@ watch(
         /></template>
       </SummaryCard>
       <SummaryCard>
-        <template #title>Stocks</template>
-        <template #content>{{ account.stock_count }}</template>
+        <template #title>Holdings</template>
+        <template #content>{{ account.stock_count || '0' }}</template>
       </SummaryCard>
     </SummaryCards>
-    <TabMenu
-      :model="menu"
-      v-model:activeIndex="menuIdx"
-      style="margin-left: var(--inline-spacing)"
-    />
-    <DataTable
-      v-if="menuIdx == 0"
-      :value="holding"
-      class="table"
-      selection-mode="single"
-      v-model:selection="selection"
-      @row-select="(row) => router.push(`/stocks/${row.data.stock.id}`)"
-    >
-      <Column header="Stock" field="stock.name" sortable></Column>
-      <Column
-        header="Holding"
-        :field="({ value }) => `£${formatDecimal(value)}`"
-        sortable
-        data-type="numeric"
-        sort-field="value"
-      ></Column>
-      <Column
-        header="Units"
-        :field="({ units }) => formatDecimal(units)"
-        sortable
-        data-type="numeric"
-        sort-field="units"
-      ></Column>
-    </DataTable>
-    <div class="graph-container" v-show="menuIdx == 1">
-      <PerformanceGraph
-        performance-type="account"
-        :id="accountID.toString()"
-        @ytd="(x) => (ytd = x)"
-      />
-    </div>
+    <TabbedSection :tabs="['holdings', 'performance']">
+      <template #holdings>
+        <DataTable
+          :value="holding"
+          class="table"
+          selection-mode="single"
+          v-model:selection="selection"
+          @row-select="(row) => router.push(`/stocks/${row.data.stock.id}`)"
+        >
+          <Column header="Stock" field="stock.name" sortable></Column>
+          <Column
+            header="Holding"
+            :field="({ value }) => `£${formatDecimal(value)}`"
+            sortable
+            data-type="numeric"
+            sort-field="value"
+          ></Column>
+          <Column
+            header="Units"
+            :field="({ units }) => formatDecimal(units)"
+            sortable
+            data-type="numeric"
+            sort-field="units"
+          ></Column>
+        </DataTable>
+      </template>
+      <template #performance>
+        <div class="graph-container">
+          <PerformanceGraph
+            performance-type="account"
+            :id="accountID.toString()"
+            @ytd="(x) => (ytd = x)"
+          />
+        </div>
+      </template>
+    </TabbedSection>
   </div>
+
   <div v-else></div>
 </template>
 
