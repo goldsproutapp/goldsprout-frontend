@@ -68,7 +68,7 @@ watch(stock, async (v, _) => {
   const data: any = [];
   if (!dataState.stockHoldings[v.id]) return;
   await Promise.all(
-    Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, { value, units }]) =>
+    Object.entries(dataState.stockHoldings[v.id]).map(async ([uid, { value }]) =>
       data.push([getUserDisplayName(await getUserByID(Number.parseInt(uid))), value])
     )
   );
@@ -187,7 +187,7 @@ const merge = async () => {
           <SnapshotTable
             :loading="snapshotLoading"
             :snapshots="snapshots"
-            :exclude-headings="['stock_name', 'actions']"
+            :exclude-headings="['stock_name', 'provider', 'actions']"
             @update="getSnapshotsForStock(id, false)"
             paginate
           />

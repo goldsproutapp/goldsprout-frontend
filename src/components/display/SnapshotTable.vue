@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { formatDecimal, getUserDisplayName } from '@/lib/data';
+import { formatDecimal } from '@/lib/data';
 import { initalSnapshotFilter } from '@/lib/filters/snapshots';
 import { authenticatedRequest } from '@/lib/requests';
 import type { SnapshotTableInfo } from '@/lib/derived_types';
 import router from '@/router';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
-import ConfirmDialog from 'primevue/confirmdialog';
 import DataTable from 'primevue/datatable';
 import InputNumber from 'primevue/inputnumber';
 import MultiSelect from 'primevue/multiselect';
@@ -169,6 +168,21 @@ const clickColumnPT = {
         <MultiSelect
           v-model="filterModel.value"
           :options="[...new Set(snapshots.map((x) => x.user_name))]"
+          placeholder="Any"
+        />
+      </template>
+    </Column>
+    <Column
+      v-if="showColumn('provider')"
+      header="Provider"
+      field="stock.provider.name"
+      sortable
+      :show-filter-match-modes="false"
+    >
+      <template #filter="{ filterModel }">
+        <MultiSelect
+          v-model="filterModel.value"
+          :options="[...new Set(snapshots.map((x) => x.stock.provider.name))]"
           placeholder="Any"
         />
       </template>

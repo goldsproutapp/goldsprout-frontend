@@ -15,6 +15,10 @@ export function initalSnapshotFilter(): DataTableFilterMeta {
       value: null,
       matchMode: FilterMatchMode.IN
     },
+    'stock.provider.name': {
+      value: null,
+      matchMode: FilterMatchMode.IN
+    },
     units: {
       operator: FilterOperator.AND,
       constraints: [
