@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
+import CompositionGraph from '@/components/modals/CompositionGraph.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
 import { backgroundColours, gridColour } from '@/lib/chartjs/colours';
 import { htmlLegendPlugin } from '@/lib/chartjs/legend';
 import { authenticatedRequest } from '@/lib/requests';
 import Button from 'primevue/button';
 import Chart from 'primevue/chart';
+import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import Panel from 'primevue/panel';
 import ProgressSpinner from 'primevue/progressspinner';
@@ -15,6 +17,10 @@ const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Acc
 const compare = ref(comparisonOptions[0]);
 const comparisonTargetOptions: string[] = ['Person', 'Provider', 'Account'];
 const compareTarget = ref(comparisonTargetOptions[0]);
+
+const fullscreenGraph = ref(false);
+const graphModalRef = ref();
+const timeGraphData = ref({});
 
 const chartTypeOptions = ['Pie', 'Bar', 'Doughnut', 'Polar'];
 const chartTypes: { [key: string]: string } = {
@@ -64,6 +70,19 @@ const graphData = computed(() => {
   });
   return out;
 });
+
+const showGraph = async (item: string) => {
+  const query = new URLSearchParams();
+  query.set('compare', compare.value.toLowerCase());
+  query.set('across', compareTarget.value.toLowerCase());
+  query.set('item', item);
+  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
+  authenticatedRequest(`/split/history?${query.toString()}`).then((res) => {
+    if (res.status != 200) return;
+    res.json().then(({ data }) => (timeGraphData.value = data));
+    fullscreenGraph.value = true;
+  });
+};
 
 const containerID = (key: string) => `piechart-${key}`;
 
@@ -137,9 +156,24 @@ const options = computed(() => {
   );
   return out;
 });
+const maximiseModal = () => {
+  if (graphModalRef.value.maximized) return;
+  graphModalRef.value.maximize();
+};
 </script>
 
 <template>
+  <Dialog
+    v-model:visible="fullscreenGraph"
+    header="Composition"
+    modal
+    maximizable
+    ref="graphModalRef"
+    @show="maximiseModal"
+    :pt:maximizableButton:style="{ display: 'none' }"
+  >
+    <CompositionGraph :data="timeGraphData" class="modal-graph" />
+  </Dialog>
   <OptionFilterLayout>
     <template #header>
       <h1 class="title">Composition</h1>
@@ -176,7 +210,14 @@ const options = computed(() => {
           v-for="key in Object.keys(graphData)"
           :header="capitalize(key)"
           class="card-container"
+          :pt:header:style="{ padding: 0 }"
         >
+          <template #header>
+            <div class="panel-header">
+              <b>{{ capitalize(key) }}</b>
+              <Button icon="pi pi-chart-line" text @click="showGraph(key)" />
+            </div>
+          </template>
           <div class="pie-container">
             <div :id="containerID(key)" class="legend-container"></div>
             <Chart
@@ -224,5 +265,17 @@ const options = computed(() => {
 .pie-container {
   display: flex;
   flex-wrap: wrap;
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-left: 1rem;
+}
+.modal-graph {
+  flex-grow: 1;
+  min-height: 20rem;
+  height: 100%;
 }
 </style>
