@@ -1,3 +1,5 @@
+import { TransactionAttribution } from '../types';
+
 function contains<V>(obj: { [key: string]: V }, value: string): boolean {
   return Object.keys(obj).includes(value);
 }
@@ -60,6 +62,8 @@ export function fillGaps(obj: {
   }
 
   if (!contains(obj, 'stock_code')) obj.stock_code = '';
+  if (!contains(obj, 'transaction_attribution'))
+    obj.transaction_attribution = TransactionAttribution.BuySell;
 
   return [obj, null];
 }

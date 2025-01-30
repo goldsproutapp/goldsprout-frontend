@@ -9,7 +9,7 @@ import {
   getStockList
 } from '@/lib/requests';
 import { authState, dataState } from '@/lib/state';
-import { type Account, type Snapshot, type Stock, type User } from '@/lib/types';
+import { TransactionAttribution, type Account, type Snapshot, type User } from '@/lib/types';
 import router from '@/router';
 import { onMounted, ref } from 'vue';
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
@@ -22,6 +22,8 @@ import { useToast } from 'primevue/usetoast';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import AccountDropdown from '@/components/select/AccountDropdown.vue';
 import { fillGaps } from '@/lib/processing/snapshot';
+import Dropdown from 'primevue/dropdown';
+import { TransactionAttributionMap } from '@/lib/constants';
 
 const headings = {
   stock_name: 'Name',
@@ -32,10 +34,15 @@ const headings = {
   absolute_change: 'Gain/loss (£)'
 };
 
+const text_colour = (num: number): any => ({
+  color: `var(--${num < 0 ? 'failure' : 'success'}-colour)`
+});
+
 const replaceCommas = ['units', 'price', 'value', 'cost', 'absolute_change'];
 onMounted(() => {
   getStockList(true);
   getAccounts(true);
+  getSnapshots(true);
 });
 
 const user = ref<User>(authState.userInfo);
@@ -45,8 +52,6 @@ const entries = ref<any[]>([]);
 const inputDiv: any = ref(null);
 const dateInput = ref<Date>(new Date(new Date().toDateString()));
 
-const missingStocks = ref<Stock[]>([]);
-const showDeletionModal = ref(false);
 const showSummaryDialog = ref(false);
 const summary = ref({
   num_snapshots: 0,
@@ -55,29 +60,39 @@ const summary = ref({
 });
 
 const toast = useToast();
+const unitDiff = ref<any>([]);
+const showUnitDiffModal = ref(false);
 
-function findMissingStocks(): boolean {
+function promptTransactionAttribution() {
   const account_id = account.value?.id ?? 0;
-  const snapshotsStocksNames = entries.value.map((entry: any) => entry.stock_name);
-  const snapshotsStocksCodes = entries.value
-    .filter((entry: any) => entry.stock_code != '')
-    .map((entry: any) => entry.stock_code);
-  const applicableStocks = dataState.stocks.filter(
-    (stock) =>
-      stock.tracking_strategy === 'DATA_IMPORT' &&
-      stock.users.has(user.value.id) &&
-      stock.accounts.includes(account_id)
-  );
-  missingStocks.value = applicableStocks.filter(
-    (stock) =>
-      !(
-        (stock.stock_code != '' && snapshotsStocksCodes.includes(stock.stock_code)) ||
-        snapshotsStocksNames.includes(stock.name)
-      )
-  );
-  const missing = missingStocks.value.length !== 0;
-  if (missing) showDeletionModal.value = true;
-  return missing;
+  const prevSnapshots = dataState.snapshots_latest.filter((s) => s.account_id == account_id);
+  const existing_ids: number[] = [];
+  const notNewEntries = entries.value.map((e) => {
+    const prev = prevSnapshots.find(
+      ({ stock }) =>
+        (stock.stock_code != '' && stock.stock_code == e.stock_code) || stock.name == e.stock_name
+    );
+    if (prev) {
+      existing_ids.push(prev.id);
+      return [e, prev];
+    } else return [e, { transaction_attribution: TransactionAttribution.BuySell, units: 0 }];
+  });
+  const sold = prevSnapshots
+    .filter((s) => !existing_ids.includes(s.id))
+    .map((s) => [
+      { ...s, transaction_attribution: TransactionAttribution.BuySell, stock_name: s.stock.name },
+      -parseFloat(s.units)
+    ]);
+  notNewEntries.forEach(([e, p]) => (e.transaction_attribution = p.transaction_attribution));
+  unitDiff.value = notNewEntries
+    .map(([e, p]) => [e, parseFloat(e.units) - parseFloat(p.units)])
+    .concat(sold);
+
+  if (unitDiff.value.length > 0) {
+    showUnitDiffModal.value = true;
+    return true;
+  }
+  return false;
 }
 
 function process() {
@@ -131,7 +146,7 @@ function process() {
   }
   inputDiv.value.innerText = '';
 }
-const createSnapshots = async (deleteSoldStocks: boolean = true) => {
+const createSnapshots = async () => {
   const date = dateInput.value;
   const payload = {
     batches: [
@@ -139,7 +154,7 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
         date: Math.floor(date.getTime() / 1000),
         account_id: account.value?.id ?? 0,
         entries: entries.value,
-        delete_sold_stocks: deleteSoldStocks
+        delete_sold_stocks: true
       }
     ]
   };
@@ -179,7 +194,7 @@ const createSnapshots = async (deleteSoldStocks: boolean = true) => {
 };
 
 const submit = () => {
-  if (!findMissingStocks()) createSnapshots();
+  if (!promptTransactionAttribution()) createSnapshots();
 };
 </script>
 
@@ -216,34 +231,38 @@ const submit = () => {
         />
       </template>
     </Dialog>
-    <Dialog v-model:visible="showDeletionModal" modal>
-      You have not provided data for the following stocks:
-      <ul>
-        <li v-for="stock in missingStocks" :key="stock.id.toString()">
-          {{ stock.name }} of {{ stock.provider_name }}
-        </li>
-      </ul>
-      It looks like these stocks are no longer held, and will be marked as such.<br />
-      <Button
-        class="modal-button"
-        severity="success"
-        @click="() => createSnapshots()"
-        label="These are no longer held, continue"
-      />
-      <Button
-        class="modal-button"
-        severity="danger"
-        @click="showDeletionModal = false"
-        label="Cancel"
-      />
-      <br />
-      <Button
-        class="modal-button"
-        severity="secondary"
-        @click="createSnapshots(false)"
-        label="These are still held,
-                            continue without updating them"
-      />
+    <Dialog v-model:visible="showUnitDiffModal" modal>
+      Please select the reason for the change in number of units of each holding:
+      <table class="transattr-table">
+        <thead>
+          <tr>
+            <th>Holding</th>
+            <th>Unit change</th>
+            <th>Value change</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="([entry, diff, _], i) in unitDiff" :key="i">
+            <td>{{ entry.stock_name }}</td>
+            <td :style="text_colour(diff)">{{ formatDecimal(diff.toFixed(2)) }}</td>
+            <td :style="text_colour(diff)">
+              {{ formatDecimal(((diff * entry.price) / 100).toFixed(2)) }}
+            </td>
+            <td>
+              <Dropdown
+                v-model="unitDiff[i][0].transaction_attribution"
+                :option-label="`name_${diff > 0}`"
+                option-value="id"
+                :options="TransactionAttributionMap"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="save-cancel">
+        <SaveCancel @cancel="showUnitDiffModal = false" @save="createSnapshots" />
+      </div>
     </Dialog>
     <h1>Create snapshot</h1>
     <div style="margin-bottom: 1rem">
@@ -327,5 +346,11 @@ const submit = () => {
   display: flex;
   flex-wrap: wrap;
   gap: var(--inline-spacing);
+}
+.transattr-table {
+  margin-top: var(--inline-spacing);
+  border-left: 2px solid var(--border-colour);
+  border-spacing: var(--inline-spacing);
+  text-align: left;
 }
 </style>

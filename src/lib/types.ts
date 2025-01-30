@@ -1,4 +1,8 @@
 export type TrackingStrategy = 'DATA_IMPORT' | 'INPUT_VALUE' | 'API_DATA';
+export enum TransactionAttribution {
+  BuySell = 0,
+  IncomeFee = 1
+}
 
 export interface Stock {
   id: number;
@@ -37,7 +41,10 @@ export interface Account {
 }
 
 export interface Snapshot {
+  id: number;
+  stock_id: number;
   stock: Stock;
+  account_id: number;
   account: Account;
   date: Date;
   user: User;
@@ -48,6 +55,7 @@ export interface Snapshot {
   value: string;
   changeSinceLast: string;
   normalisedPerformance: string;
+  transaction_attribution: TransactionAttribution;
 }
 
 export interface User {
