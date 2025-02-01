@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
+import { metricLabels } from '@/lib/constants';
 import { formatDecimal } from '@/lib/data';
 import { divergingColourScale } from '@/lib/formats/colours';
 import { authenticatedRequest } from '@/lib/requests';
@@ -45,10 +46,13 @@ onActivated(async () => {
   update();
 });
 
+const comparisonKey = computed(() => comparing.value.toLowerCase().replace(' ', '_'));
+const metricDescription = ref('');
+
 const update = async () => {
   const query = new URLSearchParams();
 
-  query.set('compare', comparing.value.toLowerCase().replace(' ', '_'));
+  query.set('compare', comparisonKey.value);
   query.set('of', target.value.toLowerCase());
   query.set('for', against.value.toLowerCase());
   query.set('over', time.value.toLowerCase());
@@ -64,6 +68,7 @@ const update = async () => {
       time: time.value
     };
     useColourScale.value = comparing.value != 'Holdings';
+    metricDescription.value = metricLabels[comparisonKey.value];
   }
 };
 const keys = computed(() => {
@@ -140,6 +145,7 @@ const scaleStyle = (num: string) =>
     </template>
 
     <template #body>
+      <span>{{ metricDescription }}</span>
       <div class="comparison-container">
         <div class="table-container">
           <table class="comparison-table" v-if="showTable">
@@ -220,6 +226,7 @@ const scaleStyle = (num: string) =>
 .comparison-container {
   display: flex;
   overflow: auto;
+  margin-top: var(--inline-spacing);
 }
 
 .comparison-table {

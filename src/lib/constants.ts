@@ -10,6 +10,14 @@ export const DEFAULT_IMPORT_FORMAT =
 
 export const PAGINATOR_PAGE_OPTIONS = [10, 20, 50, 100];
 
+export const metricLabels: { [key: string]: string } = {
+  performance: 'Average monthly performance across all holdings in each period',
+  weighted_performance:
+    'Average monthly performance across all holdings in each period, weighted by value',
+  growth: 'Approximate growth across all holdings over the time period',
+  holdings: 'Total value of all holdings at the end of each time period'
+};
+
 export const e = Object.keys(TransactionAttribution)
   .filter((key: any) => typeof TransactionAttribution[key] === 'number')
   .map((key: any) => ({ id: TransactionAttribution[key], name: key }));
