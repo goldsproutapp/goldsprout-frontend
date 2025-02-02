@@ -86,6 +86,7 @@ function promptTransactionAttribution() {
   notNewEntries.forEach(([e, p]) => (e.transaction_attribution = p.transaction_attribution));
   unitDiff.value = notNewEntries
     .map(([e, p]) => [e, parseFloat(e.units) - parseFloat(p.units)])
+    .filter(([_, u]) => u != 0)
     .concat(sold);
 
   if (unitDiff.value.length > 0) {
