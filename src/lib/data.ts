@@ -123,8 +123,11 @@ export function formatDecimal(num: string): string {
   const parts = num.split('.');
   let output = '';
   for (let i = 0; i < parts[0].length; i++) {
-    output = parts[0][parts[0].length - i - 1] + output;
-    if (i >= 2 && (i + 1) % 3 === 0 && i + 1 != parts[0].length) output = ',' + output;
+    const char = parts[0][parts[0].length - i - 1];
+    const nextChar = parts[0][parts[0].length - i - 2];
+    output = char + output;
+    if (i >= 2 && (i + 1) % 3 === 0 && i + 1 != parts[0].length && nextChar != '-')
+      output = ',' + output;
   }
   parts[0] = output;
   return parts.join('.');
