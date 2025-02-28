@@ -20,6 +20,7 @@ import CompositionVue from '@/views/analysis/Composition.vue';
 import AccountList from '@/views/accounts/AccountList.vue';
 import AccountInfo from '@/views/accounts/AccountInfo.vue';
 import CreateAccount from '@/views/accounts/CreateAccount.vue';
+import NotFound from '@/views/auth/NotFound.vue';
 
 export type Route = RouteRecordRaw & {
   component: RouteComponent & { __name?: string };
@@ -128,6 +129,11 @@ const routes = [
     props: true,
     name: 'Stock Info',
     component: StockInfo
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'Not Found',
+    component: NotFound
   }
 ];
 

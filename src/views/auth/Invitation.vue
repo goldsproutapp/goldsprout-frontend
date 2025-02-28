@@ -6,11 +6,15 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import { computed, ref } from 'vue';
+import NotFound from './NotFound.vue';
 
+const validInvitation = ref(true);
 const email = computed(() => {
   try {
-    return atob(router.currentRoute.value.query.e?.toString() || '');
+    // 'e' is invalid b64
+    return atob(router.currentRoute.value.query.e?.toString() || 'e');
   } catch {
+    validInvitation.value = false;
     return '';
   }
 });
@@ -48,15 +52,18 @@ const submit = async () => {
 </script>
 
 <template>
-  <h1>Invitation</h1>
-  <form class="input-container" @submit.prevent>
-    <span>To accept this invitation and create an account, choose a password.</span>
-    <InputText class="input" type="email" v-model="email" disabled />
-    <Password class="input" type="password" placeholder="Password" v-model="pw" />
-    <Password class="input" type="password" placeholder="Confirm password" v-model="confirmPw" />
-    <Button severity="success" @click="submit" label="Accept invitation" />
-    <span class="error" v-if="error">{{ error }}</span>
-  </form>
+  <NotFound message="Invalid invitation link" v-if="!validInvitation" />
+  <template v-else>
+    <h1>Invitation</h1>
+    <form class="input-container" @submit.prevent>
+      <span>To accept this invitation and create an account, choose a password.</span>
+      <InputText class="input" type="email" v-model="email" disabled />
+      <Password class="input" type="password" placeholder="Password" v-model="pw" />
+      <Password class="input" type="password" placeholder="Confirm password" v-model="confirmPw" />
+      <Button severity="success" @click="submit" label="Accept invitation" />
+      <span class="error" v-if="error">{{ error }}</span>
+    </form>
+  </template>
 </template>
 
 <style scoped>

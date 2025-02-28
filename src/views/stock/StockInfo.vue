@@ -30,6 +30,7 @@ import { watch } from 'vue';
 import HoldingTable from '@/components/display/HoldingTable.vue';
 import SnapshotTable from '@/components/display/SnapshotTable.vue';
 import TabbedSection from '@/components/layout/TabbedSection.vue';
+import NotFound from '../auth/NotFound.vue';
 const props = defineProps<{
   id: string;
 }>();
@@ -49,8 +50,8 @@ const snapshots = computed<SnapshotTableInfo[]>(
 const snapshotLoading = ref(true);
 
 onMounted(async () => {
-  stock.value = await getStockByID(Number.parseInt(props.id));
-  stock.value = Object.assign({}, stock.value);
+  stock.value = await getStockByID(Number.parseInt(props.id)) || null;
+  if (stock.value !== null) stock.value = Object.assign({}, stock.value);
   getRegions(true);
   getSectors(true);
   snapshotLoading.value = snapshots.value.length == 0;
@@ -133,7 +134,9 @@ const merge = async () => {
 </script>
 
 <template>
-  <div class="container" v-if="stock === null">Stock not found.</div>
+  <div class="container" v-if="stock === null">
+      <NotFound message="This stock could not be found."/>
+  </div>
   <div class="container" v-else-if="stock === undefined">Loading...</div>
   <div class="container" v-else>
     <Inplace :closable="true" class="stock-title">

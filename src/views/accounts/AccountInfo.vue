@@ -8,7 +8,6 @@ import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import { ref, watch } from 'vue';
 import PerformanceGraph from '@/components/display/PerformanceGraph.vue';
-import TabMenu from 'primevue/tabmenu';
 import CountUp from '@/components/display/CountUp.vue';
 import SummaryCards from '@/components/display/SummaryCards.vue';
 import SummaryCard from '@/components/display/SummaryCard.vue';
@@ -21,12 +20,13 @@ import { useToast } from 'primevue/usetoast';
 import { clearCache } from '@/lib/cache';
 import { hasWritePermFor } from '@/lib/utils';
 import TabbedSection from '@/components/layout/TabbedSection.vue';
+import NotFound from '../auth/NotFound.vue';
 
 const props = defineProps<{
   accountID: number;
 }>();
 
-const account = ref<Account | null>(null);
+const account = ref<Account | null | undefined>(undefined);
 const holding = ref<any>(null);
 const ytd = ref(0);
 const selection = ref();
@@ -98,22 +98,24 @@ watch(
   props,
   async ({ accountID }, _) => {
     if (accountID !== undefined) {
-      getAccountByID(accountID).then((result) => (account.value = result ? result : account.value));
+      getAccountByID(accountID).then((result) => (account.value = result ? result : null));
       getStockList(true).then(() =>
         getHoldings(true).then(async () => {
-          const data: any = [];
-          await Promise.all(
-            Object.entries(dataState.accountHoldings[accountID])
-              .filter(([_, { units }]) => units != '0')
-              .map(async ([id, { value, units }]) =>
-                data.push({
-                  stock: await getStockByID(Number.parseInt(id), false),
-                  value: value,
-                  units: units
-                })
-              )
-          );
-          holding.value = data;
+          if (account.value !== null) {
+            const data: any = [];
+            await Promise.all(
+              Object.entries(dataState.accountHoldings[accountID])
+                .filter(([_, { units }]) => units != '0')
+                .map(async ([id, { value, units }]) =>
+                  data.push({
+                    stock: await getStockByID(Number.parseInt(id), false),
+                    value: value,
+                    units: units
+                  })
+                )
+            );
+            holding.value = data;
+          }
         })
       );
     }
@@ -125,7 +127,9 @@ watch(
 </script>
 
 <template>
-  <div v-if="account !== null" class="container">
+  <div v-if="account === undefined">Loading...</div>
+  <NotFound v-else-if="account === null" message="This account could not be found" />
+  <div v-else class="container">
     <div class="header">
       <h1>{{ accountUniqueDisplay(account) }}</h1>
       <Button
@@ -199,8 +203,6 @@ watch(
       </template>
     </TabbedSection>
   </div>
-
-  <div v-else></div>
 </template>
 
 <style scoped>

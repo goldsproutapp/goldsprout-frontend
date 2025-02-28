@@ -13,6 +13,7 @@ import { useToast } from 'primevue/usetoast';
 import InputSwitch from 'primevue/inputswitch';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import Tooltip from '@/components/layout/Tooltip.vue';
+import NotFound from '../auth/NotFound.vue';
 
 const props = defineProps<{
   id: string;
@@ -21,13 +22,13 @@ const props = defineProps<{
 const toast = useToast();
 
 type Permission = AccessPermission & { access_for: string };
-const user = ref<User | null>();
+const user = ref<User | null | undefined>(undefined);
 
 watch(
   props,
   ({ id }, _) => {
     if (id !== undefined)
-      getUserByID(parseInt(id)).then((result) => (user.value = result ? result : user.value));
+      getUserByID(parseInt(id)).then((result) => (user.value = result ? result : null));
   },
   {
     immediate: true
@@ -106,7 +107,9 @@ const process = async () => {
 </script>
 
 <template>
-  <div v-if="user">
+  <div v-if="user === undefined">Loading...</div>
+  <NotFound v-else-if="user === null" message="This user could not be found" />
+  <div v-else>
     <h2>User info</h2>
     <div class="info-container">
       <span class="info-element">User ID:</span>
@@ -144,15 +147,15 @@ const process = async () => {
       <Column field="limited">
         <template #header>
           <Tooltip
-          content="Warning: it may be possible for the user to calculate some of the hidden values, this option does not guarantee privacy."
-          position="bottom"
+            content="Warning: it may be possible for the user to calculate some of the hidden values, this option does not guarantee privacy."
+            position="bottom"
           >
-          <Tooltip
-            content="View performance and relative composition info whilst omitting holding quantities and values."
-            position="top"
-          >
-            <span class="tooltip-text">Limited</span>
-          </Tooltip>
+            <Tooltip
+              content="View performance and relative composition info whilst omitting holding quantities and values."
+              position="top"
+            >
+              <span class="tooltip-text">Limited</span>
+            </Tooltip>
           </Tooltip>
         </template>
         <template #body="row">
@@ -164,7 +167,6 @@ const process = async () => {
       <SaveCancel @save="process" @cancel="router.back()" />
     </div>
   </div>
-  <div v-else>Loading...</div>
 </template>
 
 <style scoped>
