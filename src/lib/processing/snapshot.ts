@@ -34,8 +34,8 @@ export function validate_csv_format(fmt: string[], extended: boolean = false): [
 }
 
 export function fillGaps(obj: {
-  [key: string]: string | number;
-}): [{ [key: string]: string | number }, string | null] {
+  [key: string]: string | TransactionAttribution;
+}): [{ [key: string]: string | TransactionAttribution }, string | null] {
   // required: name, value, cost, price|units
   if (!(contains(obj, 'stock_name') && contains(obj, 'value') && contains(obj, 'cost')))
     return [{}, 'missing fields'];

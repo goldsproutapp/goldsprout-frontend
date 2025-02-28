@@ -119,7 +119,7 @@ export function getUserDisplayName(user: User): string {
 export function pluralise(num: number, str: string): string {
   return `${num} ${str}${num === 1 ? '' : 's'}`;
 }
-export function formatDecimal(num: string): string {
+export function formatDecimal(num: string, fixed: number = 0): string {
   const parts = num.split('.');
   let output = '';
   for (let i = 0; i < parts[0].length; i++) {
@@ -130,7 +130,16 @@ export function formatDecimal(num: string): string {
       output = ',' + output;
   }
   parts[0] = output;
+  if (fixed > 0 && parts.length > 1) {
+    parts[1] = parts[1].padEnd(fixed, '0');
+  }
   return parts.join('.');
+}
+
+export function formatCurrency(num: string): string {
+  let negative = num[0] == '-';
+  if (negative) return `-£${formatDecimal(num.slice(1), 2)}`;
+  else return `£${formatDecimal(num, 2)}`;
 }
 
 export function emptyUser(): User {

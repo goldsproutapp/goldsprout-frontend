@@ -42,3 +42,7 @@ export function minmaxIgnoreOutliers(nums: number[], op: 'min' | 'max'): number 
   } while (isMax ? max > upperBoundary : max < lowerBoundary);
   return max;
 }
+
+export function isArray<T>(arr: any): arr is T[] {
+  return Array.isArray(arr);
+}
