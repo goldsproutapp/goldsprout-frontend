@@ -105,6 +105,14 @@ const filterNobody = (filterModel: any) => {
           </MultiSelect>
         </template>
       </Column>
+      <Column header="Code" field="stock_code">
+        <template #body="{ data }">
+          {{ data.stock_code }}
+        </template>
+        <template #filter="{ filterModel }">
+          <InputText v-model="filterModel.value" type="text" placeholder="Search by code" />
+        </template>
+      </Column>
       <Column header="Name" field="name">
         <template #body="{ data }">
           {{ data.name }}

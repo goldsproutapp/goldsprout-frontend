@@ -12,6 +12,15 @@ export function initialStockFilter(): DataTableFilterMeta {
       value: null,
       matchMode: FilterMatchMode.IN
     },
+    stock_code: {
+      operator: FilterOperator.AND,
+      constraints: [
+        {
+          value: null,
+          matchMode: FilterMatchMode.CONTAINS
+        }
+      ]
+    },
     name: {
       operator: FilterOperator.AND,
       constraints: [
