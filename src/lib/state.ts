@@ -32,6 +32,12 @@ export const dataState = reactive({
   accountHoldings: {} as HoldingMap
 });
 
+export const preferenceState = reactive<{
+  presets: { [key: string]: {[key: string]: Object} };
+}>({
+  presets: {}
+});
+
 export function updateAuthState() {
   const token = window.localStorage.getItem('token');
   const userInfo = JSON.parse(window.localStorage.getItem('userinfo') || '{}');

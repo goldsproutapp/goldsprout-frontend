@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
+import PresetSelector from '@/components/select/PresetSelector.vue';
 import { metricLabels } from '@/lib/constants';
 import { formatDecimal } from '@/lib/data';
 import { divergingColourScale } from '@/lib/formats/colours';
 import { authenticatedRequest } from '@/lib/requests';
+import { usePresets } from '@/lib/service/presets';
 import { minmaxIgnoreOutliers } from '@/lib/utils';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
@@ -12,10 +14,11 @@ import { computed } from 'vue';
 import { capitalize, ref, onActivated } from 'vue';
 
 const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings', 'Growth'];
-const comparing = ref(comparisonOptions[0]);
-const useColourScale = ref(false);
-
 const targetOptions = ['Person', 'Provider', 'Account', 'Sector', 'Region', 'Stock', 'All'];
+const timeOptions = ['Years', 'Quarters', 'Months'];
+
+const useColourScale = ref(false);
+const showTable = ref(false);
 
 const formats: any = {
   Performance: '{}%',
@@ -23,54 +26,65 @@ const formats: any = {
   Holdings: '£{}',
   Growth: '{}%'
 };
-const target = ref('All');
-const against = ref(targetOptions[0]);
-const timeOptions = ['Years', 'Quarters', 'Months'];
-const time = ref(timeOptions[0]);
-
-const showTable = ref(false);
 
 const data = ref<any>({});
 
-const displayedOpts: any = ref({
-  comparing: comparing.value,
-  target: target.value,
-  against: against.value,
-  time: time.value
-});
+const presets = usePresets(
+  'trends',
+  () => ({
+    comparing: comparisonOptions[0],
+    target: 'All',
+    against: targetOptions[0],
+    time: timeOptions[0],
+    filters: {} as { [key: string]: string }
+  }),
+  {
+    onChange: () => {
+      update();
+      setFilter();
+    }
+  }
+);
+const setFilter = () =>
+  perfFilter.value ? perfFilter.value.setFilter(presets.selectedData.value.filters) : {};
+
+const displayedOpts: any = ref(Object.assign(presets.selectedData.value));
+
 const format = (str: string) =>
   formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str));
-const filterObj = ref<{ [key: string]: string }>({});
 
-onActivated(async () => {
+onActivated(() => {
   update();
 });
 
-const comparisonKey = computed(() => comparing.value.toLowerCase().replace(' ', '_'));
 const metricDescription = ref('');
 
-const update = async () => {
+async function update() {
   const query = new URLSearchParams();
 
-  query.set('compare', comparisonKey.value);
-  query.set('of', target.value.toLowerCase());
-  query.set('for', against.value.toLowerCase());
-  query.set('over', time.value.toLowerCase());
-  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
+  const comparing = presets.selectedData.value.comparing;
+  const comparisonKey = comparing.toLowerCase().replace(' ', '_');
+  query.set('compare', comparisonKey);
+  query.set('of', presets.selectedData.value.target.toLowerCase());
+  query.set('for', presets.selectedData.value.against.toLowerCase());
+  query.set('over', presets.selectedData.value.time.toLowerCase());
+  Object.entries(presets.selectedData.value.filters).forEach(([key, value]) =>
+    query.set(key, value)
+  );
   const res = await authenticatedRequest(`/performance?${query.toString()}`);
   if (res.status === 200) {
     data.value = await res.json();
     showTable.value = true;
     displayedOpts.value = {
-      comparing: comparing.value,
-      target: target.value,
-      against: against.value,
-      time: time.value
+      comparing: comparing,
+      target: presets.selectedData.value.target,
+      against: presets.selectedData.value.against,
+      time: presets.selectedData.value.time
     };
-    useColourScale.value = comparing.value != 'Holdings';
-    metricDescription.value = metricLabels[comparisonKey.value];
+    useColourScale.value = comparing != 'Holdings';
+    metricDescription.value = metricLabels[comparisonKey];
   }
-};
+}
 const keys = computed(() => {
   if (!data.value.data) return [];
   const out = [];
@@ -90,7 +104,7 @@ const focus = (i: number) => {
   const f = data.value.time_focus[i];
   if (f.length == 0) return;
   perfFilter.value.timeFocus(f);
-  time.value = capitalize(f[0]);
+  presets.selectedData.value.time = capitalize(f[0]);
 };
 
 const colours = computed(() => {
@@ -121,27 +135,34 @@ const scaleStyle = (num: string) =>
     </template>
 
     <template #options>
-      <span>
-        Compare
-        <Dropdown :options="comparisonOptions" v-model="comparing" />
-        Of
-        <Dropdown :options="targetOptions" v-model="target" />
-        For
-        <Dropdown :options="targetOptions" v-model="against" />
-        Over
-        <Dropdown :options="timeOptions" v-model="time" />
-        <Button
-          style="margin-left: 1rem"
-          type="button"
-          label="Calculate"
-          severity="primary"
-          @click="update"
-        />
-      </span>
+      <div class="option-container">
+        <span>
+          Compare
+          <Dropdown :options="comparisonOptions" v-model="presets.selectedData.value.comparing" />
+          Of
+          <Dropdown :options="targetOptions" v-model="presets.selectedData.value.target" />
+          For
+          <Dropdown :options="targetOptions" v-model="presets.selectedData.value.against" />
+          Over
+          <Dropdown :options="timeOptions" v-model="presets.selectedData.value.time" />
+          <Button
+            style="margin-left: 1rem"
+            type="button"
+            label="Calculate"
+            severity="primary"
+            @click="update"
+          />
+        </span>
+        <PresetSelector :presets="presets" />
+      </div>
     </template>
 
     <template #filter>
-      <PerformanceFilter v-model="filterObj" @update="update" ref="perfFilter" />
+      <PerformanceFilter
+        v-model="presets.selectedData.value.filters"
+        @update="update"
+        ref="perfFilter"
+      />
     </template>
 
     <template #body>
@@ -255,5 +276,12 @@ td {
 }
 .header-td {
   cursor: pointer;
+}
+.option-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 </style>

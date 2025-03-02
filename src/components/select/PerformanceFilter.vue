@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { getUserDisplayName } from '@/lib/data';
+import { getProviderByID, getUserByID, getUserDisplayName } from '@/lib/data';
 import { getAccounts, getProviderList, getRegions, getUsers } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import type { Provider, User } from '@/lib/types';
+import { deepEqual } from '@/lib/utils';
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
 import Button from 'primevue/button';
@@ -24,9 +25,11 @@ const emit = defineEmits(['update']);
 const props = withDefaults(
   defineProps<{
     upperDateOnly?: boolean;
+    excludeFilters?: string[] | null;
   }>(),
   {
-    upperDateOnly: false
+    upperDateOnly: false,
+    excludeFilters: null
   }
 );
 
@@ -49,6 +52,20 @@ const filterObj = computed(() => {
   if (upperDate.value) obj.filter_ignore_after = Math.floor(upperDate.value.getTime() / 1000);
   return obj;
 });
+
+const setFilter = async (obj: any) => {
+  selectedRegions.value = obj.filter_regions ? obj.filter_regions.split(',') : [];
+  selectedProviders.value = obj.filter_providers
+    ? await Promise.all(obj.filter_providers.split(',').map(Number.parseInt).map(getProviderByID))
+    : [];
+  selectedUsers.value = obj.filter_users
+    ? await Promise.all(obj.filter_users.split(',').map(Number.parseInt).map(getUserByID))
+    : [];
+  selectedAccounts.value = obj.filter_accounts ? obj.filter_accounts.split(',') : [];
+  lowerDate.value = obj.filter_ignore_before ? new Date(obj.filter_ignore_before * 1000) : null;
+  upperDate.value = obj.filter_ignore_after ? new Date(obj.filter_ignore_after * 1000) : null;
+};
+
 watch(filterObj, (obj, _) => {
   model.value = obj;
 });
@@ -66,8 +83,12 @@ const reset = () => {
   nextTick(() => emit('update'));
 };
 
+const showFilter = (filter: string) =>
+  props.excludeFilters == null || !props.excludeFilters.includes(filter);
+
 defineExpose({
-  timeFocus
+  timeFocus,
+  setFilter
 });
 </script>
 
@@ -77,7 +98,7 @@ defineExpose({
     <Button label="Update" severity="primary" class="update-btn" @click="$emit('update')" />
     <Button label="Reset" severity="secondary" class="update-btn" @click="reset" />
     <Accordion multiple :active-index="[]">
-      <AccordionTab header="Regions">
+      <AccordionTab header="Regions" v-if="showFilter('regions')">
         <Listbox
           v-model="selectedRegions"
           :options="dataState.regions"
@@ -85,7 +106,7 @@ defineExpose({
           list-style="max-height: 20rem"
         />
       </AccordionTab>
-      <AccordionTab header="Providers">
+      <AccordionTab header="Providers" v-if="showFilter('providers')">
         <Listbox
           v-model="selectedProviders"
           :options="dataState.providers"
@@ -94,7 +115,7 @@ defineExpose({
           list-style="max-height: 20rem"
         />
       </AccordionTab>
-      <AccordionTab header="Accounts">
+      <AccordionTab header="Accounts" v-if="showFilter('accounts')">
         <Listbox
           v-model="selectedAccounts"
           :options="Array.from(new Set(dataState.accounts.map((x) => x.name)))"
@@ -102,7 +123,7 @@ defineExpose({
           list-style="max-height: 20rem"
         />
       </AccordionTab>
-      <AccordionTab header="Users">
+      <AccordionTab header="Users" v-if="showFilter('users')">
         <Listbox
           v-model="selectedUsers"
           :options="dataState.users"
@@ -112,7 +133,7 @@ defineExpose({
           list-style="max-height: 20rem"
         />
       </AccordionTab>
-      <AccordionTab header="Date">
+      <AccordionTab header="Date" v-if="showFilter('date')">
         <Calendar
           selection-mode="single"
           view="month"
@@ -124,6 +145,7 @@ defineExpose({
         />
         <Calendar
           selection-mode="single"
+          date-format="dd/mm/yy"
           view="month"
           show-button-bar
           v-model="upperDate"
