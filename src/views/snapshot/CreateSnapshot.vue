@@ -150,7 +150,7 @@ const createSnapshots = async (cb: Function) => {
     return;
   }
   const { data } = await res.json();
-  summary.value.num_snapshots = data.filter(({ units }: any) => units != '0');
+  summary.value.num_snapshots = data.filter(({ units }: any) => units != '0').length;
   summary.value.account = account.value ? accountUniqueDisplay(account.value) : 'this account';
   summary.value.total_value = data.reduce(
     (total: number, snapshot: Snapshot) => total + Number.parseFloat(snapshot.value),
