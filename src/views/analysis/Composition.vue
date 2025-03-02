@@ -2,9 +2,11 @@
 import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import CompositionGraph from '@/components/modals/CompositionGraph.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
+import PresetSelector from '@/components/select/PresetSelector.vue';
 import { backgroundColours, gridColour } from '@/lib/chartjs/colours';
 import { htmlLegendPlugin } from '@/lib/chartjs/legend';
 import { authenticatedRequest } from '@/lib/requests';
+import { usePresets } from '@/lib/service/presets';
 import Button from 'primevue/button';
 import Chart from 'primevue/chart';
 import Dialog from 'primevue/dialog';
@@ -14,9 +16,8 @@ import ProgressSpinner from 'primevue/progressspinner';
 import { capitalize, onActivated, computed, ref } from 'vue';
 
 const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Account', 'Stock'];
-const compare = ref(comparisonOptions[0]);
 const comparisonTargetOptions: string[] = ['Person', 'Provider', 'Account'];
-const compareTarget = ref(comparisonTargetOptions[0]);
+const filter = ref();
 
 const fullscreenGraph = ref(false);
 const graphModalRef = ref();
@@ -29,21 +30,45 @@ const chartTypes: { [key: string]: string } = {
   Doughnut: 'doughnut',
   Polar: 'polarArea'
 };
-const chartType = ref(chartTypeOptions[0]);
 const cards = ref([]);
 const loading = ref(true);
 
-const filterObj = ref<{ [key: string]: string }>({});
 onActivated(() => {
   cards.value.forEach((card: any) => card.reinit());
 });
 
 const data = ref<any>({});
-const update = () => {
+
+const presets = usePresets(
+  'composition',
+  () => ({
+    compare: comparisonOptions[0],
+    compareTarget: comparisonTargetOptions[0],
+    chartType: chartTypeOptions[0],
+    filters: {} as { [key: string]: string }
+  }),
+  {
+    onChange: () => {
+      setFilter();
+      update();
+    }
+  }
+);
+const setFilter = () =>
+  filter.value ? filter.value.setFilter(presets.selectedData.value.filters) : {};
+
+function getQuery(): URLSearchParams {
   const query = new URLSearchParams();
-  query.set('compare', compare.value.toLowerCase());
-  query.set('across', compareTarget.value.toLowerCase());
-  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
+  query.set('compare', presets.selectedData.value.compare.toLowerCase());
+  query.set('across', presets.selectedData.value.compareTarget.toLowerCase());
+  Object.entries(presets.selectedData.value.filters).forEach(([key, value]) =>
+    query.set(key, value)
+  );
+  return query;
+}
+
+const update = () => {
+  const query = getQuery();
   authenticatedRequest(`/split?${query.toString()}`).then((res) => {
     if (res.status != 200) return;
     res.json().then((json) => (data.value = json));
@@ -72,11 +97,8 @@ const graphData = computed(() => {
 });
 
 const showGraph = async (item: string) => {
-  const query = new URLSearchParams();
-  query.set('compare', compare.value.toLowerCase());
-  query.set('across', compareTarget.value.toLowerCase());
+  const query = getQuery();
   query.set('item', item);
-  Object.entries(filterObj.value).forEach(([key, value]) => query.set(key, value));
   authenticatedRequest(`/split/history?${query.toString()}`).then((res) => {
     if (res.status != 200) return;
     res.json().then(({ data }) => (timeGraphData.value = data));
@@ -89,7 +111,7 @@ const containerID = (key: string) => `piechart-${key}`;
 const options = computed(() => {
   const out: any = {};
   const polarOpts =
-    chartType.value == 'Polar'
+    presets.selectedData.value.chartType == 'Polar'
       ? {
           r: {
             grid: {
@@ -99,7 +121,7 @@ const options = computed(() => {
         }
       : {};
   const scaleOpts = (data: any) =>
-    chartType.value == 'Bar'
+    presets.selectedData.value.chartType == 'Bar'
       ? {
           scales: {
             x: {
@@ -179,13 +201,16 @@ const maximiseModal = () => {
       <h1 class="title">Composition</h1>
     </template>
     <template #options>
-      <div style="display: flex; justify-content: space-between">
+      <div class="option-container">
         <span>
           Compare
-          <Dropdown :options="comparisonOptions" v-model="compare" />
-          <template v-if="compare !== 'All'">
+          <Dropdown :options="comparisonOptions" v-model="presets.selectedData.value.compare" />
+          <template v-if="presets.selectedData.value.compare !== 'All'">
             Across
-            <Dropdown :options="comparisonTargetOptions" v-model="compareTarget" />
+            <Dropdown
+              :options="comparisonTargetOptions"
+              v-model="presets.selectedData.value.compareTarget"
+            />
           </template>
           <Button
             style="margin-left: 1rem"
@@ -195,15 +220,21 @@ const maximiseModal = () => {
             @click="update"
           />
         </span>
-        <div>
-          <Dropdown :options="chartTypeOptions" v-model="chartType" />
-        </div>
+        <PresetSelector :presets="presets" />
       </div>
     </template>
     <template #filter>
-      <PerformanceFilter v-model="filterObj" @update="update" :upper-date-only="true" />
+      <PerformanceFilter
+        v-model="presets.selectedData.value.filters"
+        @update="update"
+        :upper-date-only="true"
+        ref="filter"
+      />
     </template>
     <template #body>
+      <div style="margin: var(--inline-spacing)">
+        <Dropdown :options="chartTypeOptions" v-model="presets.selectedData.value.chartType" />
+      </div>
       <div v-if="loading" class="loading-container"><ProgressSpinner /></div>
       <div v-else-if="data.success && Object.keys(data.data).length > 0" class="pie-group">
         <Panel
@@ -222,7 +253,7 @@ const maximiseModal = () => {
             <div :id="containerID(key)" class="legend-container"></div>
             <Chart
               ref="cards"
-              :type="chartTypes[chartType]"
+              :type="chartTypes[presets.selectedData.value.chartType]"
               :data="graphData[key]"
               :options="options[key]"
               style="height: 20rem"
@@ -277,5 +308,11 @@ const maximiseModal = () => {
   flex-grow: 1;
   min-height: 20rem;
   height: 100%;
+}
+.option-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--inline-spacing);
 }
 </style>
