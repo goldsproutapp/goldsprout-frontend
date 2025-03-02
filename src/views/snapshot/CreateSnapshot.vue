@@ -84,6 +84,7 @@ const dataValid = ref(false);
 const invalidDataText = computed(() => !(csvText.value == '' || dataValid.value));
 const unitDiff = ref<any>([]);
 const showUnitDiffModal = ref(false);
+const unitDiffInputs = computed(() => unitDiff.value.filter(([, d]: [any, number]) => d != 0));
 
 const csvTextUpdated = () => {
   const fallbackFmt = account.value?.provider?.csv_format_obj;
@@ -173,7 +174,7 @@ const submit = (cb: Function) => {
     dataState.snapshots_latest,
     data.value
   );
-  const requirePrompt = unitDiff.value.length > 0;
+  const requirePrompt = unitDiffInputs.value.length > 0;
   showUnitDiffModal.value = requirePrompt;
   if (!requirePrompt) {
     createSnapshots(cb);
@@ -333,10 +334,7 @@ const restart = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="([entry, diff, _], i) in unitDiff.filter(([, d]: [any, number]) => d != 0)"
-                  :key="i"
-                >
+                <tr v-for="([entry, diff, _], i) in unitDiffInputs" :key="i">
                   <td>{{ entry.stock_name }}</td>
                   <td :style="text_colour(diff)">{{ formatDecimal(diff.toFixed(2)) }}</td>
                   <td :style="text_colour(diff)">
