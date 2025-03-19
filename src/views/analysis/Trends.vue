@@ -3,7 +3,7 @@ import OptionFilterLayout from '@/components/layout/OptionFilterLayout.vue';
 import PerformanceFilter from '@/components/select/PerformanceFilter.vue';
 import PresetSelector from '@/components/select/PresetSelector.vue';
 import { metricLabels } from '@/lib/constants';
-import { formatDecimal } from '@/lib/data';
+import { formatCurrency, formatDecimal } from '@/lib/data';
 import { divergingColourScale } from '@/lib/formats/colours';
 import { authenticatedRequest } from '@/lib/requests';
 import { usePresets } from '@/lib/service/presets';
@@ -13,19 +13,22 @@ import Dropdown from 'primevue/dropdown';
 import { computed } from 'vue';
 import { capitalize, ref, onActivated } from 'vue';
 
-const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings', 'Growth'];
+const comparisonOptions = ['Performance', 'Weighted Performance', 'Holdings', 'Growth', 'Gains'];
 const targetOptions = ['Person', 'Provider', 'Account', 'Sector', 'Region', 'Stock', 'All'];
 const timeOptions = ['Years', 'Quarters', 'Months'];
 
 const useColourScale = ref(false);
 const showTable = ref(false);
 
-const formats: any = {
-  Performance: '{}%',
-  'Weighted Performance': '{}%',
-  Holdings: '£{}',
-  Growth: '{}%'
+const pctfmt = (v: string) => `${formatDecimal(v)}%`;
+const formats: { [key: string]: (v: string) => string } = {
+  Performance: pctfmt,
+  'Weighted Performance': pctfmt,
+  Holdings: formatCurrency,
+  Growth: pctfmt,
+  Gains: formatCurrency
 };
+const metricsToColour = ['Performance', 'Weighted Performance', 'Growth']
 
 const data = ref<any>({});
 
@@ -50,8 +53,7 @@ const setFilter = () =>
 
 const displayedOpts: any = ref(Object.assign(presets.selectedData.value));
 
-const format = (str: string) =>
-  formats[displayedOpts.value.comparing].replace('{}', formatDecimal(str));
+const format = (str: string) => formats[displayedOpts.value.comparing](str);
 
 onActivated(() => {
   update();
@@ -81,7 +83,7 @@ async function update() {
       against: presets.selectedData.value.against,
       time: presets.selectedData.value.time
     };
-    useColourScale.value = comparing != 'Holdings';
+    useColourScale.value = metricsToColour.includes(comparing);
     metricDescription.value = metricLabels[comparisonKey];
   }
 }

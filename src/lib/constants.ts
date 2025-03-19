@@ -15,7 +15,8 @@ export const metricLabels: { [key: string]: string } = {
   weighted_performance:
     'Average monthly performance across all holdings in each period, weighted by value',
   growth: 'Approximate growth across all holdings over the time period',
-  holdings: 'Total value of all holdings at the end of each time period'
+  holdings: 'Total value of all holdings at the end of each time period',
+  gains: 'Total value gain/loss of all snapshots recorded within each time period'
 };
 
 export const e = Object.keys(TransactionAttribution)
