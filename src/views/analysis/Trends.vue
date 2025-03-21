@@ -210,7 +210,7 @@ const scaleStyle = (num: string) =>
                     :class="useColourScale ? 'coloured' : ''"
                   >
                     <span v-if="Object.keys(data.data[col1].totals).includes(period)">
-                      <b>
+                      <b class="nowrap">
                         {{ format(data.data[col1].totals[period]) }}
                       </b>
                     </span>
@@ -231,7 +231,9 @@ const scaleStyle = (num: string) =>
                     :style="scaleStyle(data.data[col1].items[item][period])"
                     :class="useColourScale ? 'coloured' : ''"
                   >
-                    <span v-if="Object.keys(data.data[col1].items[item]).includes(period)"
+                    <span
+                      v-if="Object.keys(data.data[col1].items[item]).includes(period)"
+                      class="nowrap"
                       >{{ format(data.data[col1].items[item][period]) }}
                     </span>
                   </td>
@@ -285,5 +287,8 @@ td {
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+.nowrap {
+  text-wrap: nowrap;
 }
 </style>
