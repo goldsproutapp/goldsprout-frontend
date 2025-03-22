@@ -20,6 +20,7 @@ import CompositionVue from '@/views/analysis/Composition.vue';
 import AccountList from '@/views/accounts/AccountList.vue';
 import AccountInfo from '@/views/accounts/AccountInfo.vue';
 import CreateAccount from '@/views/accounts/CreateAccount.vue';
+import ReportPage from '@/views/analysis/ReportPage.vue';
 import NotFound from '@/views/auth/NotFound.vue';
 
 export type Route = RouteRecordRaw & {
@@ -76,6 +77,14 @@ export const headerRoutes: Route[] = [
     path: '/accounts',
     name: 'Accounts',
     component: AccountList,
+    meta: {
+      keepAlive: true
+    }
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: ReportPage,
     meta: {
       keepAlive: true
     }

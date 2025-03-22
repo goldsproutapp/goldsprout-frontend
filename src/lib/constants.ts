@@ -10,6 +10,8 @@ export const DEFAULT_IMPORT_FORMAT =
 
 export const PAGINATOR_PAGE_OPTIONS = [10, 20, 50, 100];
 
+export const MIN_LOADING_TIME_MS = 1000;
+
 export const metricLabels: { [key: string]: string } = {
   performance: 'Average monthly performance across all holdings in each period',
   weighted_performance:

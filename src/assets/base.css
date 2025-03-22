@@ -27,3 +27,18 @@
   --text-colour: white;
   --accent-colour: #ff8f01;
 }
+
+.click-cell-td:hover {
+  background-color: var(--surface-ground);
+}
+
+.click-cell {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 1rem;
+}
+.click-cell:hover {
+  background-color: var(--surface-ground);
+}

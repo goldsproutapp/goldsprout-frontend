@@ -19,6 +19,7 @@ import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import { PAGINATOR_PAGE_OPTIONS } from '@/lib/constants';
 import { hasWritePermFor } from '@/lib/utils';
+import { clickColumnPT } from '@/lib/pt';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -99,13 +100,6 @@ const deleteSnapshotButton = (_: MouseEvent, id: string) => {
 };
 const showColumn = (column: string) =>
   props.excludeHeadings == null || !props.excludeHeadings.includes(column);
-
-const clickColumnPT = {
-  bodyCell: {
-    style: 'padding: 0;height: 100%;',
-    class: 'click-cell-td'
-  }
-};
 </script>
 
 <template>
@@ -253,16 +247,6 @@ const clickColumnPT = {
 </template>
 
 <style scoped>
-.click-cell {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 1rem;
-}
-.click-cell:hover {
-  background-color: rgba(255, 255, 255, 0.03);
-}
 .table-header {
   display: flex;
   justify-content: space-between;
@@ -273,10 +257,5 @@ const clickColumnPT = {
     row-gap: var(--inline-spacing);
     align-items: start;
   }
-}
-</style>
-<style>
-.click-cell-td:hover {
-  background-color: var(--surface-ground);
 }
 </style>

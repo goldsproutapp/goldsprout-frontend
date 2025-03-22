@@ -9,7 +9,7 @@
     */
   --header-bg-colour: var(--surface-overlay);
   --border-colour: var(--surface-border);
-  --hover-colour: var(--indigo-950);
+  --hover-colour: var(--highlight-bg);
   --success-colour: var(--emerald-500);
   --failure-colour: var(--rose-500);
   --warning-colour: var(--amber-500);
