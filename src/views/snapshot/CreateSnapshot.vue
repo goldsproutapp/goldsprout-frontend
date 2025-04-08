@@ -5,6 +5,7 @@ import { TransactionAttributionMap } from '@/lib/constants';
 import { formatCurrency, formatDecimal, pluralise } from '@/lib/data';
 import { accountUniqueDisplay } from '@/lib/formats/display';
 import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
+import { validateSnapshotRowEdit } from '@/lib/processing/snapshot';
 import {
   SnapshotNumericFields,
   parseFile,
@@ -18,18 +19,20 @@ import { isArray } from '@/lib/utils';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import Column from 'primevue/column';
-import DataTable from 'primevue/datatable';
+import DataTable, {
+  type DataTableCellEditCompleteEvent,
+  type DataTableRowEditSaveEvent
+} from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import Divider from 'primevue/divider';
 import Dropdown from 'primevue/dropdown';
 import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload';
-import Inplace from 'primevue/inplace';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
 import Stepper from 'primevue/stepper';
 import StepperPanel from 'primevue/stepperpanel';
 import Textarea from 'primevue/textarea';
-import { computed, onMounted, ref } from 'vue';
+import { capitalize, computed, onMounted, ref } from 'vue';
 
 const text_colour = (num: number): any => ({
   color: `var(--${num < 0 ? 'failure' : 'success'}-colour)`
@@ -44,6 +47,7 @@ const headings = {
   cost: 'Cost (£)'
 };
 const activeStep = ref(0);
+const editingRows = ref([]);
 const success = ref(false);
 const completePanelPT = computed(() =>
   success.value || activeStep.value != 3
@@ -162,8 +166,26 @@ const createSnapshots = async (cb: Function) => {
   getStockList(false);
   getHoldings(false);
 };
+
 const emptySnapshot = (cb: Function) => {
   data.value = [];
+  cb();
+};
+const canCopyPreviousSnapshots = computed(() =>
+  dataState.snapshots_latest.some((s) => s.account_id == account.value?.id)
+);
+const copyPreviousSnapshots = (cb: Function) => {
+  const prev = dataState.snapshots_latest.filter((s) => s.account_id == account.value?.id);
+  data.value = prev.map<SnapshotImportRow>((s) => ({
+    stock_name: s.stock.name,
+    stock_code: s.stock.stock_code,
+    absolute_change: (parseFloat(s.value) - parseFloat(s.cost)).toFixed(2),
+    cost: s.cost,
+    value: s.value,
+    units: s.units,
+    price: s.price,
+    transaction_attribution: s.transaction_attribution
+  }));
   cb();
 };
 
@@ -183,6 +205,23 @@ const submit = (cb: Function) => {
 const restart = () => {
   activeStep.value = 0;
 };
+
+const showEditOptionDialog = ref<boolean>(false);
+const editOptions = ref<[string, number][][]>([]);
+const editIdx = ref<number>(0);
+const onEditRowSave = (evt: DataTableRowEditSaveEvent) => {
+  const [newData, options] = validateSnapshotRowEdit(data.value[evt.index], evt.newData);
+  data.value[evt.index] = newData;
+  editOptions.value = options;
+  editIdx.value = evt.index;
+  if (options.length == 1) applyEditSuggestion(options[0]);
+  else if (options.length > 1) showEditOptionDialog.value = true;
+};
+
+const applyEditSuggestion = (option: [string, number][]) => {
+  option.forEach(([k, v]) => (data.value[editIdx.value][k] = v.toFixed(2)));
+  showEditOptionDialog.value = false;
+};
 </script>
 
 <template>
@@ -201,6 +240,29 @@ const restart = () => {
         </ul>
       </div>
       <div><Button @click="showErrorDialog = false" label="Close" severity="secondary" /></div>
+    </div>
+  </Dialog>
+  <Dialog v-model:visible="showEditOptionDialog" modal header="Input required" :draggable="false">
+    <div class="edit-option-list">
+      <span
+        >The fields
+        <!-- Use same field ordering as options. Changes depending on input -->
+        <pre style="display: inline">{{ editOptions[0][0][0] }}</pre>
+        ,
+        <pre style="display: inline">{{ editOptions[0][1][0] }}</pre>
+        and
+        <pre style="display: inline">{{ editOptions[0][2][0] }}</pre>
+        must be in proportion.<br />
+        Please select the correct set of values.</span
+      >
+      <div
+        v-for="opt in editOptions"
+        class="edit-option-container"
+        @click="applyEditSuggestion(opt)"
+      >
+        <span v-for="[k, v] in opt"> {{ capitalize(k) }}: {{ v.toFixed(2) }} </span>
+      </div>
+      <div><Button @click="showEditOptionDialog = false" label="Cancel" severity="danger" /></div>
     </div>
   </Dialog>
   <div class="cs-wrapper">
@@ -247,6 +309,14 @@ const restart = () => {
             <Textarea v-model="csvText" @input="csvTextUpdated" :invalid="invalidDataText" />
             <Divider>Or</Divider>
             <Button
+              :disabled="!canCopyPreviousSnapshots"
+              label="Copy previous"
+              outlined
+              severity="secondary"
+              @click="copyPreviousSnapshots(nextCallback)"
+            />
+            <Divider>Or</Divider>
+            <Button
               label="Empty snapshot"
               outlined
               severity="secondary"
@@ -275,7 +345,16 @@ const restart = () => {
               <span class="highlight">{{ formatCurrency(account?.value ?? '0') }}</span>
             </h3>
             <Divider />
-            <DataTable :value="data" :loading="data.length == 0">
+            <DataTable
+              :value="data"
+              v-model:editing-rows="editingRows"
+              :loading="data.length == 0"
+              edit-mode="row"
+              @row-edit-save="onEditRowSave"
+              :pt="{
+                table: { style: 'min-width: 50rem' }
+              }"
+            >
               <template #loading> Empty snapshot </template>
               <Column
                 v-for="[key, display] in Object.entries(headings)"
@@ -283,32 +362,19 @@ const restart = () => {
                 :field="key"
                 :header="display"
               >
-                <template #body="{ data }"
-                  ><div style="width: 100%">
-                    <Inplace
-                      closable
-                      :pt:display:style="'width: 100%'"
-                      :close-button-props="{ style: 'margin-left: var(--inline-spacing)' }"
-                      :pt:content:style="{ display: 'flex', justifyContent: 'space-between' }"
-                    >
-                      <template #display>
-                        {{ data[key] }}
-                      </template>
-                      <template #content>
-                        <InputNumber
-                          v-model="data[key]"
-                          :max-fraction-digits="2"
-                          autofocus
-                          style="flex-grow: 1"
-                          v-if="SnapshotNumericFields.includes(key as keyof SnapshotImportRow)"
-                        />
-                        <InputText v-model="data[key]" autofocus style="flex-grow: 1" v-else />
-                      </template>
-                      <template #closeicon>
-                        <i class="pi pi-check" />
-                      </template>
-                    </Inplace>
-                  </div>
+                <template #editor="{ data, field }">
+                  <InputNumber
+                    v-model="data[field]"
+                    :max-fraction-digits="2"
+                    autofocus
+                    style="width: 100%"
+                    v-if="SnapshotNumericFields.includes(key as keyof SnapshotImportRow)"
+                  />
+                  <InputText v-model="data[key]" autofocus v-else style="width: 100%" />
+                </template>
+
+                <template #body="{ data }">
+                  {{ data[key] }}
                 </template>
               </Column>
               <Column key="delete" header="Delete">
@@ -316,6 +382,11 @@ const restart = () => {
                   <Button severity="danger" icon="pi pi-trash" @click="data.splice(index, 1)" />
                 </template>
               </Column>
+              <Column
+                :rowEditor="true"
+                style="width: 10%; min-width: 8rem"
+                bodyStyle="text-align:center"
+              ></Column>
             </DataTable>
           </div>
           <div class="button-container">
@@ -458,5 +529,28 @@ const restart = () => {
 .panel-body {
   background-color: var(--surface-card);
   padding: 3rem;
+}
+.edit-option-container:hover {
+  background-color: var(--border-colour);
+}
+.edit-option-container {
+  width: 100%;
+  padding: var(--inline-spacing);
+  border: 1px solid var(--border-colour);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.edit-option-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--inline-spacing);
+  min-width: 25vw;
+  align-items: end;
+}
+</style>
+<style>
+.p-inputnumber input {
+  width: 5em;
 }
 </style>

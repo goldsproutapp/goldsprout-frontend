@@ -1,4 +1,5 @@
 import { TransactionAttribution } from '../types';
+import type { SnapshotImportRow } from './snapshot_import';
 
 function contains<V>(obj: { [key: string]: V }, value: string): boolean {
   return Object.keys(obj).includes(value);
@@ -66,4 +67,128 @@ export function fillGaps(obj: {
     obj.transaction_attribution = TransactionAttribution.BuySell;
 
   return [obj, null];
+}
+
+export function validateSnapshotRowEdit(
+  oldData: SnapshotImportRow,
+  newData: SnapshotImportRow
+): [SnapshotImportRow, [string, number][][]] {
+  const newUnits = parseFloat(newData.units);
+  const newValue = parseFloat(newData.value);
+  const newPrice = parseFloat(newData.price);
+  let options: [string, number][][] = [];
+  oldData.stock_code = newData.stock_code;
+  oldData.cost = newData.cost;
+  if (newData.stock_name != '') oldData.stock_name = newData.stock_name;
+  if (Math.round((newUnits * newPrice) / 100) == Math.round(newValue)) {
+    // @ts-expect-error this is safe, but it's difficult to convince the compiler of this due to the union type for SnapshotImportRow value.
+    ['price', 'units', 'value'].forEach((field) => (oldData[field] = newData[field]));
+  } else {
+    if (newUnits != parseFloat(oldData.units)) {
+      if (newPrice != parseFloat(oldData.price)) {
+        if (newValue != parseFloat(oldData.value)) {
+          // all changed.
+          if (newPrice != 0)
+            options.push([
+              ['units', (newValue * 100) / newPrice],
+              ['price', newPrice],
+              ['value', newValue]
+            ]);
+          if (newUnits != 0)
+            options.push([
+              ['units', newUnits],
+              ['price', (newValue / newUnits) * 100],
+              ['value', newValue]
+            ]);
+          if (newUnits != 0)
+            options.push([
+              ['units', newUnits],
+              ['price', newPrice],
+              ['value', (newValue / newUnits) * 100]
+            ]);
+        } else {
+          // units and price have changed
+          oldData.price = newPrice.toFixed(2);
+          oldData.units = newUnits.toFixed(2);
+          oldData.value = ((newPrice * newUnits) / 100).toFixed(2);
+        }
+      } else if (newValue != parseFloat(oldData.value)) {
+        // units and value have changed
+        if (newUnits == 0) {
+          options.push([
+            ['units', 0],
+            ['price', newPrice],
+            ['value', 0]
+          ]);
+          const oldUnits = parseFloat(oldData.units);
+          if (newPrice != 0 && oldUnits != 0)
+            options.push([
+              ['units', (newValue * 100) / newPrice],
+              ['price', (newValue / oldUnits) * 100],
+              ['value', newValue]
+            ]);
+        } else {
+          oldData.value = newValue.toFixed(2);
+          oldData.units = newUnits.toFixed(2);
+          oldData.price = ((newValue / newUnits) * 100).toFixed(2);
+        }
+      } else {
+        // only units have changed
+        options.push([
+          ['units', newUnits],
+          ['price', newPrice],
+          ['value', (newPrice * newUnits) / 100]
+        ]);
+        if (newUnits != 0)
+          options.push([
+            ['units', newUnits],
+            ['price', (newValue / newUnits) * 100],
+            ['value', newValue]
+          ]);
+      }
+    } else if (newPrice != parseFloat(oldData.price)) {
+      if (newValue != parseFloat(oldData.value)) {
+        // price and value have changed
+        if (newPrice == 0) {
+          options.push([
+            ['price', 0],
+            ['value', 0],
+            ['units', parseFloat(oldData.units)]
+          ]);
+        } else {
+          oldData.value = newValue.toFixed(2);
+          oldData.price = newPrice.toFixed(2);
+          oldData.units = ((newValue * 100) / newPrice).toFixed(2);
+        }
+      } else {
+        // only price has changed
+        options.push([
+          ['price', newPrice],
+          ['units', newUnits],
+          ['value', (newPrice * newUnits) / 100]
+        ]);
+        if (newPrice != 0)
+          options.push([
+            ['price', newPrice],
+            ['units', (newValue * 100) / newPrice],
+            ['value', newValue]
+          ]);
+      }
+    } else if (newValue != parseFloat(oldData.value)) {
+      // only value has changed
+      if (newUnits != 0)
+        options.push([
+          ['value', newValue],
+          ['units', newUnits],
+          ['price', (newValue / newUnits) * 100]
+        ]);
+      if (newPrice != 0)
+        options.push([
+          ['value', newValue],
+          ['units', (newValue * 100) / newPrice],
+          ['price', newPrice]
+        ]);
+    }
+  }
+  return [oldData, options];
 }
