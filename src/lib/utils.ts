@@ -60,3 +60,10 @@ export function deepEqual<T>(a: T, b: T): boolean {
       Object.entries(a).every(([k, v]) => deepEqual(v, b[k as keyof T]))
   );
 }
+
+export function numDP(n: string): number {
+  const parts = n.split('.');
+  if (parts.length == 1) return 0;
+  if (parts.length == 2) return parts[1].length;
+  return -1;
+}

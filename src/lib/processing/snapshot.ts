@@ -1,4 +1,5 @@
 import { TransactionAttribution } from '../types';
+import { numDP } from '../utils';
 import type { SnapshotImportRow } from './snapshot_import';
 
 function contains<V>(obj: { [key: string]: V }, value: string): boolean {
@@ -108,9 +109,9 @@ export function validateSnapshotRowEdit(
             ]);
         } else {
           // units and price have changed
-          oldData.price = newPrice.toFixed(2);
-          oldData.units = newUnits.toFixed(2);
-          oldData.value = ((newPrice * newUnits) / 100).toFixed(2);
+          oldData.price = newPrice.toFixed(numDP(oldData.price));
+          oldData.units = newUnits.toFixed(numDP(oldData.units));
+          oldData.value = ((newPrice * newUnits) / 100).toFixed(numDP(oldData.value));
         }
       } else if (newValue != parseFloat(oldData.value)) {
         // units and value have changed
@@ -128,9 +129,9 @@ export function validateSnapshotRowEdit(
               ['value', newValue]
             ]);
         } else {
-          oldData.value = newValue.toFixed(2);
-          oldData.units = newUnits.toFixed(2);
-          oldData.price = ((newValue / newUnits) * 100).toFixed(2);
+          oldData.value = newValue.toFixed(numDP(oldData.value));
+          oldData.units = newUnits.toFixed(numDP(oldData.units));
+          oldData.price = ((newValue / newUnits) * 100).toFixed(numDP(oldData.price));
         }
       } else {
         // only units have changed
@@ -156,9 +157,9 @@ export function validateSnapshotRowEdit(
             ['units', parseFloat(oldData.units)]
           ]);
         } else {
-          oldData.value = newValue.toFixed(2);
-          oldData.price = newPrice.toFixed(2);
-          oldData.units = ((newValue * 100) / newPrice).toFixed(2);
+          oldData.value = newValue.toFixed(numDP(oldData.value));
+          oldData.price = newPrice.toFixed(numDP(oldData.price));
+          oldData.units = ((newValue * 100) / newPrice).toFixed(numDP(oldData.units));
         }
       } else {
         // only price has changed

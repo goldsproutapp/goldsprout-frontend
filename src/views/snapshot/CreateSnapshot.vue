@@ -15,7 +15,7 @@ import {
 import { authenticatedRequest, getHoldings, getSnapshots, getStockList } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import type { Account, Snapshot } from '@/lib/types';
-import { isArray } from '@/lib/utils';
+import { isArray, numDP } from '@/lib/utils';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import Column from 'primevue/column';
@@ -219,7 +219,9 @@ const onEditRowSave = (evt: DataTableRowEditSaveEvent) => {
 };
 
 const applyEditSuggestion = (option: [string, number][]) => {
-  option.forEach(([k, v]) => (data.value[editIdx.value][k] = v.toFixed(2)));
+  option.forEach(
+    ([k, v]) => (data.value[editIdx.value][k] = v.toFixed(numDP(data.value[editIdx.value][k])))
+  );
   showEditOptionDialog.value = false;
 };
 </script>
@@ -242,7 +244,7 @@ const applyEditSuggestion = (option: [string, number][]) => {
       <div><Button @click="showErrorDialog = false" label="Close" severity="secondary" /></div>
     </div>
   </Dialog>
-  <Dialog v-model:visible="showEditOptionDialog" modal header="Input required" :draggable="false">
+  <Dialog v-model:visible="showEditOptionDialog" modal :header="data[editIdx]?.stock_name || ''">
     <div class="edit-option-list">
       <span
         >The fields
@@ -260,9 +262,9 @@ const applyEditSuggestion = (option: [string, number][]) => {
         class="edit-option-container"
         @click="applyEditSuggestion(opt)"
       >
-        <span v-for="[k, v] in opt"> {{ capitalize(k) }}: {{ v.toFixed(2) }} </span>
+        <span v-for="[k, v] in opt"> {{ capitalize(k) }}: {{ v.toFixed(numDP(data[editIdx][k])) }} </span>
       </div>
-      <div><Button @click="showEditOptionDialog = false" label="Cancel" severity="danger" /></div>
+      <div class="cancel-button-container"><Button @click="showEditOptionDialog = false" label="Cancel" severity="danger" /></div>
     </div>
   </Dialog>
   <div class="cs-wrapper">
@@ -546,7 +548,10 @@ const applyEditSuggestion = (option: [string, number][]) => {
   flex-direction: column;
   row-gap: var(--inline-spacing);
   min-width: 25vw;
-  align-items: end;
+}
+.cancel-button-container {
+    width: 100%;
+    float: right;
 }
 </style>
 <style>
