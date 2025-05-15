@@ -171,7 +171,7 @@ export function snapshotTableInfo(snapshot: Snapshot): SnapshotTableInfo {
 export async function processSnapshotReponse(snapshots: Array<Object>) {
   return await Promise.all(
     snapshots.map(async (snapshot: any) => {
-      snapshot.date = new Date(snapshot.date);
+      snapshot.date = new Date(snapshot.date.replace('Z', '')); // Time from server will be GMT, don't adjust for local timezone
       snapshot.user = await getUserByID(snapshot.user_id);
       snapshot.stock = await getStockByID(snapshot.stock_id);
       snapshot.account = await getAccountByID(snapshot.account_id);

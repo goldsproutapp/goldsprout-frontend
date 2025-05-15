@@ -136,7 +136,7 @@ const createSnapshots = async (cb: Function) => {
   const payload = {
     batches: [
       {
-        date: Math.floor(date.value.getTime() / 1000),
+        date: Math.floor(date.value.getTime() / 1000 - date.value.getTimezoneOffset() * 60),
         account_id: account.value?.id ?? 0,
         entries: unitDiff.value.map(([e]: [any]) => e),
         delete_sold_stocks: true
