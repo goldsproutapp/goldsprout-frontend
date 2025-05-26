@@ -83,7 +83,7 @@ export function validateSnapshotRowEdit(
   if (newData.stock_name != '') oldData.stock_name = newData.stock_name;
   if (Math.round((newUnits * newPrice) / 100) == Math.round(newValue)) {
     // @ts-expect-error this is safe, but it's difficult to convince the compiler of this due to the union type for SnapshotImportRow value.
-    ['price', 'units', 'value'].forEach((field) => (oldData[field] = newData[field]));
+    ['price', 'units', 'value'].forEach((field) => (oldData[field] = newData[field].toString())); // Use user-provided precision if everything adds up.
   } else {
     if (newUnits != parseFloat(oldData.units)) {
       if (newPrice != parseFloat(oldData.price)) {
