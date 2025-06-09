@@ -18,16 +18,16 @@ const props = withDefaults(
   <Button
     class="button"
     type="button"
-    :label="saveLabel"
-    severity="success"
-    @click="$emit('save')"
+    :label="cancelLabel"
+    severity="danger"
+    @click="$emit('cancel')"
   />
   <Button
     class="button"
     type="button"
-    :label="cancelLabel"
-    severity="danger"
-    @click="$emit('cancel')"
+    :label="saveLabel"
+    severity="success"
+    @click="$emit('save')"
   />
 </template>
 

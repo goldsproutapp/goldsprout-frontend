@@ -11,7 +11,7 @@ export function requiredFields(extended: boolean = false, forDisplay: boolean = 
     'stock_name',
     'value',
     'cost',
-    ...(extended ? ['user', 'provider', 'account', 'date'] : []),
+    ...(extended ? ['user', 'provider', 'account', 'date', 'transaction_attribution'] : []),
     ...(forDisplay ? ['units or price'] : [])
   ];
 }

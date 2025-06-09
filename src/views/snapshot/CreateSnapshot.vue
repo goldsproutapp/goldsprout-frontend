@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import SnapshotImportBox from '@/components/display/SnapshotImportBox.vue';
+import MessageDialog from '@/components/modals/MessageDialog.vue';
 import AccountDropdown from '@/components/select/AccountDropdown.vue';
 import { TransactionAttributionMap } from '@/lib/constants';
 import { formatCurrency, formatDecimal, pluralise } from '@/lib/data';
@@ -8,30 +10,24 @@ import { StatusCode, statusFrom, statusText } from '@/lib/formats/responses';
 import { validateSnapshotRowEdit } from '@/lib/processing/snapshot';
 import {
   SnapshotNumericFields,
-  parseFile,
   promptTransactionAttribution,
   type SnapshotImportRow
 } from '@/lib/processing/snapshot_import';
 import { authenticatedRequest, getHoldings, getSnapshots, getStockList } from '@/lib/requests';
 import { dataState } from '@/lib/state';
 import type { Account, Snapshot } from '@/lib/types';
-import { isArray, numDP } from '@/lib/utils';
+import { numDP } from '@/lib/utils';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import Column from 'primevue/column';
-import DataTable, {
-  type DataTableCellEditCompleteEvent,
-  type DataTableRowEditSaveEvent
-} from 'primevue/datatable';
+import DataTable, { type DataTableRowEditSaveEvent } from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import Divider from 'primevue/divider';
 import Dropdown from 'primevue/dropdown';
-import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
 import Stepper from 'primevue/stepper';
 import StepperPanel from 'primevue/stepperpanel';
-import Textarea from 'primevue/textarea';
 import { capitalize, computed, onMounted, ref } from 'vue';
 
 const text_colour = (num: number): any => ({
@@ -82,25 +78,11 @@ onMounted(() => getSnapshots(false));
 const account = ref<Account>();
 const date = ref(new Date(new Date().toDateString()));
 const data = ref<any[]>([]);
-const csvText = ref('');
+const dataValid = ref<boolean>(false);
 const optsValid = computed(() => account.value !== undefined);
-const dataValid = ref(false);
-const invalidDataText = computed(() => !(csvText.value == '' || dataValid.value));
 const unitDiff = ref<any>([]);
 const showUnitDiffModal = ref(false);
 const unitDiffInputs = computed(() => unitDiff.value.filter(([, d]: [any, number]) => d != 0));
-
-const csvTextUpdated = () => {
-  const fallbackFmt = account.value?.provider?.csv_format_obj;
-  const [success, parsed] = parseFile(csvText.value.split('\n'), fallbackFmt ? [fallbackFmt] : []);
-  if (success) {
-    data.value = parsed;
-    dataValid.value = true;
-  } else {
-    data.value = [];
-    dataValid.value = false;
-  }
-};
 
 const showErrorDialog = ref<boolean>(false);
 const errorMessages = ref<string[]>([]);
@@ -110,23 +92,6 @@ const displayError = (errors: string[]) => {
   showErrorDialog.value = true;
 };
 
-const fileUpload = async (cb: Function, event: FileUploadUploaderEvent) => {
-  // @ts-ignore
-  const file = event.files[0];
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    // @ts-ignore
-    const text: string = e.target.result;
-    const [success, parsed] = parseFile(text.split('\n'), []);
-    if (success) {
-      data.value = parsed;
-      cb();
-    } else {
-      if (isArray<string>(parsed)) displayError(parsed);
-    }
-  };
-  reader.readAsText(file);
-};
 const totalValue = computed<Number>(() =>
   data.value.reduce((acc, { value }) => acc + Number.parseFloat(value), 0)
 );
@@ -228,22 +193,14 @@ const applyEditSuggestion = (option: [string, number][]) => {
 
 <template>
   <h1>Create snapshot</h1>
-  <Dialog v-model:visible="showErrorDialog" modal header="Error" :draggable="false">
-    <div class="error-modal">
-      <div>
-        <span style="color: var(--failure-colour)">
-          <i class="pi pi-exclamation-triangle" />
-          An error occurred whilst trying to parse the input:</span
-        >
-        <ul>
-          <li v-for="msg in errorMessages">
-            {{ msg }}
-          </li>
-        </ul>
-      </div>
-      <div><Button @click="showErrorDialog = false" label="Close" severity="secondary" /></div>
-    </div>
-  </Dialog>
+  <MessageDialog
+    header="Error"
+    message-type="failure"
+    icon="pi pi-exclamation-triangle"
+    summary="An error occurred whilst trying to parse the input:"
+    v-model="showErrorDialog"
+    :messages="errorMessages"
+  />
   <Dialog v-model:visible="showEditOptionDialog" modal :header="data[editIdx]?.stock_name || ''">
     <div class="edit-option-list">
       <span
@@ -262,9 +219,13 @@ const applyEditSuggestion = (option: [string, number][]) => {
         class="edit-option-container"
         @click="applyEditSuggestion(opt)"
       >
-        <span v-for="[k, v] in opt"> {{ capitalize(k) }}: {{ v.toFixed(numDP(data[editIdx][k])) }} </span>
+        <span v-for="[k, v] in opt">
+          {{ capitalize(k) }}: {{ v.toFixed(numDP(data[editIdx][k])) }}
+        </span>
       </div>
-      <div class="cancel-button-container"><Button @click="showEditOptionDialog = false" label="Cancel" severity="danger" /></div>
+      <div class="cancel-button-container">
+        <Button @click="showEditOptionDialog = false" label="Cancel" severity="danger" />
+      </div>
     </div>
   </Dialog>
   <div class="cs-wrapper">
@@ -292,39 +253,17 @@ const applyEditSuggestion = (option: [string, number][]) => {
       </StepperPanel>
       <StepperPanel header="Data">
         <template #content="{ nextCallback, prevCallback }">
-          <div class="upload-container panel-body">
-            <span class="input-instruction">Upload file</span>
-            <FileUpload
-              accept="text/csv"
-              :show-upload-button="false"
-              :show-cancel-button="false"
-              custom-upload
-              auto
-              @uploader="(event) => fileUpload(nextCallback, event)"
-            >
-              <template #content
-                ><div class="file-upload-target">Drag and drop file.</div></template
-              >
-            </FileUpload>
-            <Divider>Or</Divider>
-            <span class="input-instruction">Enter text</span>
-            <Textarea v-model="csvText" @input="csvTextUpdated" :invalid="invalidDataText" />
-            <Divider>Or</Divider>
-            <Button
-              :disabled="!canCopyPreviousSnapshots"
-              label="Copy previous"
-              outlined
-              severity="secondary"
-              @click="copyPreviousSnapshots(nextCallback)"
-            />
-            <Divider>Or</Divider>
-            <Button
-              label="Empty snapshot"
-              outlined
-              severity="secondary"
-              @click="emptySnapshot(nextCallback)"
-            />
-          </div>
+          <SnapshotImportBox
+            class="panel-body"
+            :account="account"
+            :forbid-copy-previous="!canCopyPreviousSnapshots"
+            @error="displayError"
+            @file-upload="(nextCallback as any)()"
+            @copy-previous="() => copyPreviousSnapshots(nextCallback)"
+            @select-empty="() => emptySnapshot(nextCallback)"
+            v-model:data="data"
+            v-model:data-valid="dataValid"
+          />
           <div class="button-container">
             <Button @click="prevCallback" label="Back" severity="secondary" />
             <Button @click="nextCallback" label="Next" :disabled="!dataValid" />
@@ -494,17 +433,6 @@ const applyEditSuggestion = (option: [string, number][]) => {
   display: flex;
   justify-content: space-between;
 }
-.upload-container {
-  display: flex;
-  flex-direction: column;
-}
-.file-upload-target {
-  text-align: center;
-  margin: 1rem;
-}
-.input-instruction {
-  margin-bottom: var(--inline-spacing);
-}
 .highlight {
   color: var(--primary-color);
 }
@@ -521,12 +449,6 @@ const applyEditSuggestion = (option: [string, number][]) => {
   border-left: 2px solid var(--border-colour);
   border-spacing: var(--inline-spacing);
   text-align: left;
-}
-.error-modal {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  gap: var(--inline-spacing);
 }
 .panel-body {
   background-color: var(--surface-card);
@@ -550,8 +472,8 @@ const applyEditSuggestion = (option: [string, number][]) => {
   min-width: 25vw;
 }
 .cancel-button-container {
-    width: 100%;
-    float: right;
+  width: 100%;
+  float: right;
 }
 </style>
 <style>

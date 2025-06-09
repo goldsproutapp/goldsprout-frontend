@@ -15,7 +15,13 @@ const HeaderMatches = {
   units: [/unit/i, /quantity/i],
   price: [/price/i],
   cost: [/cost/i],
-  value: [/value/i]
+  value: [/value/i],
+
+  date: [/date/i],
+  user: [/user|person/i],
+  provider: [/provider|platform|dealer|broker|bank/i],
+  account: [/account(_(type|name))?/i],
+  transaction_attribution: [/(change|transaction)[_ ](reason|attribution|)/i]
 };
 
 export interface SnapshotImportRow {
@@ -36,8 +42,8 @@ export const SnapshotNumericFields: (keyof SnapshotImportRow)[] = [
   'value'
 ];
 
-export function findHeaderRow(lines: string[]): [number, string[]] {
-  let notFound = requiredFields(false, true);
+export function findHeaderRow(lines: string[], extended: boolean = false): [number, string[]] {
+  let notFound = requiredFields(extended, true);
   for (const [i, line] of lines.entries()) {
     const csv = parseCSV(line);
     const parsed = new Array(csv.length).fill('_');
@@ -48,7 +54,7 @@ export function findHeaderRow(lines: string[]): [number, string[]] {
         }
       }
     }
-    const [valid, missing] = validate_csv_format(parsed);
+    const [valid, missing] = validate_csv_format(parsed, extended);
     if (valid) {
       return [i, parsed];
     } else if (missing.length < notFound.length) notFound = missing;
@@ -91,9 +97,10 @@ function parseContent(
 
 export function parseFile(
   lines: string[],
-  fallbackFormats: { [key: string]: number }[]
+  fallbackFormats: { [key: string]: number }[],
+  extended: boolean = false
 ): [boolean, { [key: string]: string | number }[] | string[]] {
-  const [headerIdx, headerFmt] = findHeaderRow(lines);
+  const [headerIdx, headerFmt] = findHeaderRow(lines, extended);
   if (headerIdx < 0) {
     for (const fmt of fallbackFormats) {
       const [valid, data] = parseContent(lines, fmt);

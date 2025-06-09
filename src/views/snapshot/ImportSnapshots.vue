@@ -1,52 +1,37 @@
 <script setup lang="ts">
 import SaveCancel from '@/components/buttons/SaveCancel.vue';
+import SnapshotImportBox from '@/components/display/SnapshotImportBox.vue';
+import MessageDialog from '@/components/modals/MessageDialog.vue';
 import { clearCache } from '@/lib/cache';
-import { DEFAULT_IMPORT_FORMAT } from '@/lib/constants';
 import { getAccountByName, getProviderByName, getUserByName } from '@/lib/data';
-import { parseCSV, processFormat } from '@/lib/formats/csv';
-import { fillGaps, requiredFields, validate_csv_format } from '@/lib/processing/snapshot';
 import { authenticatedRequest } from '@/lib/requests';
 import router from '@/router';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
 import ProgressSpinner from 'primevue/progressspinner';
-import Textarea from 'primevue/textarea';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 
-const replaceCommas = ['units', 'price', 'value', 'cost', 'absolute_change'];
-
-const fmt = ref(DEFAULT_IMPORT_FORMAT);
-const dataText = ref();
 const toast = useToast();
 const waiting = ref(false);
 
-function checkFormat(): boolean {
-  const format = processFormat(fmt.value);
-  const [valid, missing] = validate_csv_format(Object.keys(format), true);
-  if (!valid) {
-    toast.add({
-      summary: 'Error',
-      detail: `Format is missing the following fields: ${missing.join(',')}`,
-      group: 'bl',
-      severity: 'error',
-      life: 3000
-    });
-  }
-  return valid;
-}
+const rawData = ref<any[]>([]);
+const dataValid = ref<boolean>(false);
+
 const groupedData = ref<{ [key: string]: { [key: string]: any } }>({});
 const modal = ref(false);
 const numEntries = ref(0);
 const numBatches = ref(0);
 
-const process = async () => {
-  if (!checkFormat()) return;
+const showErrorDialog = ref<boolean>(false);
+const errorMessages = ref<string[]>([]);
 
-  const rows = dataText.value.split('\n');
-  const parsedRows = rows.map(parseCSV);
-  const format = processFormat(fmt.value);
+const displayError = (errors: string[]) => {
+  errorMessages.value = errors;
+  showErrorDialog.value = true;
+};
+
+const process = async () => {
   const data: { [key: string]: { [key: string]: any } } = {}; // date -> user -> snapshot[]
   const pushSnapshot = (timestamp: number, account_id: number, snapshot: any) => {
     numEntries.value++;
@@ -57,64 +42,47 @@ const process = async () => {
     }
     data[timestamp.toString()][account_id.toString()].push(snapshot);
   };
-
   try {
-    for (const row of parsedRows) {
-      const obj: { [key: string]: string | number } = {};
-      Object.entries(format).forEach(
-        ([key, idx]) =>
-          (obj[key] = replaceCommas.includes(key) ? row[idx].replace(',', '') : row[idx])
-      );
-      const provider = await getProviderByName(obj.provider.toString());
+    for (const row of rawData.value) {
+      const provider = await getProviderByName(row.provider.toString());
       if (!provider) {
         toast.add({
           summary: 'Error',
-          detail: `Invalid provider name '${obj.provider}'`,
+          detail: `Invalid provider name '${row.provider}'`,
           group: 'bl',
           severity: 'error',
           life: 3000
         });
         return cancel();
       }
-      const user = await getUserByName(obj.user.toString());
+      const user = await getUserByName(row.user.toString());
       if (!user) {
         toast.add({
           summary: 'Error',
-          detail: `Invalid user '${obj.user}'`,
+          detail: `Invalid user '${row.user}'`,
           group: 'bl',
           severity: 'error',
           life: 3000
         });
         return cancel();
       }
-      const account = await getAccountByName(obj.account.toString(), user.id, provider.id);
+      const account = await getAccountByName(row.account.toString(), user.id, provider.id);
       if (!account) {
         toast.add({
           summary: 'Error',
-          detail: `Invalid account for ${obj.user} with ${obj.provider}: '${obj.account}'`,
+          detail: `Invalid account for ${row.user} with ${row.provider}: '${row.account}'`,
           group: 'bl',
           severity: 'error',
           life: 3000
         });
         return cancel();
       }
-      obj.account_id = account.id;
-      const timestamp = Math.floor(Date.parse(obj.date.toString()) / 1000);
+      row.account_id = account.id;
+      const timestamp = Math.floor(Date.parse(row.date.toString()) / 1000);
       if (isNaN(timestamp)) {
         toast.add({
           summary: 'Error',
-          detail: `Invalid date '${obj.date}'`,
-          group: 'bl',
-          severity: 'error',
-          life: 3000
-        });
-        return cancel();
-      }
-      const [filled, err] = fillGaps(obj);
-      if (err != null) {
-        toast.add({
-          summary: 'Error',
-          detail: `An error has occurred: '${err}'`,
+          detail: `Invalid date '${row.date}'`,
           group: 'bl',
           severity: 'error',
           life: 3000
@@ -122,22 +90,23 @@ const process = async () => {
         return cancel();
       }
       const meta: any = {};
-      if (obj.region) meta.region = obj.region;
-      if (obj.sector) meta.sector = obj.sector;
-      if (obj.annual_fee) meta.annual_fee = obj.annual_fee;
-      pushSnapshot(timestamp, obj.account_id, {
-        stock_name: filled.stock_name,
-        stock_code: filled.stock_code,
-        units: filled.units,
-        price: filled.price,
-        value: filled.value,
-        cost: filled.cost,
-        absolute_change: filled.absolute_change,
+      if (row.region) meta.region = row.region;
+      if (row.sector) meta.sector = row.sector;
+      if (row.annual_fee) meta.annual_fee = row.annual_fee;
+      pushSnapshot(timestamp, row.account_id, {
+        stock_name: row.stock_name,
+        stock_code: row.stock_code,
+        units: row.units,
+        price: row.price,
+        value: row.value,
+        cost: row.cost,
+        absolute_change: row.absolute_change,
         ...meta
       });
     }
     groupedData.value = data;
   } catch (e) {
+    console.error(e);
     toast.add({
       summary: 'Error',
       detail: `An error has occurred: '${e}'`,
@@ -200,6 +169,14 @@ const cancel = () => {
 
 <template>
   <h1>Import data</h1>
+  <MessageDialog
+    header="Error"
+    message-type="failure"
+    icon="pi pi-exclamation-triangle"
+    summary="An error occurred whilst trying to parse the input:"
+    v-model="showErrorDialog"
+    :messages="errorMessages"
+  />
   <Dialog v-model:visible="modal" header="Import" :closable="!waiting">
     <div class="dialog-container">
       <span
@@ -213,17 +190,19 @@ const cancel = () => {
     </div>
   </Dialog>
   <div class="container">
-    <span
-      >Required fields:
-      <template v-for="(field, i) in requiredFields(true, true)">
-        <pre style="display: inline">{{ i > 0 ? ',' : '' }}&nbsp;{{ field }}</pre>
-      </template>
-    </span>
-    <InputText v-model="fmt" placeholder="CSV Format" />
-    <Textarea v-model="dataText" :rows="15" placeholder="Data" />
+    <SnapshotImportBox
+      @error="displayError"
+      :account="undefined"
+      forbid-copy-previous
+      forbid-create-empty
+      extended
+      @file-upload="process"
+      v-model:data="rawData"
+      v-model:data-valid="dataValid"
+    />
     <div class="btn-container">
-      <Button label="Process" @click="process" />
       <Button label="Cancel" severity="secondary" @click="router.back()" />
+      <Button label="Process" @click="process" :disabled="!dataValid" />
     </div>
   </div>
 </template>
@@ -234,11 +213,13 @@ const cancel = () => {
   flex-direction: column;
   justify-content: center;
   row-gap: 1rem;
+  background-color: var(--surface-card);
+  padding: 3rem;
 }
 
 .btn-container {
   display: flex;
-  column-gap: 1rem;
+  justify-content: space-between;
 }
 
 .dialog-container {
