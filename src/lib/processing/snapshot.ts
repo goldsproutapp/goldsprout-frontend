@@ -79,7 +79,7 @@ export function validateSnapshotRowEdit(
   const newPrice = parseFloat(newData.price);
   let options: [string, number][][] = [];
   oldData.stock_code = newData.stock_code;
-  oldData.cost = newData.cost;
+  oldData.cost = newData.cost.toString();
   if (newData.stock_name != '') oldData.stock_name = newData.stock_name;
   if (Math.round((newUnits * newPrice) / 100) == Math.round(newValue)) {
     // @ts-expect-error this is safe, but it's difficult to convince the compiler of this due to the union type for SnapshotImportRow value.
