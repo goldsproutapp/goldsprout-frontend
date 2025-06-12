@@ -184,8 +184,10 @@ const onEditRowSave = (evt: DataTableRowEditSaveEvent) => {
 };
 
 const applyEditSuggestion = (option: [string, number][]) => {
-  option.forEach(
-    ([k, v]) => (data.value[editIdx.value][k] = v.toFixed(numDP(data.value[editIdx.value][k])))
+  const item = data.value[editIdx.value];
+  option.forEach(([k, v]) => (item[k] = v.toFixed(numDP(item[k]))));
+  item.absolute_change = (parseFloat(item.value) - parseFloat(item.cost)).toFixed(
+    numDP(item.absolute_change)
   );
   showEditOptionDialog.value = false;
 };

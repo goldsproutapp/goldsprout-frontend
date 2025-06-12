@@ -191,5 +191,8 @@ export function validateSnapshotRowEdit(
         ]);
     }
   }
+  oldData.absolute_change = (parseFloat(oldData.value) - parseFloat(oldData.cost)).toFixed(
+    numDP(oldData.absolute_change)
+  );
   return [oldData, options];
 }
