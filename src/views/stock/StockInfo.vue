@@ -31,6 +31,8 @@ import HoldingTable from '@/components/display/HoldingTable.vue';
 import SnapshotTable from '@/components/display/SnapshotTable.vue';
 import TabbedSection from '@/components/layout/TabbedSection.vue';
 import NotFound from '../auth/NotFound.vue';
+import CompositionEditor from '@/components/modals/CompositionEditor.vue';
+import { summariseComposition } from '@/lib/formats/display';
 const props = defineProps<{
   id: string;
 }>();
@@ -41,6 +43,7 @@ const sectors = computed(() => dataState.sectors);
 
 const mergeModal = ref(false);
 const mergeInto = ref<Stock | null>(null);
+const showClassCompositionDialog = ref(false);
 
 const toast = useToast();
 
@@ -49,14 +52,16 @@ const snapshots = computed<SnapshotTableInfo[]>(
 );
 const snapshotLoading = ref(true);
 
-onMounted(async () => {
-  stock.value = await getStockByID(Number.parseInt(props.id)) || null;
-  if (stock.value !== null) stock.value = Object.assign({}, stock.value);
-  getRegions(true);
-  getSectors(true);
-  snapshotLoading.value = snapshots.value.length == 0;
-  getSnapshotsForStock(props.id, true).then((_) => {
-    snapshotLoading.value = false;
+onMounted(() => {
+  getStockByID(Number.parseInt(props.id)).then((v) => {
+    stock.value = v || null;
+    if (stock.value !== null) stock.value = Object.assign({}, stock.value);
+    getRegions(true);
+    getSectors(true);
+    snapshotLoading.value = snapshots.value.length == 0;
+    getSnapshotsForStock(props.id, true).then((_) => {
+      snapshotLoading.value = false;
+    });
   });
 });
 
@@ -135,10 +140,16 @@ const merge = async () => {
 
 <template>
   <div class="container" v-if="stock === null">
-      <NotFound message="This stock could not be found."/>
+    <NotFound message="This stock could not be found." />
   </div>
   <div class="container" v-else-if="stock === undefined">Loading...</div>
   <div class="container" v-else>
+    <CompositionEditor
+      v-model="showClassCompositionDialog"
+      comp-type="Class"
+      :init-comp="stock ? stock.class_composition : {}"
+      @close="(comp) => (stock ? (stock.class_composition = comp) : {})"
+    />
     <Inplace :closable="true" class="stock-title">
       <template #display>
         {{ stock.name }}
@@ -162,6 +173,11 @@ const merge = async () => {
           :max="100"
           :max-fraction-digits="2"
           suffix="%"
+        />
+        <span class="option-label">Class: </span>
+        <InputText
+          :value="summariseComposition(stock.class_composition)"
+          @click="showClassCompositionDialog = true"
         />
         <span class="option-label" style="display: flex; align-items: center">
           Needs attention:

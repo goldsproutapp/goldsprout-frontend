@@ -19,6 +19,7 @@ export interface Stock {
   currently_held: boolean;
   annual_fee: number;
   total_fee: number; // including provider fee
+  class_composition: { [key: string]: number };
 }
 
 export interface Provider {

@@ -15,8 +15,8 @@ import Panel from 'primevue/panel';
 import ProgressSpinner from 'primevue/progressspinner';
 import { capitalize, onActivated, computed, ref } from 'vue';
 
-const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Account', 'Stock'];
-const comparisonTargetOptions: string[] = ['Person', 'Provider', 'Account'];
+const comparisonOptions: string[] = ['All', 'Region', 'Sector', 'Provider', 'Account', 'Stock', 'Class'];
+const comparisonTargetOptions: string[] = ['Person', 'Provider', 'Account', 'Stock', 'Class'];
 const filter = ref();
 
 const fullscreenGraph = ref(false);

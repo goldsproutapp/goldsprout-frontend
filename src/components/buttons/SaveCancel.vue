@@ -6,10 +6,14 @@ const props = withDefaults(
   defineProps<{
     saveLabel?: string;
     cancelLabel?: string;
+    saveEnabled?: boolean;
+    cancelEnabled?: boolean;
   }>(),
   {
     saveLabel: 'Save',
-    cancelLabel: 'Cancel'
+    cancelLabel: 'Cancel',
+    saveEnabled: true,
+    cancelEnabled: true,
   }
 );
 </script>
@@ -19,6 +23,7 @@ const props = withDefaults(
     class="button"
     type="button"
     :label="cancelLabel"
+    :disabled="!cancelEnabled"
     severity="danger"
     @click="$emit('cancel')"
   />
@@ -26,6 +31,7 @@ const props = withDefaults(
     class="button"
     type="button"
     :label="saveLabel"
+    :disabled="!saveEnabled"
     severity="success"
     @click="$emit('save')"
   />
